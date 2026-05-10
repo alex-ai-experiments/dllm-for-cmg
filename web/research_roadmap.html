@@ -1,0 +1,1015 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Research Roadmap — Diffusion Language Models for Commit Message Generation</title>
+<style>
+  :root {
+    --bg: #0f1117;
+    --card: #1a1d2e;
+    --card-hover: #222640;
+    --accent: #6c5ce7;
+    --accent2: #00cec9;
+    --accent3: #fd79a8;
+    --accent4: #fdcb6e;
+    --accent5: #55efc4;
+    --text: #dfe6e9;
+    --text-muted: #a0a8b4;
+    --border: #2d3250;
+    --positive: #00b894;
+    --negative: #e17055;
+    --neutral: #74b9ff;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    padding: 2rem;
+  }
+
+  .container { max-width: 1200px; margin: 0 auto; }
+
+  h1 {
+    text-align: center;
+    font-size: 2rem;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 0.5rem;
+  }
+
+  .subtitle {
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 1rem;
+    margin-bottom: 2rem;
+  }
+
+  /* ── Key Findings Panel ── */
+  .findings-panel {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  .findings-panel h2 {
+    font-size: 1.2rem;
+    color: var(--accent2);
+    margin-bottom: 1rem;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 0.5rem;
+  }
+  .findings-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1rem;
+  }
+  .finding-card {
+    background: rgba(108,92,231,0.08);
+    border: 1px solid rgba(108,92,231,0.2);
+    border-radius: 8px;
+    padding: 1rem;
+  }
+  .finding-card h3 {
+    font-size: 0.9rem;
+    color: var(--accent);
+    margin-bottom: 0.4rem;
+  }
+  .finding-card p {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+  }
+  .finding-card .ref {
+    font-size: 0.75rem;
+    color: var(--accent3);
+    margin-top: 0.5rem;
+    font-style: italic;
+  }
+
+  /* ── Research Questions ── */
+  .rq-section {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  .rq-section h2 {
+    font-size: 1.2rem;
+    color: var(--accent4);
+    margin-bottom: 1rem;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 0.5rem;
+  }
+  .rq-item {
+    background: rgba(253,203,110,0.06);
+    border-left: 3px solid var(--accent4);
+    padding: 0.8rem 1rem;
+    margin-bottom: 0.8rem;
+    border-radius: 0 8px 8px 0;
+  }
+  .rq-item strong {
+    color: var(--accent4);
+  }
+  .rq-item p {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    margin-top: 0.3rem;
+  }
+
+  /* ── Reasoning Section ── */
+  .reasoning-section {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  .reasoning-section h2 {
+    font-size: 1.2rem;
+    color: var(--accent3);
+    margin-bottom: 1rem;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 0.5rem;
+  }
+  .idea-row {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 1rem;
+    align-items: start;
+    padding: 0.8rem 0;
+    border-bottom: 1px solid rgba(45,50,80,0.5);
+  }
+  .idea-row:last-child { border-bottom: none; }
+  .idea-title {
+    font-weight: 600;
+    font-size: 0.95rem;
+    margin-bottom: 0.3rem;
+  }
+  .idea-text {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+  }
+  .verdict {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    white-space: nowrap;
+    margin-top: 0.2rem;
+  }
+  .verdict.good { background: rgba(0,184,148,0.15); color: var(--positive); border: 1px solid rgba(0,184,148,0.3); }
+  .verdict.mixed { background: rgba(116,185,255,0.15); color: var(--neutral); border: 1px solid rgba(116,185,255,0.3); }
+  .verdict.risky { background: rgba(225,112,85,0.15); color: var(--negative); border: 1px solid rgba(225,112,85,0.3); }
+
+  /* ── Timeline ── */
+  .timeline-section {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  .timeline-section h2 {
+    font-size: 1.2rem;
+    color: var(--accent5);
+    margin-bottom: 1rem;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 0.5rem;
+  }
+
+  .week-block {
+    position: relative;
+    padding-left: 2rem;
+    margin-bottom: 1.5rem;
+  }
+  .week-block::before {
+    content: '';
+    position: absolute;
+    left: 7px;
+    top: 0;
+    bottom: -1.5rem;
+    width: 2px;
+    background: linear-gradient(180deg, var(--accent), var(--accent2));
+  }
+  .week-block:last-child::before { bottom: 0; }
+  .week-block::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 4px;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--accent);
+    border: 3px solid var(--bg);
+  }
+
+  .week-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.5rem;
+  }
+  .week-date {
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: var(--accent2);
+  }
+  .week-title {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    font-style: italic;
+  }
+  .phase-badge {
+    display: inline-block;
+    font-size: 0.7rem;
+    padding: 0.15rem 0.5rem;
+    border-radius: 12px;
+    font-weight: 600;
+  }
+  .phase-badge.experiments { background: rgba(108,92,231,0.2); color: var(--accent); }
+  .phase-badge.writing { background: rgba(253,121,168,0.2); color: var(--accent3); }
+  .phase-badge.reading { background: rgba(253,203,110,0.2); color: var(--accent4); }
+  .phase-badge.analysis { background: rgba(0,206,201,0.2); color: var(--accent2); }
+
+  .task-list {
+    list-style: none;
+    padding: 0;
+  }
+  .task-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    padding: 0.3rem 0;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+  }
+  .task-list li input[type="checkbox"] {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 18px;
+    height: 18px;
+    min-width: 18px;
+    border: 2px solid var(--accent);
+    border-radius: 4px;
+    background: transparent;
+    cursor: pointer;
+    position: relative;
+    top: 2px;
+    transition: all 0.2s;
+  }
+  .task-list li input[type="checkbox"]:checked {
+    background: var(--accent);
+    border-color: var(--accent);
+  }
+  .task-list li input[type="checkbox"]:checked::after {
+    content: '✓';
+    position: absolute;
+    top: -2px;
+    left: 2px;
+    font-size: 13px;
+    color: #fff;
+    font-weight: bold;
+  }
+  .task-list li input[type="checkbox"]:checked + span {
+    text-decoration: line-through;
+    color: rgba(160,168,180,0.5);
+  }
+  .task-list li .tag {
+    font-size: 0.7rem;
+    padding: 0.1rem 0.4rem;
+    border-radius: 8px;
+    margin-left: 0.3rem;
+    white-space: nowrap;
+  }
+  .tag.gpu { background: rgba(255,118,117,0.2); color: #ff7675; }
+  .tag.paper { background: rgba(253,203,110,0.2); color: var(--accent4); }
+  .tag.code { background: rgba(108,92,231,0.2); color: var(--accent); }
+  .tag.write { background: rgba(253,121,168,0.2); color: var(--accent3); }
+  .tag.critical { background: rgba(225,112,85,0.25); color: var(--negative); }
+
+  /* ── Gantt-style overview ── */
+  .gantt-section {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    overflow-x: auto;
+  }
+  .gantt-section h2 {
+    font-size: 1.2rem;
+    color: var(--accent);
+    margin-bottom: 1rem;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 0.5rem;
+  }
+  .gantt-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.8rem;
+    min-width: 800px;
+  }
+  .gantt-table th {
+    padding: 0.4rem 0.3rem;
+    color: var(--text-muted);
+    font-weight: 600;
+    text-align: center;
+    border-bottom: 1px solid var(--border);
+  }
+  .gantt-table td {
+    padding: 0.4rem 0.3rem;
+    text-align: center;
+    border-bottom: 1px solid rgba(45,50,80,0.3);
+  }
+  .gantt-table td:first-child {
+    text-align: left;
+    font-weight: 500;
+    white-space: nowrap;
+    padding-right: 1rem;
+    color: var(--text);
+  }
+  .bar {
+    display: inline-block;
+    height: 16px;
+    border-radius: 4px;
+    width: 90%;
+  }
+  .bar.exp { background: linear-gradient(90deg, var(--accent), rgba(108,92,231,0.5)); }
+  .bar.read { background: linear-gradient(90deg, var(--accent4), rgba(253,203,110,0.5)); }
+  .bar.write { background: linear-gradient(90deg, var(--accent3), rgba(253,121,168,0.5)); }
+  .bar.analysis { background: linear-gradient(90deg, var(--accent2), rgba(0,206,201,0.5)); }
+
+  .legend {
+    display: flex;
+    gap: 1.5rem;
+    margin-top: 0.75rem;
+    flex-wrap: wrap;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+  }
+  .legend-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 3px;
+  }
+
+  /* ── Stats ── */
+  .stats-bar {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+  .stat-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1rem;
+    text-align: center;
+  }
+  .stat-card .num {
+    font-size: 1.8rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .stat-card .label {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-top: 0.2rem;
+  }
+
+  /* ── Paper reading list ── */
+  .paper-list {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  .paper-list h2 {
+    font-size: 1.2rem;
+    color: var(--accent4);
+    margin-bottom: 1rem;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 0.5rem;
+  }
+  .paper-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 0.8rem;
+  }
+  .paper-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    padding: 0.5rem;
+    border-radius: 6px;
+    transition: background 0.2s;
+  }
+  .paper-item:hover { background: rgba(108,92,231,0.05); }
+  .paper-item input[type="checkbox"] {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 16px;
+    height: 16px;
+    min-width: 16px;
+    border: 2px solid var(--accent4);
+    border-radius: 3px;
+    background: transparent;
+    cursor: pointer;
+    position: relative;
+    top: 3px;
+    transition: all 0.2s;
+  }
+  .paper-item input[type="checkbox"]:checked {
+    background: var(--accent4);
+    border-color: var(--accent4);
+  }
+  .paper-item input[type="checkbox"]:checked::after {
+    content: '✓';
+    position: absolute;
+    top: -3px;
+    left: 1px;
+    font-size: 12px;
+    color: var(--bg);
+    font-weight: bold;
+  }
+  .paper-item .paper-title {
+    font-size: 0.82rem;
+    color: var(--text);
+  }
+  .paper-item .paper-why {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+  }
+
+  /* progress bar */
+  .progress-container {
+    background: rgba(45,50,80,0.5);
+    border-radius: 10px;
+    height: 8px;
+    margin: 1rem 0;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    border-radius: 10px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    transition: width 0.5s;
+  }
+  .progress-label {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    text-align: right;
+  }
+
+  /* utility */
+  .note {
+    background: rgba(253,203,110,0.08);
+    border: 1px solid rgba(253,203,110,0.2);
+    border-radius: 8px;
+    padding: 0.8rem;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin-top: 0.5rem;
+  }
+  .note strong { color: var(--accent4); }
+
+  @media (max-width: 700px) {
+    body { padding: 1rem; }
+    h1 { font-size: 1.4rem; }
+    .findings-grid { grid-template-columns: 1fr; }
+    .paper-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+<h1>A Study of Diffusion Language Models for Commit Message Generation</h1>
+<p class="subtitle">Research Roadmap &middot; April 20 — June 1, 2026 (6 weeks)</p>
+
+<!-- Stats -->
+<div class="stats-bar">
+  <div class="stat-card"><div class="num">6</div><div class="label">Weeks Available</div></div>
+  <div class="stat-card"><div class="num">66</div><div class="label">Configs Already Tested</div></div>
+  <div class="stat-card"><div class="num">5</div><div class="label">Research Questions</div></div>
+  <div class="stat-card"><div class="num">4+</div><div class="label">Model Architectures</div></div>
+  <div class="stat-card"><div class="num">1K</div><div class="label">Eval Tasks Ready</div></div>
+</div>
+
+<!-- ════════════════════════════════════════════ -->
+<!-- KEY FINDINGS FROM LITERATURE                -->
+<!-- ════════════════════════════════════════════ -->
+<div class="findings-panel">
+  <h2>Key Insights from dLLM Literature</h2>
+  <div class="findings-grid">
+    <div class="finding-card">
+      <h3>EOS Overflow &amp; Length Control</h3>
+      <p>Instruction-tuned dLLMs suffer from <b>&lt;eos&gt; overflow</b>: as sequence length grows, outputs collapse into premature termination or padding. <b>Rainbow Padding</b> (7 distinct pad tokens, LoRA fine-tune for 1 epoch) fixes this cheaply. Separately, <b>LR-DLLM</b> decouples length from confidence for variable-length generation.</p>
+      <div class="ref">Rainbow Padding (arXiv:2510.03680) &middot; LR-DLLM (arXiv:2602.07546)</div>
+    </div>
+    <div class="finding-card">
+      <h3>AR → Diffusion Adaptation</h3>
+      <p><b>DiffuLLaMA</b> shows you can convert any AR model (GPT2, LLaMA 7B) into a diffusion model via continual pre-training on &lt;200B tokens. The adapted models do in-context learning and fill-in-the-middle. This validates your Gemma4/Qwen2.5 conversion plan.</p>
+      <div class="ref">DiffuLLaMA (arXiv:2410.17891, ICLR 2025)</div>
+    </div>
+    <div class="finding-card">
+      <h3>Code-Specific Diffusion</h3>
+      <p><b>DiffuCoder</b> (7B, 130B code tokens) reveals that dLLMs dynamically decide generation order — no fixed left-to-right. Temperature diversifies both token choice <i>and</i> generation order, creating rich RL search spaces. <b>Stable-DiffCoder</b> shows block diffusion CPT outperforms AR under same budget.</p>
+      <div class="ref">DiffuCoder (arXiv:2506.20639) &middot; Stable-DiffCoder (arXiv:2601.15892)</div>
+    </div>
+    <div class="finding-card">
+      <h3>Quantization for dLLMs</h3>
+      <p>First systematic PTQ study for dLLMs finds <b>activation outliers</b> are the key bottleneck. W8A8 works reasonably; W4 needs careful outlier-aware methods. Different tasks degrade differently — generation quality is more sensitive than understanding tasks.</p>
+      <div class="ref">Quantization Meets dLLMs (arXiv:2508.14896)</div>
+    </div>
+    <div class="finding-card">
+      <h3>Diffusion for Summarization</h3>
+      <p>Discrete diffusion with <b>semantic-aware noising</b> achieves SOTA on Gigaword/CNN/DailyMail summarization while being faster at inference than AR. This directly validates your dLLM-as-summarizer pipeline idea.</p>
+      <div class="ref">DiffuSum (arXiv:2407.10998, NAACL 2025)</div>
+    </div>
+    <div class="finding-card">
+      <h3>DiffusionBERT &amp; BERT-based dLLMs</h3>
+      <p>BERT can serve as initialization for discrete diffusion (absorbing state) with custom noise schedules. Token-level information-based noise scheduling significantly improves generation quality. Directly applicable to CommitBERT conversion.</p>
+      <div class="ref">DiffusionBERT (arXiv:2211.15029, ACL 2023)</div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════ -->
+<!-- RESEARCH QUESTIONS                          -->
+<!-- ════════════════════════════════════════════ -->
+<div class="rq-section">
+  <h2>Proposed Research Questions</h2>
+
+  <div class="rq-item">
+    <strong>RQ1:</strong> How do discrete diffusion language models compare to autoregressive baselines for commit message generation across quality metrics, throughput, and output length control?
+    <p>Grounded in your existing 66-config ablation. Addresses the core question: are dLLMs viable for CMG? Your data already shows dLLMs beat AR on METEOR/CIDEr but generate 2–4× more tokens, and lose on ROUGE-L/BLEU.</p>
+  </div>
+
+  <div class="rq-item">
+    <strong>RQ2:</strong> Can AR-to-diffusion model adaptation and domain-specific fine-tuning close the quality gap between general-purpose dLLMs and task-specialized AR models for commit message generation?
+    <p>Tests converting Qwen 2.5 Coder, Gemma 4, and CommitBERT into dLLMs + fine-tuning on your CMG training data. Measures whether domain knowledge (code understanding) transfers through the diffusion adaptation process.</p>
+  </div>
+
+  <div class="rq-item">
+    <strong>RQ3:</strong> What is the effect of inference-time optimization techniques (KV caching, speculative decoding, quantization, length regularization) on dLLM efficiency for structured short-text generation?
+    <p>Investigates the practical deployment angle: quantized LLaDA 2 mini, Fast-dLLM speedups, Rainbow Padding for length control. Commit messages are short (typically &lt;72 chars for subject), making length control especially important.</p>
+  </div>
+
+  <div class="rq-item">
+    <strong>RQ4:</strong> Can a two-stage pipeline (dLLM code summarizer → LLM commit message generator) outperform end-to-end approaches by reducing context length and leveraging the parallel decoding strengths of diffusion models?
+    <p>Your novel architectural contribution. dLLMs can process the full diff in parallel and produce a compact summary; the LLM then generates the final commit message from a much shorter context. Tests whether decomposition beats monolithic generation.</p>
+  </div>
+
+  <div class="rq-item">
+    <strong>RQ5:</strong> How do prompt engineering and in-context learning strategies differ in effectiveness between diffusion and autoregressive language models for commit message generation?
+    <p>dLLMs process the full prompt bidirectionally, so prompt design may have qualitatively different effects. Tests few-shot examples, structured prompts, and template-based in-context learning.</p>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════ -->
+<!-- REASONING ABOUT EACH IDEA                   -->
+<!-- ════════════════════════════════════════════ -->
+<div class="reasoning-section">
+  <h2>Evaluation of Proposed Research Directions</h2>
+
+  <div class="idea-row">
+    <div>
+      <div class="idea-title">1. Fix dLLM Over-Generation (more tokens than AR)</div>
+      <div class="idea-text">
+        <b>Strong idea.</b> Your data shows dLLMs generate 40–178 tokens vs AR's 16.6. This is a known problem: dLLMs lack a native stopping mechanism and fill the entire block. 
+        <b>Rainbow Padding</b> (LoRA fine-tune, 1 epoch, 7 pad tokens) and <b>LR-DLLM</b> (length-regularized inference) are proven solutions. 
+        For CMG specifically, you can also constrain max_new_tokens to 64 (your data shows mnt=64 already reaches near-peak quality at METEOR=0.103) and use <b>ρ-EOS</b> for variable-length control.
+        This is a <i>must-do</i> before any other experiments — it's the biggest confound in your current results.
+      </div>
+    </div>
+    <span class="verdict good">Essential &amp; Feasible</span>
+  </div>
+
+  <div class="idea-row">
+    <div>
+      <div class="idea-title">2. Convert Gemma 4, Qwen 2.5 Coder, CommitBERT to dLLMs</div>
+      <div class="idea-text">
+        <b>Good idea with precedent.</b> DiffuLLaMA (ICLR 2025) demonstrates AR→diffusion conversion for models up to 7B parameters. 
+        <b>Qwen 2.5 Coder</b> is the strongest candidate — it already understands code, and conversion should preserve that knowledge (DiffuLLaMA showed skill transfer). 
+        <b>Gemma 4</b> is interesting but likely too large for your GPU budget in 6 weeks. Consider the 2B variant. 
+        <b>CommitBERT</b> → DiffusionBERT-style conversion is novel for CMG and low-cost (encoder-only, small model). However, generating commit messages from a BERT-based model requires careful seq2seq architecture design.
+        <i>Risk:</i> Training compute. Focus on 1–2 models maximum.
+      </div>
+    </div>
+    <span class="verdict good">High Impact</span>
+  </div>
+
+  <div class="idea-row">
+    <div>
+      <div class="idea-title">3. Quantize LLaDA 2 Mini as a General dLLM</div>
+      <div class="idea-text">
+        <b>Feasible and well-timed.</b> The "Quantization Meets dLLMs" paper provides a systematic framework. LLaDA 2 mini is small enough for PTQ experimentation. 
+        W8A8 quantization typically preserves 95%+ quality; W4 is riskier for generation tasks. 
+        <i>Caveat:</i> LLaDA isn't code-specialized, so for CMG the quantized model may still underperform a code-tuned dLLM. 
+        This is best positioned as a <b>deployment efficiency</b> contribution rather than a quality improvement.
+      </div>
+    </div>
+    <span class="verdict mixed">Useful but Secondary</span>
+  </div>
+
+  <div class="idea-row">
+    <div>
+      <div class="idea-title">4. Fine-tune a dLLM for CMG Using Task Builder Data</div>
+      <div class="idea-text">
+        <b>Excellent idea — core contribution territory.</b> Fine-tuning dLLMs is underexplored for domain-specific tasks. Your training data pipeline is ready. 
+        LLaDA 1.5 introduced variance-reduced preference optimization for dLLMs; simpler SFT + LoRA should work for CMG. 
+        <b>Blockwise SFT</b> (arXiv:2508.19529) shows how to reconcile bidirectional attention with AR-like fine-tuning for block diffusion. 
+        This directly answers RQ2 and provides the strongest potential for publication — no one has fine-tuned a dLLM for commit message generation.
+      </div>
+    </div>
+    <span class="verdict good">Core Contribution</span>
+  </div>
+
+  <div class="idea-row">
+    <div>
+      <div class="idea-title">5. Prompt Engineering &amp; In-Context Learning for dLLMs</div>
+      <div class="idea-text">
+        <b>Low-cost, high-signal experiment.</b> DiffuLLaMA showed dLLMs can do ICL. But dLLMs process prompts bidirectionally, so prompt position/structure may matter differently than in AR models. 
+        "Thinking Inside the Mask" (arXiv:2508.10736) explores in-place prompting specifically for diffusion LLMs. 
+        <i>Warning:</i> Your current model (Fast-dLLM v2 1.5B) may be too small for strong ICL. Larger models (3B+) show much better few-shot performance.
+        This is a cheap experiment that can be done in parallel with training runs.
+      </div>
+    </div>
+    <span class="verdict mixed">Quick Win</span>
+  </div>
+
+  <div class="idea-row">
+    <div>
+      <div class="idea-title">6. Two-Stage Pipeline: dLLM Summarizer → LLM Generator</div>
+      <div class="idea-text">
+        <b>Novel and well-motivated.</b> DiffuSum proves dLLMs work for summarization. The key insight: dLLMs can process long diffs in parallel (no sequential bottleneck), producing a compact "code change summary" that an LLM then converts to a commit message. 
+        This addresses the context length problem elegantly and leverages dLLM's strength (parallel processing of full context) while avoiding its weakness (precise short-text generation). 
+        <i>Risk:</i> Error propagation — a bad summary produces a bad commit message. Needs careful evaluation of intermediate summaries. 
+        <b>SPREAD</b> (arXiv:2601.11342) shows RAG-augmented dLLMs suffer from "Response Semantic Drift" — the summary may drift from the original diff semantics. Consider their query-relevance-guided denoising.
+      </div>
+    </div>
+    <span class="verdict good">Novel Contribution</span>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════ -->
+<!-- GANTT OVERVIEW                              -->
+<!-- ════════════════════════════════════════════ -->
+<div class="gantt-section">
+  <h2>Timeline Overview (Gantt)</h2>
+  <table class="gantt-table">
+    <thead>
+      <tr>
+        <th style="text-align:left">Stream</th>
+        <th>W1<br><small>Apr 21–27</small></th>
+        <th>W2<br><small>Apr 28–May 4</small></th>
+        <th>W3<br><small>May 5–11</small></th>
+        <th>W4<br><small>May 12–18</small></th>
+        <th>W5<br><small>May 19–25</small></th>
+        <th>W6<br><small>May 26–Jun 1</small></th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>Length Control &amp; Baselines</td>
+        <td><div class="bar exp"></div></td><td><div class="bar exp"></div></td><td></td><td></td><td></td><td></td></tr>
+      <tr><td>AR→Diffusion Conversion</td>
+        <td><div class="bar exp"></div></td><td><div class="bar exp"></div></td><td><div class="bar exp"></div></td><td></td><td></td><td></td></tr>
+      <tr><td>Fine-tuning dLLM for CMG</td>
+        <td></td><td><div class="bar exp"></div></td><td><div class="bar exp"></div></td><td><div class="bar exp"></div></td><td></td><td></td></tr>
+      <tr><td>Quantization (LLaDA 2 mini)</td>
+        <td></td><td></td><td><div class="bar exp"></div></td><td><div class="bar exp"></div></td><td></td><td></td></tr>
+      <tr><td>Prompt Eng. &amp; ICL</td>
+        <td></td><td></td><td></td><td><div class="bar exp"></div></td><td><div class="bar exp"></div></td><td></td></tr>
+      <tr><td>Two-Stage Pipeline</td>
+        <td></td><td></td><td></td><td><div class="bar exp"></div></td><td><div class="bar exp"></div></td><td></td></tr>
+      <tr><td>Paper Reading</td>
+        <td><div class="bar read"></div></td><td><div class="bar read"></div></td><td><div class="bar read"></div></td><td></td><td></td><td></td></tr>
+      <tr><td>Analysis &amp; Viz</td>
+        <td></td><td></td><td></td><td><div class="bar analysis"></div></td><td><div class="bar analysis"></div></td><td></td></tr>
+      <tr><td>Writing</td>
+        <td></td><td></td><td></td><td><div class="bar write"></div></td><td><div class="bar write"></div></td><td><div class="bar write"></div></td></tr>
+    </tbody>
+  </table>
+  <div class="legend">
+    <div class="legend-item"><div class="legend-dot" style="background:var(--accent)"></div> Experiments / GPU</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--accent4)"></div> Paper Reading</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--accent2)"></div> Analysis</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--accent3)"></div> Writing</div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════ -->
+<!-- DETAILED WEEKLY TIMELINE                    -->
+<!-- ════════════════════════════════════════════ -->
+<div class="timeline-section">
+  <h2>Detailed Weekly Plan</h2>
+
+  <!-- WEEK 1 -->
+  <div class="week-block">
+    <div class="week-header">
+      <span class="week-date">Week 1 — Apr 21–27</span>
+      <span class="phase-badge experiments">Experiments</span>
+      <span class="phase-badge reading">Reading</span>
+    </div>
+    <ul class="task-list">
+      <li><input type="checkbox"><span>Implement Rainbow Padding for Fast-dLLM v2 — fix over-generation <span class="tag code">code</span> <span class="tag critical">critical</span></span></li>
+      <li><input type="checkbox"><span>Re-run best configs (bs16_sbs4, th=0.8–1.0) with length control; target avg_gen_tokens ≈ 16–25 <span class="tag gpu">GPU</span></span></li>
+      <li><input type="checkbox"><span>Implement mnt=64 baseline (your data shows near-peak quality) <span class="tag gpu">GPU</span></span></li>
+      <li><input type="checkbox"><span>Start AR→diffusion conversion for Qwen 2.5 Coder 1.5B (setup, data prep) <span class="tag code">code</span></span></li>
+      <li><input type="checkbox"><span>Read: DiffuLLaMA, DiffuCoder, Rainbow Padding, LR-DLLM <span class="tag paper">paper</span></span></li>
+      <li><input type="checkbox"><span>Read: Block Diffusion (ICLR 2025), MDLM (NeurIPS 2024) <span class="tag paper">paper</span></span></li>
+      <li><input type="checkbox"><span>Read: DiffusionBERT (ACL 2023) for CommitBERT conversion approach <span class="tag paper">paper</span></span></li>
+    </ul>
+  </div>
+
+  <!-- WEEK 2 -->
+  <div class="week-block">
+    <div class="week-header">
+      <span class="week-date">Week 2 — Apr 28 – May 4</span>
+      <span class="phase-badge experiments">Experiments</span>
+      <span class="phase-badge reading">Reading</span>
+    </div>
+    <ul class="task-list">
+      <li><input type="checkbox"><span>Complete length-controlled dLLM evaluation (1K tasks); compare to AR baseline with matched output length <span class="tag gpu">GPU</span></span></li>
+      <li><input type="checkbox"><span>Launch Qwen 2.5 Coder → diffusion continual pre-training (follow DiffuLLaMA recipe) <span class="tag gpu">GPU</span></span></li>
+      <li><input type="checkbox"><span>Set up CommitBERT → DiffusionBERT conversion pipeline <span class="tag code">code</span></span></li>
+      <li><input type="checkbox"><span>Prepare CMG fine-tuning dataset from task builder (train_tasks.jsonl) <span class="tag code">code</span></span></li>
+      <li><input type="checkbox"><span>Start fine-tuning Fast-dLLM v2 on CMG data (LoRA, small learning rate) <span class="tag gpu">GPU</span></span></li>
+      <li><input type="checkbox"><span>Read: Stable-DiffCoder, DiffuSum, Blockwise SFT <span class="tag paper">paper</span></span></li>
+      <li><input type="checkbox"><span>Read: "Quantization Meets dLLMs", "Super Data Learners" <span class="tag paper">paper</span></span></li>
+    </ul>
+  </div>
+
+  <!-- WEEK 3 -->
+  <div class="week-block">
+    <div class="week-header">
+      <span class="week-date">Week 3 — May 5–11</span>
+      <span class="phase-badge experiments">Experiments</span>
+      <span class="phase-badge reading">Reading</span>
+    </div>
+    <ul class="task-list">
+      <li><input type="checkbox"><span>Evaluate Qwen2.5-Coder-dLLM on CMG tasks (if training converged) <span class="tag gpu">GPU</span></span></li>
+      <li><input type="checkbox"><span>Evaluate fine-tuned Fast-dLLM v2 on CMG tasks <span class="tag gpu">GPU</span></span></li>
+      <li><input type="checkbox"><span>Evaluate CommitBERT-Diffusion if ready (likely smaller eval) <span class="tag gpu">GPU</span></span></li>
+      <li><input type="checkbox"><span>Set up LLaDA 2 mini quantization pipeline (W8A8, W4A16) <span class="tag code">code</span></span></li>
+      <li><input type="checkbox"><span>Run quantized LLaDA 2 mini on CMG tasks <span class="tag gpu">GPU</span></span></li>
+      <li><input type="checkbox"><span>Read: SPREAD (RAG for dLLMs), "Thinking Inside the Mask", Diffusion of Thought <span class="tag paper">paper</span></span></li>
+      <li><input type="checkbox"><span>Begin outlining paper structure and related work section <span class="tag write">write</span></span></li>
+    </ul>
+  </div>
+
+  <!-- WEEK 4 -->
+  <div class="week-block">
+    <div class="week-header">
+      <span class="week-date">Week 4 — May 12–18</span>
+      <span class="phase-badge experiments">Experiments</span>
+      <span class="phase-badge analysis">Analysis</span>
+      <span class="phase-badge writing">Writing</span>
+    </div>
+    <ul class="task-list">
+      <li><input type="checkbox"><span>Prompt engineering experiments: zero-shot, few-shot (1,3,5), structured templates <span class="tag gpu">GPU</span></span></li>
+      <li><input type="checkbox"><span>In-context learning comparison: AR vs dLLM with same few-shot examples <span class="tag gpu">GPU</span></span></li>
+      <li><input type="checkbox"><span>Build two-stage pipeline prototype: dLLM summarizer + LLM CMG <span class="tag code">code</span></span></li>
+      <li><input type="checkbox"><span>Run two-stage pipeline on evaluation set <span class="tag gpu">GPU</span></span></li>
+      <li><input type="checkbox"><span>Aggregate all results into unified comparison table <span class="tag code">code</span></span></li>
+      <li><input type="checkbox"><span>Generate publication-quality plots (quality vs throughput Pareto frontiers, per-RQ breakdowns) <span class="tag code">code</span></span></li>
+      <li><input type="checkbox"><span>Draft: Introduction, Methodology sections <span class="tag write">write</span></span></li>
+    </ul>
+  </div>
+
+  <!-- WEEK 5 -->
+  <div class="week-block">
+    <div class="week-header">
+      <span class="week-date">Week 5 — May 19–25</span>
+      <span class="phase-badge analysis">Analysis</span>
+      <span class="phase-badge writing">Writing</span>
+    </div>
+    <ul class="task-list">
+      <li><input type="checkbox"><span>Run any remaining experiments / fill gaps in results tables <span class="tag gpu">GPU</span></span></li>
+      <li><input type="checkbox"><span>Statistical significance testing on key comparisons <span class="tag code">code</span></span></li>
+      <li><input type="checkbox"><span>Qualitative analysis: select 10–20 examples showing dLLM vs AR generation patterns <span class="tag code">code</span></span></li>
+      <li><input type="checkbox"><span>Build interactive results viewer (update existing 80_build_results_viewer.py) <span class="tag code">code</span></span></li>
+      <li><input type="checkbox"><span>Draft: Experiments, Results, Discussion sections <span class="tag write">write</span></span></li>
+      <li><input type="checkbox"><span>Draft: Related Work (dLLMs, CMG, code summarization) <span class="tag write">write</span></span></li>
+    </ul>
+  </div>
+
+  <!-- WEEK 6 -->
+  <div class="week-block">
+    <div class="week-header">
+      <span class="week-date">Week 6 — May 26 – Jun 1</span>
+      <span class="phase-badge writing">Writing</span>
+    </div>
+    <ul class="task-list">
+      <li><input type="checkbox"><span>Complete full draft: Abstract, Conclusion, Threats to Validity <span class="tag write">write</span></span></li>
+      <li><input type="checkbox"><span>Finalize all figures and tables <span class="tag write">write</span></span></li>
+      <li><input type="checkbox"><span>Internal review pass: check narrative consistency across RQs <span class="tag write">write</span></span></li>
+      <li><input type="checkbox"><span>Proofread and format for submission <span class="tag write">write</span></span></li>
+      <li><input type="checkbox"><span>Prepare supplementary materials (code, configs, extended results) <span class="tag code">code</span></span></li>
+      <li><input type="checkbox"><span>Final submission / pre-print <span class="tag critical">critical</span></span></li>
+    </ul>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════ -->
+<!-- PAPER READING LIST                          -->
+<!-- ════════════════════════════════════════════ -->
+<div class="paper-list">
+  <h2>Essential Paper Reading List</h2>
+  <div class="paper-grid">
+    <div class="paper-item">
+      <input type="checkbox">
+      <div>
+        <div class="paper-title">LLaDA: Large Language Diffusion Models (arXiv:2502.09992)</div>
+        <div class="paper-why">Foundation — the primary masked diffusion LLM architecture</div>
+      </div>
+    </div>
+    <div class="paper-item">
+      <input type="checkbox">
+      <div>
+        <div class="paper-title">Block Diffusion (arXiv:2503.09573, ICLR 2025)</div>
+        <div class="paper-why">AR-diffusion interpolation — basis for block-level decoding</div>
+      </div>
+    </div>
+    <div class="paper-item">
+      <input type="checkbox">
+      <div>
+        <div class="paper-title">MDLM: Simple and Effective Masked Diffusion LMs (arXiv:2406.07524)</div>
+        <div class="paper-why">Core masked diffusion framework you may use for model conversion</div>
+      </div>
+    </div>
+    <div class="paper-item">
+      <input type="checkbox">
+      <div>
+        <div class="paper-title">Fast-dLLM v1 &amp; v2 (arXiv:2505.22618, arXiv:2509.26328)</div>
+        <div class="paper-why">Your primary model — understand KV cache + speculative decoding</div>
+      </div>
+    </div>
+    <div class="paper-item">
+      <input type="checkbox">
+      <div>
+        <div class="paper-title">DiffuLLaMA: Scaling DLMs via AR Adaptation (arXiv:2410.17891)</div>
+        <div class="paper-why">Direct recipe for your Qwen/Gemma conversion experiments</div>
+      </div>
+    </div>
+    <div class="paper-item">
+      <input type="checkbox">
+      <div>
+        <div class="paper-title">DiffuCoder (arXiv:2506.20639)</div>
+        <div class="paper-why">Code-specific dLLM insights + coupled-GRPO training</div>
+      </div>
+    </div>
+    <div class="paper-item">
+      <input type="checkbox">
+      <div>
+        <div class="paper-title">Stable-DiffCoder (arXiv:2601.15892)</div>
+        <div class="paper-why">Block diffusion for code — outperforms AR under same budget</div>
+      </div>
+    </div>
+    <div class="paper-item">
+      <input type="checkbox">
+      <div>
+        <div class="paper-title">DiffusionBERT (arXiv:2211.15029, ACL 2023)</div>
+        <div class="paper-why">BERT→diffusion conversion recipe for CommitBERT</div>
+      </div>
+    </div>
+    <div class="paper-item">
+      <input type="checkbox">
+      <div>
+        <div class="paper-title">Rainbow Padding (arXiv:2510.03680)</div>
+        <div class="paper-why">Fix EOS overflow — essential for your length control problem</div>
+      </div>
+    </div>
+    <div class="paper-item">
+      <input type="checkbox">
+      <div>
+        <div class="paper-title">LR-DLLM: Variable-Length Generation (arXiv:2602.07546)</div>
+        <div class="paper-why">Length-regularized inference without retraining</div>
+      </div>
+    </div>
+    <div class="paper-item">
+      <input type="checkbox">
+      <div>
+        <div class="paper-title">Quantization Meets dLLMs (arXiv:2508.14896)</div>
+        <div class="paper-why">Systematic PTQ study — guides your LLaDA 2 quantization</div>
+      </div>
+    </div>
+    <div class="paper-item">
+      <input type="checkbox">
+      <div>
+        <div class="paper-title">DiffuSum: Discrete Diffusion for Summarization (arXiv:2407.10998)</div>
+        <div class="paper-why">Validates dLLM summarizer in your two-stage pipeline</div>
+      </div>
+    </div>
+    <div class="paper-item">
+      <input type="checkbox">
+      <div>
+        <div class="paper-title">SPREAD: RAG for Diffusion LMs (arXiv:2601.11342)</div>
+        <div class="paper-why">Semantic drift problem — relevant to your pipeline design</div>
+      </div>
+    </div>
+    <div class="paper-item">
+      <input type="checkbox">
+      <div>
+        <div class="paper-title">Blockwise SFT for Diffusion LMs (arXiv:2508.19529)</div>
+        <div class="paper-why">Fine-tuning recipe for block diffusion models</div>
+      </div>
+    </div>
+    <div class="paper-item">
+      <input type="checkbox">
+      <div>
+        <div class="paper-title">Thinking Inside the Mask (arXiv:2508.10736)</div>
+        <div class="paper-why">In-place prompting for dLLMs — prompt engineering insights</div>
+      </div>
+    </div>
+    <div class="paper-item">
+      <input type="checkbox">
+      <div>
+        <div class="paper-title">Super Data Learners (arXiv:2511.03276)</div>
+        <div class="paper-why">dLLMs are more data-efficient than AR — supports fine-tuning on limited CMG data</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════ -->
+<!-- PROGRESS TRACKER                            -->
+<!-- ════════════════════════════════════════════ -->
+<div class="findings-panel">
+  <h2>Overall Progress</h2>
+  <div class="progress-label" id="progressLabel">0 / 39 tasks completed</div>
+  <div class="progress-container">
+    <div class="progress-fill" id="progressBar" style="width: 0%"></div>
+  </div>
+
+  <div class="note">
+    <strong>Tip:</strong> Check off tasks as you complete them. Progress is saved in your browser's local storage. 
+    The checkboxes are fully interactive — your state persists across page reloads.
+  </div>
+</div>
+
+</div><!-- /container -->
+
+<script>
+  // Persist checkbox state
+  const STORAGE_KEY = 'dllm-cmg-roadmap-state';
+
+  function saveState() {
+    const boxes = document.querySelectorAll('input[type="checkbox"]');
+    const state = Array.from(boxes).map(cb => cb.checked);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    updateProgress();
+  }
+
+  function loadState() {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return;
+    try {
+      const state = JSON.parse(raw);
+      const boxes = document.querySelectorAll('input[type="checkbox"]');
+      state.forEach((checked, i) => {
+        if (boxes[i]) boxes[i].checked = checked;
+      });
+    } catch(e) {}
+  }
+
+  function updateProgress() {
+    const boxes = document.querySelectorAll('input[type="checkbox"]');
+    const total = boxes.length;
+    const done = Array.from(boxes).filter(cb => cb.checked).length;
+    const pct = total > 0 ? Math.round((done / total) * 100) : 0;
+    document.getElementById('progressBar').style.width = pct + '%';
+    document.getElementById('progressLabel').textContent = done + ' / ' + total + ' tasks completed (' + pct + '%)';
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    loadState();
+    updateProgress();
+    document.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+      cb.addEventListener('change', saveState);
+    });
+  });
+</script>
+
+</body>
+</html>

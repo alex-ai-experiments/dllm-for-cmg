@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LLM Dataset & Task Visualizer</title>
+    <!-- Vue 3 and Chart.js loaded via CDN -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --bg-color: #f6f8fa;
+            --border-color: #d0d7de;
+            --added-bg: #e6ffec;
+            --added-text: #22863a;
+            --removed-bg: #ffeef0;
+            --removed-text: #cb2431;
+            --chunk-bg: #ddf4ff;
+            --chunk-text: #0969da;
+            --meta-text: #57606a;
+            --text-main: #24292f;
+            --accent-color: #0969da;
+        }
+
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; background-color: var(--bg-color); color: var(--text-main); margin: 0; padding: 20px; }
+        .container { max-width: 1200px; margin: 0 auto; background: white; padding: 20px; border-radius: 6px; border: 1px solid var(--border-color); box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+
+        .header-wrap { display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 1px solid var(--border-color); padding-bottom: 0; margin-bottom: 20px; }
+        
+        /* Tabs */
+        .tabs { display: flex; gap: 10px; }
+        .tab-btn { padding: 12px 20px; border: none; background: transparent; cursor: pointer; font-size: 16px; font-weight: 600; color: var(--meta-text); border-bottom: 3px solid transparent; border-radius: 6px 6px 0 0; }
+        .tab-btn:hover { background-color: var(--bg-color); }
+        .tab-btn.active { color: var(--text-main); border-bottom-color: var(--accent-color); }
+
+        h1 { font-size: 24px; margin: 0 0 10px 0; }
+
+        input[type="text"], input[type="number"], input[type="file"], select { padding: 6px 12px; border: 1px solid var(--border-color); border-radius: 4px; font-size: 14px; width: 100%; box-sizing: border-box; }
+        button { padding: 6px 12px; background-color: var(--bg-color); border: 1px solid var(--border-color); border-radius: 4px; cursor: pointer; font-size: 14px; color: var(--text-main); font-weight: 500; }
+        button:hover:not(:disabled) { background-color: #eaeef2; }
+        button:disabled { opacity: 0.5; cursor: not-allowed; }
+        .btn-primary { background-color: #2da44e; color: white; border-color: #2c974b; }
+        .btn-primary:hover:not(:disabled) { background-color: #2c974b; }
+        .btn-outline { background-color: white; color: var(--accent-color); border-color: var(--border-color); margin-bottom: 10px; }
+
+        .panel { margin-bottom: 20px; padding: 15px; background: var(--bg-color); border: 1px solid var(--border-color); border-radius: 6px; }
+        .filters-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 15px; margin-bottom: 15px; }
+        .filter-group label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 5px; }
+
+        .item-list { border: 1px solid var(--border-color); border-radius: 6px; background: white; max-height: 250px; overflow-y: auto; margin-bottom: 10px; }
+        .list-item { padding: 10px 15px; border-bottom: 1px solid var(--border-color); cursor: pointer; transition: background 0.1s; }
+        .list-item:last-child { border-bottom: none; }
+        .list-item:hover { background-color: #f3f4f6; }
+        .list-item.active { background-color: #ddf4ff; border-left: 4px solid var(--accent-color); padding-left: 11px; }
+        .list-item-title { font-weight: 600; margin-bottom: 4px; }
+        .list-item-meta { font-size: 12px; color: var(--meta-text); }
+        .pagination { display: flex; align-items: center; justify-content: space-between; font-size: 14px; }
+
+        .info-panel { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; padding: 15px; background: var(--bg-color); border-radius: 0 6px 6px 0; border: 1px solid var(--border-color); border-left: 4px solid var(--accent-color); }
+        .info-panel p { margin: 5px 0; font-size: 14px; }
+
+        /* Diff Viewer */
+        .diff-file { border: 1px solid var(--border-color); border-radius: 6px; margin-bottom: 20px; overflow: hidden; }
+        .diff-header { background-color: var(--bg-color); padding: 10px 15px; font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: 13px; font-weight: 600; border-bottom: 1px solid var(--border-color); }
+        .diff-body { background: white; font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: 12px; line-height: 1.5; overflow-x: auto; }
+        .diff-line { padding: 0 10px; white-space: pre; display: flex; }
+        .diff-line.added { background-color: var(--added-bg); color: var(--added-text); }
+        .diff-line.removed { background-color: var(--removed-bg); color: var(--removed-text); }
+        .diff-line.chunk { background-color: var(--chunk-bg); color: var(--chunk-text); }
+        .diff-line.meta { color: var(--meta-text); font-weight: bold; background-color: var(--bg-color); }
+        .diff-line.context { color: var(--text-main); }
+        .empty-state { text-align: center; padding: 40px; color: var(--meta-text); }
+
+        /* Messages (Tasks) */
+        .message-block { margin-bottom: 20px; border-radius: 6px; border: 1px solid var(--border-color); overflow: hidden; }
+        .message-role { padding: 8px 12px; font-weight: bold; font-size: 12px; text-transform: uppercase; border-bottom: 1px solid var(--border-color); }
+        .message-role.system { background-color: #f1f8ff; color: #0969da; }
+        .message-role.user { background-color: #e6fffa; color: #1e7e34; }
+        .message-content { padding: 15px; background: white; white-space: pre-wrap; font-family: ui-monospace, Consolas, monospace; font-size: 13px; }
+        
+        .task-label { padding: 10px; background: #fff8c5; border: 1px solid #e1b205; border-radius: 4px; font-weight: bold; margin-bottom: 20px; color: #9a6700; }
+
+        /* Modal & Dashboard Styles */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; z-index: 1000; padding: 20px; box-sizing: border-box; }
+        .modal-content { background: white; border-radius: 8px; width: 100%; max-width: 1000px; max-height: 95vh; overflow-y: auto; box-shadow: 0 8px 24px rgba(0,0,0,0.2); display: flex; flex-direction: column; }
+        .modal-header { padding: 15px 20px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; background: white; z-index: 10; }
+        .modal-header h2 { margin: 0; font-size: 20px; }
+        .modal-body { padding: 20px; }
+        
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-bottom: 25px; }
+        .stat-card { background: var(--bg-color); padding: 15px; border-radius: 6px; border: 1px solid var(--border-color); text-align: center; }
+        .stat-value { font-size: 24px; font-weight: bold; color: var(--accent-color); margin-bottom: 5px; }
+        .stat-label { font-size: 12px; color: var(--meta-text); text-transform: uppercase; letter-spacing: 0.5px; }
+        
+        .charts-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 20px; margin-bottom: 25px; }
+        .chart-card { background: white; border: 1px solid var(--border-color); border-radius: 6px; padding: 15px; }
+        .chart-title { font-size: 14px; font-weight: 600; margin-bottom: 15px; color: var(--text-main); text-align: center; }
+        .canvas-container { position: relative; height: 250px; width: 100%; }
+        
+        @media (max-width: 600px) { .charts-grid { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+    <div id="app" class="container">
+        
+        <!-- Header & Tabs -->
+        <div class="header-wrap">
+            <div class="tabs">
+                <button class="tab-btn" :class="{active: currentTab === 'diff'}" @click="currentTab = 'diff'">
+                    📦 Original Diff Viewer
+                </button>
+                <button class="tab-btn" :class="{active: currentTab === 'tasks'}" @click="currentTab = 'tasks'">
+                    🤖 LLM Tasks Viewer
+                </button>
+            </div>
+            <button class="btn-outline" @click="showModal = true" v-if="currentTab === 'diff'">📊 Dataset Stats</button>
+        </div>
+
+        <!-- ============================================== -->
+        <!-- TAB 1: ORIGINAL DIFF VIEWER (test.jsonl)       -->
+        <!-- ============================================== -->
+        <div v-show="currentTab === 'diff'">
+            <div class="panel">
+                <label><strong>1. Load JSONL File (test.jsonl):</strong></label>
+                <input type="file" accept=".jsonl" @change="handleFileUpload" style="margin-top: 10px;">
+            </div>
+
+            <div v-if="commits.length === 0" class="empty-state">
+                Please upload a dataset .jsonl file to view diffs.
+            </div>
+
+            <div class="panel" v-if="commits.length > 0">
+                <h3>2. Select a Commit</h3>
+                <div class="filters-grid">
+                    <div class="filter-group"><label>Search (Text/Author)</label><input type="text" v-model="filters.search" placeholder="e.g. fix bug..."></div>
+                    <div class="filter-group"><label>Regex Label (Message)</label><input type="text" v-model="filters.regexLabel" placeholder="e.g. ^(feat|fix)\("></div>
+                    <div class="filter-group"><label>Repo Name</label><input type="text" v-model="filters.repo" placeholder="e.g. airflow"></div>
+                    <div class="filter-group"><label>Commit SHA</label><input type="text" v-model="filters.commitSha" placeholder="e.g. e20325d"></div>
+                    <div class="filter-group"><label>File Extension</label><input type="text" v-model="filters.extension" placeholder="e.g. .py, .js"></div>
+                    <div class="filter-group"><label>Min Length</label><input type="number" v-model.number="filters.minLength" placeholder="0"></div>
+                    <div class="filter-group"><label>Max Length</label><input type="number" v-model.number="filters.maxLength" placeholder="∞"></div>
+                </div>
+
+                <div class="item-list" v-if="paginatedCommits.length > 0">
+                    <div v-for="item in paginatedCommits" :key="item.originalIndex" class="list-item" :class="{ active: selectedCommitIndex === item.originalIndex }" @click="selectCommit(item.originalIndex)">
+                        <div class="list-item-title">{{ item.commit.commit_sha.substring(0, 7) }} - {{ item.commit.message }}</div>
+                        <div class="list-item-meta">
+                            Repo: {{ item.commit.repo || 'N/A' }} | Author: {{ item.commit.author }} | Files: {{ item.commit.files ? item.commit.files.length : 0 }} | Diff size: {{ item.commit.diff ? item.commit.diff.length : 0 }} chars
+                        </div>
+                    </div>
+                </div>
+                <div v-else class="empty-state" style="padding: 20px;">No commits match your filters.</div>
+
+                <div class="pagination" v-if="filteredCommits.length > 0">
+                    <div>Showing {{ filteredCommits.length }} total results</div>
+                    <div>
+                        <button @click="currentPage--" :disabled="currentPage === 1">Previous</button>
+                        <span style="margin: 0 10px;">Page {{ currentPage }} of {{ totalPages }}</span>
+                        <button @click="currentPage++" :disabled="currentPage === totalPages">Next</button>
+                    </div>
+                </div>
+            </div>
+
+            <div v-if="selectedCommit" class="info-panel">
+                <div>
+                    <p><strong>Repo:</strong> {{ selectedCommit.owner }}/{{ selectedCommit.repo }}</p>
+                    <p><strong>Commit SHA:</strong> {{ selectedCommit.commit_sha }}</p>
+                    <p><strong>Author:</strong> {{ selectedCommit.author }} on {{ selectedCommit.date ? new Date(selectedCommit.date).toLocaleString() : 'N/A' }}</p>
+                    <p><strong>Message:</strong> {{ selectedCommit.message }}</p>
+                </div>
+                <div><button class="btn-primary" @click="openRawView">↗ View Raw Diff</button></div>
+            </div>
+
+            <div class="panel" v-if="selectedCommit">
+                <label style="display: block; margin-bottom: 10px;"><strong>3. View Mode (File Splitter):</strong></label>
+                <select v-model="selectedFileIndex">
+                    <option :value="-1">Show Whole Diff (All Files)</option>
+                    <option v-for="(file, index) in parsedFiles" :key="index" :value="index">Show only: {{ file.filename }}</option>
+                </select>
+            </div>
+
+            <div class="diff-viewer" v-if="selectedCommit">
+                <div class="diff-file" v-for="(file, index) in displayedFiles" :key="index">
+                    <div class="diff-header">📄 {{ file.filename }}</div>
+                    <div class="diff-body">
+                        <div v-for="(line, lineIdx) in file.lines" :key="lineIdx" :class="['diff-line', line.type]">{{ line.text }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- ============================================== -->
+        <!-- TAB 2: LLM TASKS VIEWER (tasks.jsonl)          -->
+        <!-- ============================================== -->
+        <div v-show="currentTab === 'tasks'">
+            <div class="panel">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <div>
+                        <label><strong>1. Load Tasks File (tasks.jsonl):</strong></label>
+                        <input type="file" accept=".jsonl" @change="handleTasksUpload" style="margin-top: 10px;">
+                    </div>
+                    <div>
+                        <label><strong>2. Load Task Stats (tasks_stats.json) [Optional]:</strong></label>
+                        <input type="file" accept=".json" @change="handleTaskStatsUpload" style="margin-top: 10px;">
+                    </div>
+                </div>
+            </div>
+
+            <div v-if="tasks.length === 0" class="empty-state">
+                Please upload a tasks .jsonl file generated by the python script to begin.
+            </div>
+
+            <div class="panel" v-if="tasks.length > 0">
+                <h3>3. Select a Task</h3>
+                <div class="filters-grid">
+                    <div class="filter-group">
+                        <label>Search (Task ID / Label)</label>
+                        <input type="text" v-model="taskFilters.search" placeholder="e.g. apache_airflow...">
+                    </div>
+                    <div class="filter-group">
+                        <label>Min Diff Length</label>
+                        <input type="number" v-model.number="taskFilters.minLength" placeholder="0">
+                    </div>
+                    <div class="filter-group">
+                        <label>Max Diff Length</label>
+                        <input type="number" v-model.number="taskFilters.maxLength" placeholder="∞">
+                    </div>
+                </div>
+
+                <div class="item-list" v-if="paginatedTasks.length > 0">
+                    <div v-for="item in paginatedTasks" :key="item.originalIndex" class="list-item" :class="{ active: selectedTaskIndex === item.originalIndex }" @click="selectTask(item.originalIndex)">
+                        <div class="list-item-title">{{ item.task.task_id }}</div>
+                        <div class="list-item-meta">
+                            Label: {{ item.task.label }} 
+                            <span v-if="taskStatsMap[item.task.task_id]">
+                                | Filtered Diff: {{ formatNumber(taskStatsMap[item.task.task_id].filtered_diff_length) }} chars
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <div v-else class="empty-state" style="padding: 20px;">No tasks match your filters.</div>
+
+                <div class="pagination" v-if="filteredTasks.length > 0">
+                    <div>Showing {{ filteredTasks.length }} total results</div>
+                    <div>
+                        <button @click="taskPage--" :disabled="taskPage === 1">Previous</button>
+                        <span style="margin: 0 10px;">Page {{ taskPage }} of {{ totalTaskPages }}</span>
+                        <button @click="taskPage++" :disabled="taskPage === totalTaskPages">Next</button>
+                    </div>
+                </div>
+            </div>
+
+            <div v-if="selectedTask">
+                <div class="task-label">
+                    🎯 Expected Model Output (Label): <br>
+                    <span style="font-family: monospace; color: #24292f; display: block; margin-top: 5px;">{{ selectedTask.label }}</span>
+                </div>
+
+                <!-- NEW: Information Panel mapping Tasks Stats -->
+                <div class="info-panel" v-if="taskStatsMap[selectedTask.task_id]">
+                    <div style="flex: 1; padding-right: 15px;">
+                        <p><strong>Original Label:</strong> <span style="font-family: monospace; color: #cb2431;">{{ taskStatsMap[selectedTask.task_id].original_label }}</span></p>
+                        <p><strong>Cleaned Label:</strong> <span style="font-family: monospace; color: #22863a;">{{ taskStatsMap[selectedTask.task_id].cleaned_label }}</span></p>
+                        <p v-if="taskStatsMap[selectedTask.task_id].programming_languages">
+                            <strong>Languages:</strong> {{ taskStatsMap[selectedTask.task_id].programming_languages.join(', ') }}
+                        </p>
+                        <p v-if="taskStatsMap[selectedTask.task_id].excluded_file_extensions">
+                            <strong>Excluded Exts:</strong> {{ taskStatsMap[selectedTask.task_id].excluded_file_extensions.join(', ') }}
+                        </p>
+                    </div>
+                    <div style="flex: 1;">
+                        <p><strong>Full Diff Length:</strong> {{ formatNumber(taskStatsMap[selectedTask.task_id].full_diff_length) }} chars</p>
+                        <p><strong>Filtered Diff Length:</strong> <span style="color: var(--accent-color); font-weight: bold;">{{ formatNumber(taskStatsMap[selectedTask.task_id].filtered_diff_length) }} chars</span></p>
+                        
+                        <div style="margin-top: 10px; max-height: 120px; overflow-y: auto; background: white; padding: 10px; border: 1px solid var(--border-color); border-radius: 4px;" v-if="taskStatsMap[selectedTask.task_id].diff_length_per_file">
+                            <strong style="font-size: 12px; display: block; margin-bottom: 5px;">Length Per File breakdown:</strong>
+                            <ul style="margin: 0; padding-left: 20px; font-size: 11px; color: var(--meta-text); font-family: ui-monospace, Consolas, monospace;">
+                                <li v-for="(len, file) in taskStatsMap[selectedTask.task_id].diff_length_per_file" :key="file">
+                                    {{ file }}: {{ formatNumber(len) }}
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <h3>Messages (Prompt payload)</h3>
+                
+                <div class="message-block" v-for="(msg, index) in selectedTask.messages" :key="index">
+                    <div class="message-role" :class="msg.role">Role: {{ msg.role }}</div>
+                    
+                    <div class="message-content">
+                        <template v-if="containsDiff(msg.content)">
+                            <div>{{ extractTextBeforeDiff(msg.content) }}</div>
+                            <div class="diff-viewer" style="margin: 15px 0;">
+                                <div class="diff-file" v-for="(file, fIdx) in parseDiff(extractDiff(msg.content))" :key="fIdx">
+                                    <div class="diff-header">📄 {{ file.filename }}</div>
+                                    <div class="diff-body">
+                                        <div v-for="(line, lineIdx) in file.lines" :key="lineIdx" :class="['diff-line', line.type]">{{ line.text }}</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div>{{ extractTextAfterDiff(msg.content) }}</div>
+                        </template>
+
+                        <template v-else>
+                            {{ msg.content }}
+                        </template>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- ============================================== -->
+        <!-- STATISTICS MODAL (Shared)                      -->
+        <!-- ============================================== -->
+        <div class="modal-overlay" v-if="showModal" @click.self="showModal = false">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Dataset Statistics & Analysis</h2>
+                    <button @click="showModal = false">✕ Close</button>
+                </div>
+                <div class="modal-body">
+                    
+                    <div class="panel" style="margin-top: 0;">
+                        <label><strong>Load exploration.json:</strong></label>
+                        <input type="file" accept=".json" @change="handleStatsUpload" style="margin-top: 10px;">
+                    </div>
+
+                    <div v-if="statsData">
+                        <div class="stats-grid">
+                            <div class="stat-card">
+                                <div class="stat-value">{{ formatNumber(statsData.summary.total_commits) }}</div>
+                                <div class="stat-label">Total Commits</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-value">{{ formatNumber(statsData.summary.avg_diff_length) }}</div>
+                                <div class="stat-label">Avg Diff Chars</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-value">{{ formatNumber(statsData.summary.max_diff_length) }}</div>
+                                <div class="stat-label">Max Diff Length</div>
+                            </div>
+                            <div class="stat-card" style="border-bottom-color: #2ea043; border-bottom-width: 3px;">
+                                <div class="stat-value" style="color:#2ea043">+{{ formatNumber(statsData.additions_vs_deletions.additions) }}</div>
+                                <div class="stat-label">Lines Added</div>
+                            </div>
+                            <div class="stat-card" style="border-bottom-color: #da3633; border-bottom-width: 3px;">
+                                <div class="stat-value" style="color:#da3633">-{{ formatNumber(statsData.additions_vs_deletions.deletions) }}</div>
+                                <div class="stat-label">Lines Removed</div>
+                            </div>
+                        </div>
+
+                        <div class="charts-grid">
+                            <div class="chart-card">
+                                <div class="chart-title">Diff Size Distribution (Characters)</div>
+                                <div class="canvas-container"><canvas id="lengthChart"></canvas></div>
+                            </div>
+                            <div class="chart-card">
+                                <div class="chart-title">Additions vs Deletions (LOC)</div>
+                                <div class="canvas-container"><canvas id="addDelChart"></canvas></div>
+                            </div>
+                            <div class="chart-card">
+                                <div class="chart-title">Commit Frequency (By Month)</div>
+                                <div class="canvas-container"><canvas id="timeChart"></canvas></div>
+                            </div>
+                            <div class="chart-card">
+                                <div class="chart-title">Top File Extensions Modified</div>
+                                <div class="canvas-container"><canvas id="extChart"></canvas></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div v-else class="empty-state" style="padding: 20px;">
+                        Waiting for exploration.json data...
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        const { createApp } = Vue;
+        
+        let chartInstances = { lengthChart: null, addDelChart: null, timeChart: null, extChart: null };
+
+        createApp({
+            data() {
+                return {
+                    // Global State
+                    currentTab: 'diff', // 'diff' | 'tasks'
+
+                    // TAB 1: Diff Viewer Data
+                    commits:[],
+                    selectedCommitIndex: null,
+                    selectedFileIndex: -1,
+                    itemsPerPage: 50,
+                    currentPage: 1,
+                    filters: { search: '', regexLabel: '', repo: '', commitSha: '', extension: '', minLength: null, maxLength: null },
+                    
+                    // TAB 2: Tasks Viewer Data
+                    tasks:[],
+                    taskStatsMap: {}, // Indexed via task_id
+                    selectedTaskIndex: null,
+                    taskPage: 1,
+                    taskFilters: { search: '', minLength: null, maxLength: null },
+
+                    // Modal Data
+                    showModal: false,
+                    statsData: null
+                }
+            },
+            computed: {
+                // --- DIFF COMPUTED ---
+                filteredCommits() {
+                    let result = this.commits.map((commit, index) => ({ commit, originalIndex: index }));
+                    
+                    // Regex Label Search
+                    if (this.filters.regexLabel) {
+                        try {
+                            const regex = new RegExp(this.filters.regexLabel, 'i');
+                            result = result.filter(item => {
+                                const c = item.commit;
+                                return c.message && regex.test(c.message);
+                            });
+                        } catch (e) {
+                            // Suppress error if the user is in the middle of typing an invalid regex
+                        }
+                    }
+
+                    if (this.filters.search) {
+                        const q = this.filters.search.toLowerCase();
+                        result = result.filter(item => {
+                            const c = item.commit;
+                            return (c.message && c.message.toLowerCase().includes(q)) ||
+                                   (c.author && c.author.toLowerCase().includes(q)) ||
+                                   (c.diff && c.diff.toLowerCase().includes(q));
+                        });
+                    }
+                    if (this.filters.repo) {
+                        const q = this.filters.repo.toLowerCase();
+                        result = result.filter(item => {
+                            const c = item.commit;
+                            return c.repo && c.repo.toLowerCase().includes(q);
+                        });
+                    }
+                    if (this.filters.commitSha) {
+                        const q = this.filters.commitSha.toLowerCase();
+                        result = result.filter(item => {
+                            const c = item.commit;
+                            return c.commit_sha && c.commit_sha.toLowerCase().includes(q);
+                        });
+                    }
+                    if (this.filters.extension) {
+                        const ext = this.filters.extension.toLowerCase();
+                        result = result.filter(item => {
+                            const c = item.commit;
+                            if (c.files && Array.isArray(c.files)) return c.files.some(f => f.toLowerCase().endsWith(ext));
+                            else if (c.diff) return c.diff.toLowerCase().includes(ext);
+                            return false;
+                        });
+                    }
+                    if (typeof this.filters.minLength === 'number') {
+                        result = result.filter(item => (item.commit.diff ? item.commit.diff.length : 0) >= this.filters.minLength);
+                    }
+                    if (typeof this.filters.maxLength === 'number') {
+                        result = result.filter(item => (item.commit.diff ? item.commit.diff.length : 0) <= this.filters.maxLength);
+                    }
+                    return result;
+                },
+                totalPages() { return Math.max(1, Math.ceil(this.filteredCommits.length / this.itemsPerPage)); },
+                paginatedCommits() {
+                    const start = (this.currentPage - 1) * this.itemsPerPage;
+                    return this.filteredCommits.slice(start, start + this.itemsPerPage);
+                },
+                selectedCommit() {
+                    if (this.selectedCommitIndex === null || this.commits.length === 0) return null;
+                    return this.commits[this.selectedCommitIndex];
+                },
+                parsedFiles() {
+                    if (!this.selectedCommit) return[];
+                    return this.parseDiff(this.selectedCommit.diff);
+                },
+                displayedFiles() {
+                    if (this.selectedFileIndex === -1) return this.parsedFiles;
+                    return[this.parsedFiles[this.selectedFileIndex]];
+                },
+
+                // --- TASKS COMPUTED ---
+                filteredTasks() {
+                    let result = this.tasks.map((task, index) => ({ task, originalIndex: index }));
+                    
+                    if (this.taskFilters.search) {
+                        const q = this.taskFilters.search.toLowerCase();
+                        result = result.filter(item => {
+                            const t = item.task;
+                            return (t.task_id && t.task_id.toLowerCase().includes(q)) ||
+                                   (t.label && t.label.toLowerCase().includes(q));
+                        });
+                    }
+
+                    if (typeof this.taskFilters.minLength === 'number') {
+                        result = result.filter(item => {
+                            const stats = this.taskStatsMap[item.task.task_id];
+                            const len = stats ? stats.filtered_diff_length : 0;
+                            return len >= this.taskFilters.minLength;
+                        });
+                    }
+
+                    if (typeof this.taskFilters.maxLength === 'number') {
+                        result = result.filter(item => {
+                            const stats = this.taskStatsMap[item.task.task_id];
+                            const len = stats ? stats.filtered_diff_length : 0;
+                            return len <= this.taskFilters.maxLength;
+                        });
+                    }
+
+                    return result;
+                },
+                totalTaskPages() { return Math.max(1, Math.ceil(this.filteredTasks.length / this.itemsPerPage)); },
+                paginatedTasks() {
+                    const start = (this.taskPage - 1) * this.itemsPerPage;
+                    return this.filteredTasks.slice(start, start + this.itemsPerPage);
+                },
+                selectedTask() {
+                    if (this.selectedTaskIndex === null || this.tasks.length === 0) return null;
+                    return this.tasks[this.selectedTaskIndex];
+                }
+            },
+            watch: {
+                filters: { deep: true, handler() { this.currentPage = 1; } },
+                selectedCommitIndex() { this.selectedFileIndex = -1; },
+                
+                taskFilters: { deep: true, handler() { this.taskPage = 1; } },
+
+                showModal(val) {
+                    if (!val) this.destroyCharts();
+                    else if (this.statsData) this.renderCharts();
+                }
+            },
+            methods: {
+                // --- CORE METHODS ---
+                handleFileUpload(event) {
+                    const file = event.target.files[0];
+                    if (!file) return;
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        const lines = e.target.result.split('\n').filter(line => line.trim() !== '');
+                        try {
+                            this.commits = lines.map(line => JSON.parse(line));
+                            this.selectedCommitIndex = this.commits.length > 0 ? 0 : null;
+                            this.selectedFileIndex = -1;
+                            this.currentPage = 1;
+                            this.filters = { search: '', regexLabel: '', repo: '', commitSha: '', extension: '', minLength: null, maxLength: null };
+                        } catch (error) {
+                            alert("Error parsing JSONL.");
+                        }
+                    };
+                    reader.readAsText(file);
+                },
+                handleTasksUpload(event) {
+                    const file = event.target.files[0];
+                    if (!file) return;
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        const lines = e.target.result.split('\n').filter(line => line.trim() !== '');
+                        try {
+                            this.tasks = lines.map(line => JSON.parse(line));
+                            this.selectedTaskIndex = this.tasks.length > 0 ? 0 : null;
+                            this.taskPage = 1;
+                            this.taskFilters = { search: '', minLength: null, maxLength: null };
+                        } catch (error) {
+                            alert("Error parsing tasks JSONL.");
+                        }
+                    };
+                    reader.readAsText(file);
+                },
+                handleTaskStatsUpload(event) {
+                    const file = event.target.files[0];
+                    if (!file) return;
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        try {
+                            const parsed = JSON.parse(e.target.result);
+                            const map = {};
+                            
+                            // Supports both array of objects OR dictionary formats 
+                            if (Array.isArray(parsed)) {
+                                parsed.forEach(stat => {
+                                    if (stat.task_id) map[stat.task_id] = stat;
+                                });
+                            } else {
+                                if (parsed.task_id) {
+                                    map[parsed.task_id] = parsed;
+                                } else {
+                                    for (const key in parsed) {
+                                        const stat = parsed[key];
+                                        if (stat && stat.task_id) {
+                                            map[stat.task_id] = stat;
+                                        } else if (stat && !stat.task_id) {
+                                            stat.task_id = key;
+                                            map[key] = stat;
+                                        }
+                                    }
+                                }
+                            }
+                            this.taskStatsMap = map;
+                            this.taskPage = 1; // reset pagination to ensure length filters take effect reliably
+                        } catch (error) {
+                            alert("Error parsing tasks_stats.json. Ensure it's valid JSON.");
+                        }
+                    };
+                    reader.readAsText(file);
+                },
+                selectCommit(originalIndex) { this.selectedCommitIndex = originalIndex; },
+                selectTask(originalIndex) { this.selectedTaskIndex = originalIndex; },
+                openRawView() {
+                    if (!this.selectedCommit || !this.selectedCommit.diff) return;
+                    const blob = new Blob([this.selectedCommit.diff], { type: 'text/plain' });
+                    window.open(URL.createObjectURL(blob), '_blank');
+                },
+                
+                // --- DIFF PARSING ENGINE (Shared) ---
+                parseDiff(diffStr) {
+                    if (!diffStr) return[];
+                    const files =[];
+                    let currentFile = { filename: 'Unknown / Root', lines:[] };
+                    let fileStarted = false;
+                    for (const line of diffStr.split('\n')) {
+                        if (line.startsWith('diff --git')) {
+                            if (fileStarted) files.push(currentFile);
+                            const match = line.match(/diff --git a\/(.+?) b\//);
+                            currentFile = { filename: match ? match[1] : 'Unknown File', lines:[] };
+                            fileStarted = true;
+                        }
+                        let type = 'context';
+                        if (line.startsWith('+++') || line.startsWith('---') || line.startsWith('diff ') || line.startsWith('index ')) type = 'meta';
+                        else if (line.startsWith('+')) type = 'added';
+                        else if (line.startsWith('-')) type = 'removed';
+                        else if (line.startsWith('@@')) type = 'chunk';
+                        currentFile.lines.push({ text: line, type });
+                    }
+                    if (currentFile.lines.length > 0) files.push(currentFile);
+                    return files;
+                },
+
+                // --- TASKS CONTENT SPLITTING ---
+                containsDiff(content) {
+                    return content.includes("--- START OF CODE DIFF ---") && content.includes("--- END OF CODE DIFF ---");
+                },
+                extractTextBeforeDiff(content) {
+                    const splitIdx = content.indexOf("--- START OF CODE DIFF ---");
+                    if (splitIdx !== -1) return content.substring(0, splitIdx).trim();
+                    return "";
+                },
+                extractDiff(content) {
+                    const startTag = "--- START OF CODE DIFF ---\n";
+                    const endTag = "\n--- END OF CODE DIFF ---";
+                    const startIdx = content.indexOf(startTag);
+                    const endIdx = content.indexOf(endTag);
+                    if (startIdx !== -1 && endIdx !== -1) {
+                        return content.substring(startIdx + startTag.length, endIdx);
+                    }
+                    return "";
+                },
+                extractTextAfterDiff(content) {
+                    const endTag = "--- END OF CODE DIFF ---";
+                    const splitIdx = content.indexOf(endTag);
+                    if (splitIdx !== -1) return content.substring(splitIdx + endTag.length).trim();
+                    return "";
+                },
+
+                formatNumber(num) { return (num || 0).toLocaleString(); },
+                
+                // --- CHART LOGIC ---
+                handleStatsUpload(event) {
+                    const file = event.target.files[0];
+                    if (!file) return;
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        try {
+                            this.statsData = JSON.parse(e.target.result);
+                            this.renderCharts();
+                        } catch (error) { alert("Error parsing exploration.json."); }
+                    };
+                    reader.readAsText(file);
+                },
+                destroyCharts() {
+                    Object.keys(chartInstances).forEach(key => {
+                        if (chartInstances[key]) {
+                            chartInstances[key].destroy();
+                            chartInstances[key] = null;
+                        }
+                    });
+                },
+                renderCharts() {
+                    if (!this.statsData) return;
+                    this.destroyCharts();
+                    this.$nextTick(() => {
+                        const ctxLen = document.getElementById('lengthChart').getContext('2d');
+                        chartInstances.lengthChart = new Chart(ctxLen, {
+                            type: 'bar',
+                            data: { labels: Object.keys(this.statsData.length_distribution), datasets:[{ label: 'Number of Diffs', data: Object.values(this.statsData.length_distribution), backgroundColor: 'rgba(9, 105, 218, 0.7)', borderColor: '#0969da', borderWidth: 1 }] },
+                            options: { responsive: true, maintainAspectRatio: false }
+                        });
+
+                        const ctxAddDel = document.getElementById('addDelChart').getContext('2d');
+                        chartInstances.addDelChart = new Chart(ctxAddDel, {
+                            type: 'doughnut',
+                            data: { labels:['Added (+)', 'Removed (-)'], datasets: [{ data:[this.statsData.additions_vs_deletions.additions, this.statsData.additions_vs_deletions.deletions], backgroundColor:['#2ea043', '#da3633'] }] },
+                            options: { responsive: true, maintainAspectRatio: false }
+                        });
+
+                        const timeLabels = Object.keys(this.statsData.commits_over_time);
+                        const timeData = Object.values(this.statsData.commits_over_time);
+                        const ctxTime = document.getElementById('timeChart').getContext('2d');
+                        chartInstances.timeChart = new Chart(ctxTime, {
+                            type: 'line',
+                            data: { labels: timeLabels, datasets:[{ label: 'Commits', data: timeData, borderColor: '#8957e5', backgroundColor: 'rgba(137, 87, 229, 0.1)', fill: true, tension: 0.3 }] },
+                            options: { responsive: true, maintainAspectRatio: false }
+                        });
+
+                        const extLabels = this.statsData.top_extensions.map(e => '.' + e.name);
+                        const extData = this.statsData.top_extensions.map(e => e.count);
+                        const ctxExt = document.getElementById('extChart').getContext('2d');
+                        chartInstances.extChart = new Chart(ctxExt, {
+                            type: 'bar',
+                            data: { labels: extLabels, datasets:[{ label: 'Files Changed', data: extData, backgroundColor: '#bf8700' }] },
+                            options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false }
+                        });
+                    });
+                }
+            }
+        }).mount('#app');
+    </script>
+</body>
+</html>

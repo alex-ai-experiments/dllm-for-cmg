@@ -1,0 +1,53 @@
+﻿# -- Python cache
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.egg-info/
+.eggs/
+
+# -- Virtual environments
+.venv/
+venv/
+env/
+.conda/
+
+# -- Model weights (downloaded via 60_convert_qwen_to_fast_dllm.py)
+gemma4/
+models/
+
+# -- Source datasets (large; download separately - see INSTRUCTIONS.md)
+datasets/ApacheCM/full.jsonl
+datasets/ApacheCM/exploration.json
+datasets/MCMD+/
+
+# -- Generated task / build artefacts (reproduced by build_tasks.py)
+build_tasks/tasks_3to10files.jsonl
+build_tasks/tasks_4to12files.jsonl
+build_tasks/tasks_no_tags.jsonl
+build_tasks/tasks_tags.jsonl
+build_tasks/labels.jsonl
+build_tasks/task_stats.json
+# training split produced by 65_build_training_data.py
+build_tasks/train_tasks.jsonl
+
+# -- Inference results (reproduced by inference scripts)
+outputs/fresh_ablation_results/
+outputs/new_ablation_*/
+outputs/results_ablation/
+outputs/results_llm_baseline/
+outputs/results_two_step_dllm/
+outputs/results_two_step_llm/
+outputs/extra/
+
+# -- Analysis / quality-metric outputs (reproduced by analysis scripts)
+outputs/quality_metrics/
+outputs/analysis_output/
+
+# -- Profiling outputs
+outputs/vram_profile.json
+
+# -- Misc
+.env
+.env.*
+*.log

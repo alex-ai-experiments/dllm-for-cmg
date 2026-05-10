@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Commit Data Cleaning Pipeline</title>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --accent-blue: #38bdf8;
+            --accent-green: #4ade80;
+            --accent-red: #f87171;
+            --accent-yellow: #facc15;
+            --border-color: #334155;
+            --code-bg: #000000;
+        }
+
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            padding: 2rem;
+            line-height: 1.6;
+        }
+
+        h1 {
+            text-align: center;
+            color: var(--accent-blue);
+            margin-bottom: 0.5rem;
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: var(--text-muted);
+            margin-bottom: 3rem;
+            font-size: 0.95rem;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .pipeline {
+            position: relative;
+            padding-left: 2rem;
+            border-left: 4px solid var(--border-color);
+        }
+
+        .step-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 2.5rem;
+            position: relative;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .step-card::before {
+            content: '';
+            position: absolute;
+            left: -2.7rem;
+            top: 1.5rem;
+            width: 16px;
+            height: 16px;
+            background: var(--accent-blue);
+            border-radius: 50%;
+            border: 4px solid var(--bg-color);
+        }
+
+        .step-header {
+            display: flex;
+            align-items: baseline;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 0.5rem;
+        }
+
+        .step-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--accent-blue);
+            margin: 0;
+        }
+
+        .step-desc {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .rules-list {
+            list-style: none;
+            padding: 0;
+            margin: 0 0 1.5rem 0;
+            font-size: 0.95rem;
+        }
+
+        .rules-list li {
+            position: relative;
+            padding-left: 2.25rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .rules-list li::before {
+            content: attr(data-step);
+            position: absolute;
+            left: 0;
+            top: 2px;
+            background: var(--border-color);
+            color: var(--accent-yellow);
+            font-size: 0.75rem;
+            font-weight: bold;
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+        
+        .rule-desc {
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+
+        /* Collapsible Code Styles */
+        details {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 0.5rem 1rem;
+            margin-top: 0.5rem;
+        }
+
+        summary {
+            cursor: pointer;
+            color: var(--accent-blue);
+            font-weight: 500;
+            font-size: 0.85rem;
+            user-select: none;
+            outline: none;
+            transition: color 0.2s ease;
+        }
+
+        summary:hover {
+            color: var(--accent-green);
+        }
+
+        details[open] summary {
+            margin-bottom: 0.5rem;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 0.5rem;
+        }
+
+        pre {
+            margin: 0;
+            background: var(--code-bg);
+            padding: 0.75rem;
+            border-radius: 4px;
+            overflow-x: auto;
+            color: #e2e8f0;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+            font-size: 0.85rem;
+            border: 1px solid #1e293b;
+            tab-size: 4;
+        }
+
+        .transformation-box {
+            background: #0b1120;
+            border-radius: 6px;
+            padding: 1rem;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+            font-size: 0.9rem;
+            border-left: 3px solid var(--accent-blue);
+            overflow-x: auto;
+        }
+
+        .tag-red { color: var(--accent-red); text-decoration: line-through; opacity: 0.8; }
+        .tag-green { color: var(--accent-green); }
+        .tag-yellow { color: var(--accent-yellow); }
+
+        .arrow-down {
+            text-align: center;
+            color: var(--text-muted);
+            margin: 0.75rem 0;
+            font-weight: bold;
+        }
+
+        .final-result {
+            background: rgba(74, 222, 128, 0.05);
+            border: 1px solid var(--accent-green);
+        }
+
+        .final-result .step-title {
+            color: var(--accent-green);
+        }
+
+        .final-result::before {
+            background: var(--accent-green);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Commit Data Processing & Cleaning Pipeline</h1>
+        <p class="subtitle">Execution strictly follows the sequence below. Combines diff filtering, task validation, and comprehensive label text normalization.</p>
+        
+        <div class="pipeline">
+            
+            <!-- RAW INPUT -->
+            <div class="step-card">
+                <div class="step-header">
+                    <h2 class="step-title">0. Raw Input</h2>
+                    <span class="step-desc">Extracted from the commit dataset</span>
+                </div>
+                <div class="transformation-box" style="white-space: pre-wrap;">
+<span class="tag-yellow">"diff"</span>: "diff --git a/docs/README.md b/docs/README.md\n... diff --git a/src/main.py b/src/main.py\n..."
+
+<span class="tag-yellow">"message"</span>: "[SPARK-1234] [wip] Bugfixing the UI component https://github.com/a/b apache.org. Contributed by John Doe (Reviewed by Jane) pr #1234. thanks to Admin"
+                </div>
+            </div>
+
+            <!-- PHASE 1: DIFF FILTERING -->
+            <div class="step-card">
+                <div class="step-header">
+                    <h2 class="step-title">1. Diff Filtering & Validation</h2>
+                    <span class="step-desc">Execution strictly sequential: 1.1 → 1.3</span>
+                </div>
+                <ul class="rules-list">
+                    <li data-step="1.1">
+                        <span class="rule-desc">Filter diff by extension (Removes non-code files like `.md`, `.json`, `.png`, `.xml`)</span>
+                        <details>
+                            <summary>View Exact Code</summary>
+<pre><code>NON_CODE_EXTENSIONS = {
+    '.md', '.txt', '.xml', '.json', '.yaml', '.yml', '.csv',
+    '.rst', '.ini', '.cfg', '.toml', '.lock', '.gitignore',
+    '.html', '.css', '.svg', '.png', '.jpg', '.jpeg', '.adoc', '.geojson'
+}
+
+chunks =[
+    chunk for filename, chunk in split_diff_by_file(diff_text)
+    if pathlib.Path(filename).suffix.lower() not in NON_CODE_EXTENSIONS
+]
+filtered_diff = "".join(chunks).strip()</code></pre>
+                        </details>
+                    </li>
+                    <li data-step="1.2">
+                        <span class="rule-desc">Skip task if the resulting filtered diff is empty</span>
+                        <details>
+                            <summary>View Exact Code</summary>
+<pre><code>if not filtered_diff:
+    stats.record("no code files in diff", task_id)
+    continue</code></pre>
+                        </details>
+                    </li>
+                    <li data-step="1.3">
+                        <span class="rule-desc">Skip task if the filtered diff length exceeds <code>MAX_DIFF_LENGTH</code> (if configured)</span>
+                        <details>
+                            <summary>View Exact Code</summary>
+<pre><code>if max_diff_length is not None and diff_length > max_diff_length:
+    stats.record(f"diff too long (>{max_diff_length})", task_id)
+    continue</code></pre>
+                        </details>
+                    </li>
+                </ul>
+                <div class="transformation-box" style="white-space: pre-wrap;">
+<span class="tag-red">diff --git a/docs/README.md b/docs/README.md
+... (discarded because .md is a NON_CODE_EXTENSION) ...</span>
+
+<span class="tag-green">diff --git a/src/main.py b/src/main.py
+... (kept, passed diff length bounds, proceeding to label formatting) ...</span>
+                </div>
+            </div>
+
+            <!-- PHASE 2: CLEAN LABEL -->
+            <div class="step-card">
+                <div class="step-header">
+                    <h2 class="step-title">2. clean_label(label)</h2>
+                    <span class="step-desc">Execution strictly sequential: 2.1 → 2.5</span>
+                </div>
+                <ul class="rules-list">
+                    <li data-step="2.1">
+                        <span class="rule-desc">Remove URLs (e.g., http/https links)</span>
+                        <details>
+                            <summary>View Exact Code</summary>
+<pre><code>label = re.sub(r'https?://\S+', '', label)</code></pre>
+                        </details>
+                    </li>
+                    <li data-step="2.2">
+                        <span class="rule-desc">Remove domain names and links (e.g., apache.org, github.com)</span>
+                        <details>
+                            <summary>View Exact Code</summary>
+<pre><code>label = re.sub(
+    r'`?[\w-]+\.(?:com|org|net|io|gov|edu|co|ai|dev|info|me|us|uk|de|fr'
+    r'|cn|jp|ru|apache|jira|github|gitlab|bitbucket|sonar)\b`?(?!\s*\()',
+    '', label, flags=re.IGNORECASE,
+)</code></pre>
+                        </details>
+                    </li>
+                    <li data-step="2.3">
+                        <span class="rule-desc">Remove JIRA-style tickets (e.g., SPARK-1234, CAMEL-14568)</span>
+                        <details>
+                            <summary>View Exact Code</summary>
+<pre><code>label = re.sub(r'\b[A-Z][A-Z0-9]*(?:-[A-Z0-9]+)*-\d+\b', '', label)</code></pre>
+                        </details>
+                    </li>
+                    <li data-step="2.4">
+                        <span class="rule-desc">Remove PR/Issue References with optional word/path prefixes (e.g., #1205, pr #3257, fix/apache#1234)</span>
+                        <details>
+                            <summary>View Exact Code</summary>
+<pre><code>label = re.sub(r'(?:[\w][\w/.:-]*)?\s*#\d+', '', label)</code></pre>
+                        </details>
+                    </li>
+                    <li data-step="2.5">
+                        <span class="rule-desc">Normalize leftover whitespace and trim stray punctuation</span>
+                        <details>
+                            <summary>View Exact Code</summary>
+<pre><code>label = re.sub(r'\s+', ' ', label).strip().strip('.,;:/-')</code></pre>
+                        </details>
+                    </li>
+                </ul>
+                <div class="transformation-box">
+                    <span class="tag-red">[SPARK-1234]</span> [wip] Bugfixing the UI component <span class="tag-red">https://github.com/a/b</span> <span class="tag-red">apache.org</span>. Contributed by John Doe (Reviewed by Jane) <span class="tag-red">pr #1234</span>. thanks to Admin
+                    <div class="arrow-down">↓</div>
+                    <span class="tag-green">"[ ] [wip] Bugfixing the UI component . Contributed by John Doe (Reviewed by Jane) . thanks to Admin"</span>
+                </div>
+            </div>
+
+            <!-- PHASE 3: NORMALIZE LABEL -->
+            <div class="step-card">
+                <div class="step-header">
+                    <h2 class="step-title">3. normalize_label(label)</h2>
+                    <span class="step-desc">Execution strictly sequential: 3.1 → 3.8</span>
+                </div>
+                <ul class="rules-list">
+                    <li data-step="3.1">
+                        <span class="rule-desc">Remove formal "Contributed by Firstname Lastname" attributions</span>
+                        <details>
+                            <summary>View Exact Code</summary>
+<pre><code>label = re.sub(
+    r'[Cc]ontributed\s+by\s+[A-Z][a-zA-Z]+(?:\s+[A-Z][a-zA-Z]+)+\.?',
+    '',
+    label
+)</code></pre>
+                        </details>
+                    </li>
+                    <li data-step="3.2">
+                        <span class="rule-desc">Remove parenthetical blocks starting with an Uppercase name/letter</span>
+                        <details>
+                            <summary>View Exact Code</summary>
+<pre><code>label = re.sub(r'\(\s*[A-Z][a-zA-Z][^)]*\)', '', label)</code></pre>
+                        </details>
+                    </li>
+                    <li data-step="3.3">
+                        <span class="rule-desc">Dissolve remaining bracket characters `()`, `{}`, `[]` into spaces</span>
+                        <details>
+                            <summary>View Exact Code</summary>
+<pre><code>label = re.sub(r'[(){}\[\]]', ' ', label)</code></pre>
+                        </details>
+                    </li>
+                    <li data-step="3.4">
+                        <span class="rule-desc">Split compound words on connectors `-`, `/`, `#` (underscores preserved)</span>
+                        <details>
+                            <summary>View Exact Code</summary>
+<pre><code>label = re.sub(r'[-/#]+', ' ', label)</code></pre>
+                        </details>
+                    </li>
+                    <li data-step="3.5">
+                        <span class="rule-desc">Replace punctuation and symbols `"` `'` ``` `;` `,` `*` with spaces</span>
+                        <details>
+                            <summary>View Exact Code</summary>
+<pre><code>label = re.sub(r"""["`';,*]+""", ' ', label)</code></pre>
+                        </details>
+                    </li>
+                    <li data-step="3.6">
+                        <span class="rule-desc">Collapse whitespace created by previous dissolution steps</span>
+                        <details>
+                            <summary>View Exact Code</summary>
+<pre><code>label = re.sub(r'\s+', ' ', label).strip()</code></pre>
+                        </details>
+                    </li>
+                    <li data-step="3.7">
+                        <span class="rule-desc">Remove stranded single-letter words</span>
+                        <details>
+                            <summary>View Exact Code</summary>
+<pre><code>label = re.sub(r'\b[a-zA-Z]\b', '', label)</code></pre>
+                        </details>
+                    </li>
+                    <li data-step="3.8">
+                        <span class="rule-desc">Final whitespace cleanup after single-letter removal</span>
+                        <details>
+                            <summary>View Exact Code</summary>
+<pre><code>label = re.sub(r'\s+', ' ', label).strip()</code></pre>
+                        </details>
+                    </li>
+                </ul>
+                <div class="transformation-box">
+                    <span class="tag-red">[ ] [</span>wip<span class="tag-red">]</span> Bugfixing the UI component . <span class="tag-red">Contributed by John Doe</span> <span class="tag-red">(Reviewed by Jane)</span> . thanks to Admin
+                    <div class="arrow-down">↓</div>
+                    <span class="tag-green">"wip Bugfixing the UI component . . thanks to Admin"</span>
+                </div>
+            </div>
+
+            <!-- PHASE 4: SEMANTIC CLEAN -->
+            <div class="step-card">
+                <div class="step-header">
+                    <h2 class="step-title">4. semantic_clean(label)</h2>
+                    <span class="step-desc">Execution strictly sequential: 4.1 → 4.11</span>
+                </div>
+                <ul class="rules-list">
+                    <li data-step="4.1">
+                        <span class="rule-desc">Strip everything from a sentence-ending dot `.` that introduces an attribution through to end-of-string</span>
+                        <details>
+                            <summary>View Exact Code</summary>
+<pre><code># _TRAILING_ATTRIBUTION_RE defined at compile-time:
+# r'\s*\.\s*(?:via|patch(?:ed)?\s+by|contributed\s+by|co[\s\-]authored\s+by|authored\s+by|'
+# r'reviewed\s+by|reported\s+by|suggested\s+by|thanks\s+to|'
+# r'signed[\s\-]off[\s\-]by)\b.*$'
+
+label = _TRAILING_ATTRIBUTION_RE.sub('', label)</code></pre>
+                        </details>
+                    </li>
+                    <li data-step="4.2">
+                        <span class="rule-desc">Remove inline attribution phrases + the name/filler chain after them</span>
+                        <details>
+                            <summary>View Exact Code</summary>
+<pre><code># _ATTRIBUTION_RE defined at compile-time:
+# r'\b(?:via|patch(?:ed)?\s+by|contributed\s+by|co[\s\-]authored\s+by|authored\s+by|'
+# r'reviewed\s+by|reported\s+by|suggested\s+by|thanks\s+to|'
+# r'signed[\s\-]off[\s\-]by)\b'
+# r'(?:\s+[A-Za-z][\w.]*(?:\s+[A-Za-z][\w.]*)*)?'
+
+label = _ATTRIBUTION_RE.sub('', label)</code></pre>
+                        </details>
+                    </li>
+                    <li data-step="4.3">
+                        <span class="rule-desc">Strip leading Apache-style module prefixes (Loops up to 4 times to handle stacked prefixes like "SPARK SQL")</span>
+                        <details>
+                            <summary>View Exact Code</summary>
+<pre><code># _MODULE_PREFIX_RE checks against 45 prefixes (AIRFLOW, SPARK, HADOOP, etc.)
+
+for _ in range(4):
+    label, n = _MODULE_PREFIX_RE.subn('', label, count=1)
+    if not n:
+        break</code></pre>
+                        </details>
+                    </li>
+                    <li data-step="4.4">
+                        <span class="rule-desc">Strip general ticket / issue number patterns (e.g. Bug 58413, JIRA 99, AB 64430)</span>
+                        <details>
+                            <summary>View Exact Code</summary>
+<pre><code>label = re.sub(r'\b[A-Z]{2,}[\s\-]\d+\b', '', label)
+label = re.sub(r'\b[A-Z]{2,}\d+\b\s*:?', '', label)
+label = re.sub(r'\b(?:bug|issue|ticket|jira|pr)\s*[:\-]?\s*\d+\b', '', label, flags=re.IGNORECASE)</code></pre>
+                        </details>
+                    </li>
+                    <li data-step="4.5">
+                        <span class="rule-desc">Clean stranded dots left over from previous removals</span>
+                        <details>
+                            <summary>View Exact Code</summary>
+<pre><code>label = re.sub(r'\s*\.\s*', ' ', label)</code></pre>
+                        </details>
+                    </li>
+                    <li data-step="4.6">
+                        <span class="rule-desc">Remove version strings before lowercasing (e.g., 2.4.0, 3.0-beta1, v2)</span>
+                        <details>
+                            <summary>View Exact Code</summary>
+<pre><code>label = re.sub(r'\bv?\d+(?:\.\d+){1,5}(?:-[a-zA-Z0-9]+)?\b', '', label)
+label = re.sub(r'\bv\d+\b', '', label, flags=re.IGNORECASE)</code></pre>
+                        </details>
+                    </li>
+                    <li data-step="4.7">
+                        <span class="rule-desc">Remove stranded bare integers surrounded by whitespace</span>
+                        <details>
+                            <summary>View Exact Code</summary>
+<pre><code>label = re.sub(r'(?<!\S)\d+(?!\S)', '', label)</code></pre>
+                        </details>
+                    </li>
+                    <li data-step="4.8">
+                        <span class="rule-desc">Lowercase everything (Destroys ALL CAPS, Title Case, camelCase)</span>
+                        <details>
+                            <summary>View Exact Code</summary>
+<pre><code>label = label.lower()</code></pre>
+                        </details>
+                    </li>
+                    <li data-step="4.9">
+                        <span class="rule-desc">Canonicalize fix/bug variants and conjugations (bugfixing -> fix, fixes -> fix)</span>
+                        <details>
+                            <summary>View Exact Code</summary>
+<pre><code>label = re.sub(r'\bbug\s*fix(?:e[sd]|ing)?\b', 'fix', label)  # bugfix, bugfixed, bugfixing
+label = re.sub(r'\bfix(?:e[sd]|ing)\b', 'fix', label)          # fixed, fixes, fixing
+label = re.sub(r'(?<!\w)bug(?!\s+\w+\s+fix)\b', 'fix', label)  # bare "bug" prefix</code></pre>
+                        </details>
+                    </li>
+                    <li data-step="4.10">
+                        <span class="rule-desc">Strip leading filler words (e.g., wip, chore, cleanup). Loops up to 3 times for stacked fillers.</span>
+                        <details>
+                            <summary>View Exact Code</summary>
+<pre><code># _FILLER_RE defines words like wip, cleanup, chore, hotfix, minor, nit, addendum, followup, etc.
+
+for _ in range(3):
+    new = _FILLER_RE.sub('', label)
+    if new == label:
+        break
+    label = new</code></pre>
+                        </details>
+                    </li>
+                    <li data-step="4.11">
+                        <span class="rule-desc">Final whitespace and boundary punctuation trim</span>
+                        <details>
+                            <summary>View Exact Code</summary>
+<pre><code>label = re.sub(r'\s+', ' ', label).strip().strip('.,;:/-')</code></pre>
+                        </details>
+                    </li>
+                </ul>
+                <div class="transformation-box">
+                    <span class="tag-red">wip</span> <span class="tag-yellow">Bugfixing</span> the UI component<span class="tag-red"> .</span><span class="tag-red"> . thanks to Admin</span>
+                    <div class="arrow-down">↓</div>
+                    <span class="tag-green">"fix the ui component"</span>
+                </div>
+            </div>
+
+            <!-- PHASE 5: TASK VALIDATION & ASSEMBLY -->
+            <div class="step-card">
+                <div class="step-header">
+                    <h2 class="step-title">5. Task Validation & Assembly</h2>
+                    <span class="step-desc">Execution strictly sequential: 5.1 → 5.2</span>
+                </div>
+                <ul class="rules-list">
+                    <li data-step="5.1">
+                        <span class="rule-desc">Abort processing if the label text becomes empty at the end of ANY phase</span>
+                        <details>
+                            <summary>View Exact Code</summary>
+<pre><code>if not label:
+    if not after_clean:
+        reason = f"empty after clean_label       | was: {raw_label!r}"
+    elif not after_normalize:
+        reason = f"empty after normalize_label   | was: {after_clean!r}"
+    else:
+        reason = f"empty after semantic_clean    | was: {after_normalize!r}"
+    stats.record(reason, task_id)
+    continue</code></pre>
+                        </details>
+                    </li>
+                    <li data-step="5.2">
+                        <span class="rule-desc">Assemble system and user prompts and compile standard `tasks.jsonl` output payload</span>
+                        <details>
+                            <summary>View Exact Code</summary>
+<pre><code># System content merges PROMPT_ROLE, format instructions, and examples
+sys_content = f"{PROMPT_ROLE}\n{instructions_body}\n"
+
+# User content isolates the filtered diff inside semantic markers
+usr_content = f"--- START OF CODE DIFF ---\n{filtered_diff}\n--- END OF CODE DIFF ---"
+
+messages =[
+    {"role": "system", "content": sys_content},
+    {"role": "user",   "content": usr_content},
+]
+
+tasks.append({
+    "task_id":        task_id,
+    "messages":       messages,
+    "label":          label,
+    "files":          instance.get("files",[]),
+    "diff_length":    diff_length,
+    "context_length": len(sys_content) + len(usr_content),
+})</code></pre>
+                        </details>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- FINAL OUTPUT -->
+            <div class="step-card final-result">
+                <div class="step-header">
+                    <h2 class="step-title">Final Output Structure</h2>
+                    <span class="step-desc">Ready to be saved to tasks.jsonl</span>
+                </div>
+                <div class="transformation-box" style="white-space: pre-wrap; font-size: 0.95rem; color: var(--accent-green);">
+{
+  "task_id": "apache_spark_1a2b3c4",
+  "messages":[
+    {
+      "role": "system",
+      "content": "You are a developer, and your task is to write a concise commit message based on the code changes (in .diff format) in a commit.\n## Input Format:..."
+    },
+    {
+      "role": "user",
+      "content": "--- START OF CODE DIFF ---\ndiff --git a/src/main.py b/src/main.py\n..."
+    }
+  ],
+  "label": "fix the ui component",
+  "files": [...],
+  "diff_length": 450,
+  "context_length": 1050
+}
+                </div>
+            </div>
+
+        </div>
+    </div>
+</body>
+</html>
