@@ -20,6 +20,7 @@ Usage:
 import argparse
 import json
 import sys
+import itertools
 import time
 import types
 from pathlib import Path
@@ -230,7 +231,7 @@ def resolve_diff_cap(spec, file_diffs, tokenizer):
 def run_one_config(config_name, max_diff_chars, max_diff_tokens, diff_cap_label,
                    file_diffs, tokenizer, model, device,
                    gen_kwargs, max_new_tokens, batch_sizes, no_summaries,
-                   sort_by_length=True):
+                   sort_by_length=True, use_all_files=False):
     """Run sequential baseline + all batch sizes for one diff-cap configuration."""
     n_files = len(file_diffs)
 
@@ -328,31 +329,43 @@ def run_one_config(config_name, max_diff_chars, max_diff_tokens, diff_cap_label,
     speedup_table: list[tuple[int, float]] = []
     batch_results: dict = {}
 
+    ran_effective_bs = set()
     for bs in batch_sizes:
         if bs > n_files:
-            print(f"[batch={bs}] skipped — only {n_files} files available\n")
+            if use_all_files:
+                effective_bs = n_files
+            else:
+                print(f"[batch={bs}] skipped — only {n_files} files available\n")
+                continue
+        else:
+            effective_bs = bs
+
+        if effective_bs in ran_effective_bs:
+            print(f"[batch={bs}] → effective batch {effective_bs} (all files) already benchmarked above, skipping duplicate\n")
             continue
+        ran_effective_bs.add(effective_bs)
 
-        seq_baseline = sum(seq_times[:bs])
+        all_note = f" → using all {effective_bs} files" if bs != effective_bs else ""
+        seq_baseline = sum(seq_times[:effective_bs])
 
-        if bs == 1:
+        if effective_bs == 1:
             print_batch_report(
-                "── Batch size 1  (file 0) ──",
+                f"── Batch size {bs}{all_note}  (file 0) ──",
                 seq_times[0], seq_steps[0],
                 [len(all_ids[0])], [seq_gen_tok[0]],
                 len(all_ids[0]), max_new_tokens,
             )
             print(f"  Seq baseline (file 0)       : {seq_baseline:.3f}s")
             print(f"  Speedup vs sequential       : 1.00×  (this IS the baseline)")
-            speedup_table.append((1, 1.0))
-            batch_results[1] = {
+            speedup_table.append((bs, 1.0))
+            batch_results[bs] = {
                 "wall_s": seq_times[0], "speedup": 1.0,
                 "steps": seq_steps[0], "gen_tokens": [seq_gen_tok[0]],
                 "texts": [seq_texts[0]],
             }
             continue
 
-        msgs_subset = all_messages[:bs]
+        msgs_subset = all_messages[:effective_bs]
         torch.cuda.reset_peak_memory_stats(device)
 
         try:
@@ -360,8 +373,8 @@ def run_one_config(config_name, max_diff_chars, max_diff_tokens, diff_cap_label,
                 msgs_subset, tokenizer, model, device, gen_kwargs, max_new_tokens
             )
         except torch.cuda.OutOfMemoryError:
-            print(f"\n── Batch size {bs} ──")
-            print(f"  OOM: batch={bs} exceeded available GPU memory. Skipping.")
+            print(f"\n── Batch size {bs}{all_note} ──")
+            print(f"  OOM: batch={effective_bs} exceeded available GPU memory. Skipping.")
             torch.cuda.empty_cache()
             batch_results[bs] = {"wall_s": None, "speedup": None, "oom": True}
             continue
@@ -375,16 +388,16 @@ def run_one_config(config_name, max_diff_chars, max_diff_tokens, diff_cap_label,
         }
 
         print_batch_report(
-            f"── Batch size {bs}  (files 0..{bs-1}) ──",
+            f"── Batch size {bs}{all_note}  (files 0..{effective_bs-1}) ──",
             wall_s, total_steps, seq_lens, gen_counts, tensor_len, max_new_tokens,
         )
-        print(f"  Seq baseline (files 0..{bs-1})  : {seq_baseline:.3f}s")
+        print(f"  Seq baseline (files 0..{effective_bs-1})  : {seq_baseline:.3f}s")
         print(f"  Speedup vs sequential          : {speedup:.2f}×")
         if speedup < 1.5:
             print(f"  ⚠  < 1.5× — batching provides little benefit at bs={bs}.")
 
         if not no_summaries:
-            print(f"\n  Generated summaries (batch={bs}):")
+            print(f"\n  Generated summaries (batch={bs}{all_note}):")
             for i, t in enumerate(texts):
                 fn = file_diffs[i][0]
                 print(f"\n    [{i}] {fn}:")
@@ -420,19 +433,73 @@ def run_one_config(config_name, max_diff_chars, max_diff_tokens, diff_cap_label,
     }
 
 
+def _print_grid_table(all_results: list, batch_sizes: list) -> None:
+    """Print a flat grid comparison table grouping results by task."""
+    GRID_SEP = "═" * 88
+    print(GRID_SEP)
+    print("GRID COMPARISON  (speedup: batch vs same files sequentially)")
+    task_w   = max((len(r.get("task_id", "?")) for r in all_results), default=10)
+    config_w = max((len(r["config"])            for r in all_results), default=6)
+    hdr = (f"  {'Task':<{task_w}}  {'BS':>4}  {'SBS':>4}  {'Thresh':>7}"
+           f"  {'MNT':>5}  {'Config':<{config_w}}")
+    for bs in batch_sizes:
+        hdr += f"  {'bs='+str(bs):>7}"
+    print(hdr)
+    print("  " + "─" * (len(hdr) - 2))
+    prev_task = None
+    for r in all_results:
+        tid = r.get("task_id", "?")
+        if prev_task is not None and tid != prev_task:
+            print()  # blank line between tasks
+        prev_task = tid
+        row = (f"  {tid:<{task_w}}"
+               f"  {r.get('block_size', '?'):>4}"
+               f"  {r.get('small_block_size', '?'):>4}"
+               f"  {r.get('threshold', 0.0):>7.2f}"
+               f"  {r.get('max_new_tokens', '?'):>5}"
+               f"  {r['config']:<{config_w}}")
+        for bs in batch_sizes:
+            bdata = r["batches"].get(str(bs), {})
+            if not bdata:
+                cell = "─"
+            elif bdata.get("oom"):
+                cell = "OOM"
+            elif bdata.get("speedup") is not None:
+                cell = f"{bdata['speedup']:.2f}×"
+            else:
+                cell = "—"
+            row += f"  {cell:>7}"
+        print(row)
+    print(GRID_SEP)
+    print()
+
+
 def main():
-    p = argparse.ArgumentParser(description="dLLM batch-size benchmark")
+    p = argparse.ArgumentParser(
+        description="dLLM batch-size benchmark — grid search over tasks and gen params"
+    )
     p.add_argument("-i", "--input", required=True, help="Input JSONL tasks file")
     p.add_argument("--sample-task", type=int, default=0,
-                   help="Index of the task to use from the JSONL (default: 0)")
+                   help="Index of the task to use when no --task-id is given (default: 0)")
     p.add_argument("--task-id", default=None,
-                   help="Use a specific task_id instead of --sample-task")
+                   help="Comma-separated task IDs to benchmark (all must exist in the input). "
+                        "Example: --task-id apache_mesos_0597b3c,apache_kafka_460b3a6")
     p.add_argument("--device", default="cuda:0")
-    p.add_argument("--block-size", type=int, default=32)
-    p.add_argument("--small-block-size", type=int, default=8)
-    p.add_argument("--threshold", type=float, default=0.8)
-    p.add_argument("--max-new-tokens", type=int, default=128,
-                   help="Max new tokens per file summary")
+    # ── dLLM grid params — all accept comma-separated values ──────────────
+    p.add_argument("--block-sizes", default="32",
+                   help="Comma-separated block sizes to sweep (default: 32). "
+                        "block_size must be divisible by small_block_size. "
+                        "Example: --block-sizes 32,64")
+    p.add_argument("--small-block-sizes", default="8",
+                   help="Comma-separated small block sizes to sweep (default: 8). "
+                        "Example: --small-block-sizes 8,16")
+    p.add_argument("--thresholds", default="0.8",
+                   help="Comma-separated unmasking thresholds to sweep (default: 0.8). "
+                        "Lower = faster but potentially lower quality. "
+                        "Example: --thresholds 0.8,0.7,0.6,0.5")
+    p.add_argument("--max-new-tokens", default="128",
+                   help="Comma-separated max-new-tokens values to sweep (default: 128). "
+                        "Example: --max-new-tokens 128,256")
     p.add_argument("--batch-sizes", default="1,2,4,8",
                    help="Comma-separated batch sizes to test (default: 1,2,4,8)")
     # ── Single-config diff cap (ignored when --configs is set) ────────────
@@ -447,79 +514,57 @@ def main():
                    help="Comma-separated diff-cap configs to sweep in one run. "
                         "Spec: 'none' | '<N>' (chars) | 'tok:<N>' (diff tokens) | "
                         "'adaptive' | 'adaptive:<pct>'. "
-                        "Example: --configs none,800,600,tok:80,adaptive,adaptive:25. "
-                        "Overrides --max-diff-chars and --adaptive-diff-chars.")
+                        "Example: --configs none,800,600,tok:80,adaptive.")
     p.add_argument("--output-file", metavar="FILE", default=None,
                    help="Save all results to this JSON file.")
     p.add_argument("--compile", action="store_true",
                    help="Wrap the dLLM with torch.compile (reduce-overhead mode). "
                         "First batch is slow (compilation); subsequent ones are faster.")
-    p.add_argument("--warmup", action="store_true",
-                   help="Run one dummy forward pass before benchmarking")
+    p.add_argument("--no-warmup", action="store_true",
+                   help="Skip the per-(block-size, small-block-size) warmup calls. "
+                        "By default one real mdm_sample is run per unique (bs, sbs) pair "
+                        "so all grid points start with primed CUDA kernels.")
     p.add_argument("--no-summaries", action="store_true",
                    help="Suppress printing of generated summaries (perf numbers still shown)")
     p.add_argument("--no-sort", action="store_true",
-                   help="Disable the default ascending sort by prompt token length. "
-                        "By default files are sorted shortest-first (matching 25_eval_dllm_summary.py) "
-                        "to minimise padding waste and dying-batch effect.")
+                   help="Disable the default ascending sort by prompt token length.")
+    p.add_argument("--use-all-files", action="store_true",
+                   help="When a requested batch size exceeds the number of available files, "
+                        "run all files as one batch instead of skipping. If multiple batch "
+                        "sizes map to the same effective file count, only the first is run.")
     args = p.parse_args()
 
-    batch_sizes = sorted(set(int(x) for x in args.batch_sizes.split(",")))
+    # ── Parse multi-value grid params ─────────────────────────────────────
+    block_sizes_grid = sorted(set(int(x)   for x in args.block_sizes.split(",")),       reverse=True)
+    sbs_grid         = sorted(set(int(x)   for x in args.small_block_sizes.split(",")), reverse=True)
+    thresholds_grid  = sorted(set(float(x) for x in args.thresholds.split(",")),        reverse=True)
+    mnt_grid         = sorted(set(int(x)   for x in args.max_new_tokens.split(",")))
+    batch_sizes      = sorted(set(int(x)   for x in args.batch_sizes.split(",")))
 
-    # ── Load task ─────────────────────────────────────────────────────────
-    tasks = []
+    # ── Load & select tasks ───────────────────────────────────────────────
+    all_tasks = []
     with open(args.input, encoding="utf-8") as f:
         for line in f:
             line = line.strip()
             if line:
-                tasks.append(json.loads(line))
+                all_tasks.append(json.loads(line))
 
     if args.task_id:
-        task = next((t for t in tasks if t["task_id"] == args.task_id), None)
-        if task is None:
-            print(f"Task ID '{args.task_id}' not found.", file=sys.stderr)
-            sys.exit(1)
+        task_id_list = [t.strip() for t in args.task_id.split(",")]
+        selected_tasks = []
+        for tid in task_id_list:
+            t = next((t for t in all_tasks if t["task_id"] == tid), None)
+            if t is None:
+                print(f"Task ID '{tid}' not found in {args.input}.", file=sys.stderr)
+                sys.exit(1)
+            selected_tasks.append(t)
     else:
-        task = tasks[args.sample_task]
+        selected_tasks = [all_tasks[args.sample_task]]
 
-    task_id = task["task_id"]
-    file_diffs = get_per_file_diffs(task)
-    n_files = len(file_diffs)
-
-    device = args.device
-    tokenizer, model = load_dllm(device, compile_model=args.compile)
-
-    print(SEP)
-    print(f"Task       : {task_id}")
-    print(f"Files      : {n_files}  ({', '.join(fn for fn, _ in file_diffs)})")
-    print(f"Threshold  : {args.threshold}  block={args.block_size}  sbs={args.small_block_size}")
-    print(f"Max tokens : {args.max_new_tokens}")
-    print(SEP)
-    print()
-
-    gen_kwargs = {
-        "block_size": args.block_size,
-        "small_block_size": args.small_block_size,
-        "threshold": args.threshold,
-        "use_block_cache": True,
-        "temperature": 0.0,
-        "top_p": 0.95,
-    }
-
-    if args.warmup:
-        print("Warming up ...")
-        with torch.no_grad():
-            dummy = torch.randint(0, 1000, (1, 64)).to(device)
-            _ = model(input_ids=dummy, use_cache=False)
-        torch.cuda.synchronize(device)
-        torch.cuda.reset_peak_memory_stats(device)
-        print("Warmup done.\n")
-
-    # ── Resolve config list ───────────────────────────────────────────────
+    # ── Resolve diff-cap specs (same for all grid points) ─────────────────
     if args.configs:
         specs = [s.strip() for s in args.configs.split(",")]
     else:
-        # Single-config fallback using legacy flags
         if args.adaptive_diff_chars is not None:
             pct = args.adaptive_diff_chars
             specs = ["adaptive" if pct == 50.0 else f"adaptive:{pct}"]
@@ -528,55 +573,103 @@ def main():
         else:
             specs = ["none"]
 
-    # ── Run configs ───────────────────────────────────────────────────────
+    # ── Validate (block_size, sbs) pairs ──────────────────────────────────
+    valid_bs_sbs = [(bs, sbs)
+                    for bs, sbs in itertools.product(block_sizes_grid, sbs_grid)
+                    if bs % sbs == 0]
+    invalid_pairs = [(bs, sbs)
+                     for bs, sbs in itertools.product(block_sizes_grid, sbs_grid)
+                     if bs % sbs != 0]
+    if invalid_pairs:
+        print(f"⚠  Skipping invalid (block_size, sbs) pairs "
+              f"(block_size must be divisible by sbs): {invalid_pairs}")
+
+    # ── Print grid plan ───────────────────────────────────────────────────
+    n_gen_combos = len(valid_bs_sbs) * len(thresholds_grid) * len(mnt_grid)
+    n_total = len(selected_tasks) * n_gen_combos * len(specs)
+    print(f"Grid plan: {len(selected_tasks)} task(s) × {n_gen_combos} gen-kwarg combo(s)"
+          f" × {len(specs)} diff-cap spec(s) = {n_total} config run(s)")
+    print(f"  tasks      : {[t['task_id'] for t in selected_tasks]}")
+    print(f"  (bs, sbs)  : {valid_bs_sbs}  thresholds: {thresholds_grid}  mnt: {mnt_grid}")
+    print(f"  specs      : {specs}  batch_sizes: {batch_sizes}")
+    print()
+
+    # ── Load model ────────────────────────────────────────────────────────
+    device = args.device
+    tokenizer, model = load_dllm(device, compile_model=args.compile)
+
+    # ── Warmup: one real mdm_sample per unique valid (block_size, sbs) pair
+    if not args.no_warmup:
+        first_file_diffs = get_per_file_diffs(selected_tasks[0])
+        _fn, _fd = first_file_diffs[0]
+        _warmup_msgs = build_summary_messages(_fn, _fd, max_diff_chars=600)
+        print(f"Warming up {len(valid_bs_sbs)} (block_size, sbs) combination(s) ...")
+        for _bs, _sbs in valid_bs_sbs:
+            _gk = {
+                "block_size": _bs, "small_block_size": _sbs,
+                "threshold": thresholds_grid[0], "use_block_cache": True,
+                "temperature": 0.0, "top_p": 0.95,
+            }
+            run_batch([_warmup_msgs], tokenizer, model, device, _gk, mnt_grid[0])
+            torch.cuda.synchronize(device)
+            print(f"  block_size={_bs}  sbs={_sbs} ✓")
+        torch.cuda.reset_peak_memory_stats(device)
+        print("Warm-up complete — CUDA kernels primed for all block-size variants.\n")
+
+    # ── Main grid loop ────────────────────────────────────────────────────
     all_results = []
-    for spec in specs:
-        max_diff_chars, max_diff_tokens, diff_cap_label = resolve_diff_cap(spec, file_diffs, tokenizer)
-        result = run_one_config(
-            config_name=spec,
-            max_diff_chars=max_diff_chars,
-            max_diff_tokens=max_diff_tokens,
-            diff_cap_label=diff_cap_label,
-            file_diffs=file_diffs,
-            tokenizer=tokenizer,
-            model=model,
-            device=device,
-            gen_kwargs=gen_kwargs,
-            max_new_tokens=args.max_new_tokens,
-            batch_sizes=batch_sizes,
-            no_summaries=args.no_summaries,
-            sort_by_length=not args.no_sort,
-        )
-        all_results.append(result)
+    for task in selected_tasks:
+        task_id = task["task_id"]
+        file_diffs = get_per_file_diffs(task)
+        n_files = len(file_diffs)
 
-    # ── Cross-config comparison table ─────────────────────────────────────
-    if len(all_results) > 1:
-        all_batch_sizes = sorted(set(
-            int(k) for r in all_results for k in r["batches"]
-        ))
-        col_w = max(max(len(r["config"]) for r in all_results), 7) + 1
-
-        print(SEP)
-        print("FINAL COMPARISON  (speedup: batch vs same files sequentially)")
-        header = f"  {'Batch':>5}  " + "  ".join(f"{r['config']:>{col_w}}" for r in all_results)
-        print(header)
-        print("  " + "─" * (len(header) - 2))
-        for bs in all_batch_sizes:
-            row = f"  {bs:>5}  "
-            for r in all_results:
-                bdata = r["batches"].get(str(bs), {})
-                if not bdata:
-                    cell = "skip"
-                elif bdata.get("oom"):
-                    cell = "OOM"
-                elif bdata.get("speedup") is not None:
-                    cell = f"{bdata['speedup']:.2f}×"
-                else:
-                    cell = "—"
-                row += f"{cell:>{col_w}}  "
-            print(row)
-        print(SEP)
+        print("═" * 72)
+        print(f"TASK: {task_id}  ({n_files} files)")
+        print(f"  {', '.join(fn for fn, _ in file_diffs)}")
+        print("═" * 72)
         print()
+
+        for (block_size, sbs), threshold, mnt in itertools.product(
+            valid_bs_sbs, thresholds_grid, mnt_grid
+        ):
+            gen_kwargs = {
+                "block_size": block_size,
+                "small_block_size": sbs,
+                "threshold": threshold,
+                "use_block_cache": True,
+                "temperature": 0.0,
+                "top_p": 0.95,
+            }
+            for spec in specs:
+                max_diff_chars, max_diff_tokens, diff_cap_label = resolve_diff_cap(
+                    spec, file_diffs, tokenizer
+                )
+                result = run_one_config(
+                    config_name=spec,
+                    max_diff_chars=max_diff_chars,
+                    max_diff_tokens=max_diff_tokens,
+                    diff_cap_label=diff_cap_label,
+                    file_diffs=file_diffs,
+                    tokenizer=tokenizer,
+                    model=model,
+                    device=device,
+                    gen_kwargs=gen_kwargs,
+                    max_new_tokens=mnt,
+                    batch_sizes=batch_sizes,
+                    no_summaries=args.no_summaries,
+                    sort_by_length=not args.no_sort,
+                    use_all_files=args.use_all_files,
+                )
+                result["task_id"]        = task_id
+                result["block_size"]     = block_size
+                result["small_block_size"] = sbs
+                result["threshold"]      = threshold
+                result["max_new_tokens"] = mnt
+                all_results.append(result)
+
+    # ── Final grid comparison table ───────────────────────────────────────
+    if len(all_results) > 1:
+        _print_grid_table(all_results, batch_sizes)
 
     # ── Save results ──────────────────────────────────────────────────────
     if args.output_file:

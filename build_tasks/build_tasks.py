@@ -92,9 +92,66 @@ _FILLER_RE = re.compile(
 # ── Non-code extensions ───────────────────────────────────────────────────────
 
 NON_CODE_EXTENSIONS = {
-    '.md', '.txt', '.xml', '.json', '.yaml', '.yml', '.csv',
-    '.rst', '.ini', '.cfg', '.toml', '.lock', '.gitignore',
-    '.html', '.css', '.svg', '.png', '.jpg', '.jpeg', '.adoc', '.geojson'
+    # Documentation / markup
+    '.md', '.mdx', '.markdown', '.txt', '.rst', '.adoc',
+    '.html', '.css', '.svg',
+    # Config / data
+    '.xml', '.json', '.yaml', '.yml', '.csv', '.ini', '.cfg', '.toml',
+    '.lock', '.gitignore', '.geojson', '.properties',
+    '.conf', '.config', '.env', '.options', '.local',
+    '.production', '.development',
+    # Project / build metadata (not code)
+    '.csproj', '.vbproj', '.fsproj', '.vcxproj',  # MSBuild project files
+    '.classpath',                                   # Eclipse classpath
+    '.pom',                                         # Maven POM
+    '.project',                                     # Eclipse project
+    '.factories',                                   # Spring factories
+    '.template', '.in', '.am', '.sum', '.mod',     # Automake / Go module / template inputs
+    '.ci',                                          # CI config
+    # Images
+    '.png', '.jpg', '.jpeg', '.gif', '.ico', '.graffle',
+    # Archives
+    '.zip', '.gz', '.tar', '.jar', '.war', '.ear', '.aar', '.snap',
+    # Compiled / binary / output
+    '.so', '.dll', '.exe', '.bin', '.dylib', '.class', '.o', '.obj', '.out',
+    # Database / serialised data
+    '.db', '.sqlite', '.sqlite3', '.avro', '.parquet',
+    # Serialisation snapshots (binary state files)
+    '.data', '.index', '.snapshot',
+    # Keystores / certs
+    '.jks', '.p12', '.pem', '.crt', '.key', '.pub', '.sha1',
+    # Documents / spreadsheets
+    '.xls', '.xlsx', '.pdf', '.xsd', '.xsl',
+    # IDE / OS metadata
+    '.pbxproj', '.xcscheme',                        # Xcode
+    '.jmx',                                         # JMX config (XML)
+    '.graffle',
+    # Platform-specific binaries
+    '.android_arm64', '.android_armv7', '.arm64', '.armv6', '.armv7',
+    '.amzn_linux_cpu', '.ubuntu', '.ubuntu1404_cuda75_cudnn5',
+    '.jetson', '.ubuntu_cpu', '.ubuntu_gpu', '.ubuntu_build_cuda',
+    # Bogus "extensions" — class/service names used as file suffixes
+    '.agentpluginbootservice', '.baseflinksource', '.basesink', '.basesource',
+    '.basetransform', '.basestructuredstreaminginput',
+    '.basestructuredstreamingoutput', '.basestructuredstreamingoutputintra',
+    '.basecommand', '.datasourcemapconverter', '.databasediscoverytype',
+    '.dispatcher', '.handlers', '.java17', '.mlformatregister',
+    '.mockmaker', '.pmml', '.privilegeloader', '.privilegeloadalgorithm',
+    '.protobufserde', '.provides', '.rpcfilter', '.schemas',
+    '.shardingtransactionhandler', '.timeservice', '.transactionmanager',
+    '.transformer', '.yamlruleconfigurationswapper',
+    # Binary serialisation snapshots (e.g. Flink state backend files)
+    '.snapshot', '.data', '.index', '.part',
+    '.9-snapshot', '.12-snapshot', '.16-snapshot',
+    '.6-global-window-serializer-data', '.6-global-window-serializer-snapshot',
+    '.6-time-window-serializer-data', '.6-time-window-serializer-snapshot',
+    '.7-global-window-serializer-data', '.7-global-window-serializer-snapshot',
+    '.7-time-window-serializer-data', '.7-time-window-serializer-snapshot',
+    # Man page sections and other numbered extensions
+    '.1', '.2', '.3', '.4', '.5', '.6', '.7', '.8', '.9',
+    # Misc non-code
+    '.explain', '.commands', '.factory', '.tdd', '.base',
+    '.jenkinsfile', '.rules', '.tmpl',
 }
 
 # Extension → language display name (expandable)
@@ -132,6 +189,7 @@ _EXT_TO_LANG: dict[str, str] = {
     '.ex':    'Elixir',
     '.exs':   'Elixir Script',
     '.erl':   'Erlang',
+    '.hrl':   'Erlang',
     '.hs':    'Haskell',
     '.clj':   'Clojure',
     '.proto': 'Protobuf',

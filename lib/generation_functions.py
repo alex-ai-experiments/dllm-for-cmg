@@ -33,6 +33,7 @@ def _slice_kv_cache(cache, keep_mask):
     return cache
 
 
+
 FAST_DLLM_MASK_ID = 151665
 FAST_DLLM_STOP_TOKEN = 151645
 
@@ -158,6 +159,15 @@ class Fast_dLLM_QwenForCausalLM:
                                 logits = torch.cat([logits[:, :1, :], logits[:, :-1, :]], dim=1)
                                 logits = logits[:, start:end]
                             else:
+                                # Run the full-batch replace_position forward.
+                                # Items with no masked tokens in [start:end] are inactive, but
+                                # their logits are neutralised downstream by the mask_idx guard:
+                                #   x1_p = where(mask_idx, x1_p, -inf)  → all -inf for inactive
+                                #   unmask_idx &= mask_idx              → all False for inactive
+                                # so no tokens are ever written for them.  Skipping them via a
+                                # sub-batch forward is not safe here because block_past_key_values
+                                # is a custom Fast-dLLM cache whose internal state cannot be
+                                # correctly reconstructed by a simple batch-dim slice.
                                 logits = self.forward(
                                     input_ids=x_t[:, start:end],
                                     use_cache=True,

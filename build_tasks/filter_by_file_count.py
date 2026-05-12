@@ -37,8 +37,8 @@ def parse_args():
         help="Minimum number of files in a task (inclusive, default: 3)",
     )
     p.add_argument(
-        "--max-files", type=int, default=10,
-        help="Maximum number of files in a task (inclusive, default: 10)",
+        "--max-files", type=int, default=None,
+        help="Maximum number of files in a task (inclusive, default: no limit)",
     )
     return p.parse_args()
 
@@ -49,7 +49,7 @@ def main():
     if args.min_files < 1:
         print("--min-files must be >= 1", file=sys.stderr)
         sys.exit(1)
-    if args.max_files < args.min_files:
+    if args.max_files is not None and args.max_files < args.min_files:
         print("--max-files must be >= --min-files", file=sys.stderr)
         sys.exit(1)
 
@@ -58,11 +58,12 @@ def main():
         print(f"Input file not found: {input_path}", file=sys.stderr)
         sys.exit(1)
 
-    output_path = Path(
-        args.output
-        if args.output
-        else input_path.parent / f"tasks_{args.min_files}to{args.max_files}files.jsonl"
-    )
+    if args.output:
+        output_path = Path(args.output)
+    elif args.max_files is None:
+        output_path = input_path.parent / f"tasks_min{args.min_files}files.jsonl"
+    else:
+        output_path = input_path.parent / f"tasks_{args.min_files}to{args.max_files}files.jsonl"
 
     tasks = []
     with open(input_path, encoding="utf-8") as f:
@@ -73,7 +74,8 @@ def main():
 
     filtered = [
         t for t in tasks
-        if args.min_files <= len(t.get("files", [])) <= args.max_files
+        if len(t.get("files", [])) >= args.min_files
+        and (args.max_files is None or len(t.get("files", [])) <= args.max_files)
     ]
 
     output_path.parent.mkdir(parents=True, exist_ok=True)
@@ -84,8 +86,9 @@ def main():
     # Print a brief summary
     from collections import Counter
     counts = Counter(len(t["files"]) for t in filtered)
+    max_label = str(args.max_files) if args.max_files is not None else "∞"
     print(f"Input : {len(tasks):,} tasks  ({input_path})")
-    print(f"Filter: {args.min_files} \u2264 files \u2264 {args.max_files}")
+    print(f"Filter: {args.min_files} ≤ files ≤ {max_label}")
     print(f"Output: {len(filtered):,} tasks  ({output_path})")
     print()
     print(f"{'Files':>6}  {'Tasks':>6}")
