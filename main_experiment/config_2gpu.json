@@ -1,0 +1,3 @@
+{
+  "devices": ["cuda:0", "cuda:1"]
+}

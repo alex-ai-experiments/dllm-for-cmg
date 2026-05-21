@@ -1,0 +1,44 @@
+{
+  "input": "build_tasks/dllm_eval_tasks_250.jsonl",
+  "output_file": "outputs/grid_search/results.json",
+  "resume": true,
+  "sample": 50,
+
+  "modes": ["dllm_llm"],
+
+  "devices": ["cuda:0", "cuda:1"],
+
+  "dllm": {
+    "model": "Efficient-Large-Model/Fast_dLLM_v2_7B",
+    "quantization": "int8",
+    "block_size": [32, 64],
+    "small_block_size": [8, 16],
+    "threshold": [0.8, 0.6],
+    "use_block_cache": [true, false],
+    "temperature": 0.0,
+    "top_p": 0.95,
+    "compile": false,
+    "low_cpu_mem_usage": false
+  },
+
+  "llm_generator": {
+    "model": "Qwen/Qwen2.5-7B-Instruct",
+    "quantization": "int8",
+    "torch_dtype": "auto",
+    "do_sample": false,
+    "temperature": 1.0,
+    "top_p": 0.95,
+    "repetition_penalty": 1.0
+  },
+
+  "summary": {
+    "max_new_tokens": [256, 512, 1024],
+    "batch_size": [4, 8],
+    "diff_cap": "600",
+    "sort_by_length": true
+  },
+
+  "cmg": {
+    "max_new_tokens": 128
+  }
+}
