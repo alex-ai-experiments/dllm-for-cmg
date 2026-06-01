@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Metrics Explainer — dLLM Commit Message Generation</title>
+<style>
+:root {
+  --bg: #0d1117; --surface: #161b22; --surface2: #21262d;
+  --border: #30363d; --text: #c9d1d9; --text-muted: #8b949e;
+  --accent: #58a6ff; --green: #3fb950; --red: #f85149; --yellow: #d29922;
+  --orange: #db6d28; --purple: #bc8cff;
+  --match-bg: #1a4d2e; --match-border: #238636;
+  --no-match-bg: #3d1f1f; --no-match-border: #da3633;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; padding: 2rem; max-width: 1400px; margin: 0 auto; }
+h1 { font-size: 2rem; margin-bottom: 0.5rem; color: #fff; }
+h2 { font-size: 1.5rem; margin: 2.5rem 0 1rem; color: #fff; border-bottom: 1px solid var(--border); padding-bottom: 0.5rem; }
+h3 { font-size: 1.2rem; margin: 1.5rem 0 0.75rem; color: var(--accent); }
+h4 { font-size: 1rem; margin: 1rem 0 0.5rem; color: var(--purple); }
+p, li { margin-bottom: 0.5rem; }
+.subtitle { color: var(--text-muted); font-size: 1.1rem; margin-bottom: 2rem; }
+code { background: var(--surface2); padding: 2px 6px; border-radius: 4px; font-size: 0.9em; color: var(--accent); }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin-bottom: 1.5rem; }
+.metric-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; }
+.metric-card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.25rem; }
+.metric-card h3 { margin-top: 0; }
+.formula { background: var(--surface2); padding: 1rem; border-radius: 6px; font-family: 'Courier New', monospace; margin: 0.75rem 0; border-left: 3px solid var(--accent); overflow-x: auto; }
+.score-badge { display: inline-block; padding: 3px 10px; border-radius: 12px; font-weight: 600; font-size: 0.85rem; }
+.score-high { background: #1a4d2e; color: #3fb950; }
+.score-mid { background: #3d2e00; color: #d29922; }
+.score-low { background: #3d1f1f; color: #f85149; }
+.token { display: inline-block; padding: 2px 6px; margin: 2px; border-radius: 4px; font-family: monospace; font-size: 0.85rem; }
+.token-match { background: var(--match-bg); border: 1px solid var(--match-border); color: var(--green); }
+.token-miss { background: var(--no-match-bg); border: 1px solid var(--no-match-border); color: var(--red); }
+.token-neutral { background: var(--surface2); border: 1px solid var(--border); color: var(--text); }
+.example-box { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; margin-bottom: 2rem; overflow: hidden; }
+.example-header { background: var(--surface2); padding: 0.75rem 1.25rem; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
+.example-header:hover { background: #282e36; }
+.example-body { padding: 1.25rem; display: none; }
+.example-body.active { display: block; }
+.text-row { display: grid; grid-template-columns: 100px 1fr; gap: 0.75rem; margin-bottom: 0.75rem; align-items: start; }
+.text-label { font-weight: 600; color: var(--text-muted); font-size: 0.85rem; text-transform: uppercase; padding-top: 4px; }
+.text-content { padding: 8px 12px; border-radius: 6px; background: var(--surface2); }
+.metrics-table { width: 100%; border-collapse: collapse; margin: 0.75rem 0; font-size: 0.9rem; }
+.metrics-table th, .metrics-table td { padding: 6px 10px; text-align: left; border-bottom: 1px solid var(--border); }
+.metrics-table th { color: var(--text-muted); font-weight: 600; font-size: 0.8rem; text-transform: uppercase; }
+.metrics-table .num { text-align: right; font-family: monospace; }
+.bar-container { display: flex; align-items: center; gap: 8px; }
+.bar { height: 18px; border-radius: 3px; min-width: 2px; transition: width 0.3s; }
+.bar-bleu { background: var(--accent); }
+.bar-rouge { background: var(--green); }
+.bar-meteor { background: var(--yellow); }
+.bar-code { background: var(--purple); }
+.comparison-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+.tab-container { border-bottom: 1px solid var(--border); margin-bottom: 1rem; display: flex; gap: 0; }
+.tab { padding: 8px 16px; cursor: pointer; color: var(--text-muted); border-bottom: 2px solid transparent; transition: all 0.2s; }
+.tab:hover { color: var(--text); }
+.tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+.arrow { transition: transform 0.2s; display: inline-block; }
+.arrow.open { transform: rotate(90deg); }
+.highlight-legend { display: flex; gap: 1.5rem; margin: 1rem 0; flex-wrap: wrap; }
+.legend-item { display: flex; align-items: center; gap: 6px; font-size: 0.85rem; }
+.legend-swatch { width: 14px; height: 14px; border-radius: 3px; }
+.ngram-viz { display: flex; flex-wrap: wrap; gap: 4px; margin: 6px 0; }
+.ngram-group { display: inline-flex; gap: 1px; padding: 3px 6px; border-radius: 4px; font-size: 0.8rem; font-family: monospace; }
+.ngram-match { background: var(--match-bg); border: 1px solid var(--match-border); }
+.ngram-miss { background: #1c1c1c; border: 1px solid var(--border); }
+.insight-box { background: #1a2332; border: 1px solid #1f6feb; border-radius: 8px; padding: 1.25rem; margin: 1rem 0; }
+.insight-box h4 { color: var(--accent); margin-top: 0; }
+.chart-container { width: 100%; max-width: 800px; margin: 1rem auto; }
+ul { padding-left: 1.5rem; }
+.bleu-code-section { margin-top: 2rem; }
+</style>
+</head>
+<body>
+
+<h1>Understanding NLG Metrics for Commit Message Generation</h1>
+<p class="subtitle">Why BLEU-4 scores are so low, how each metric works, and what BLEU-CODE adds — with real examples from the dLLM ablation study</p>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<h2>1. Why Is BLEU So Low?</h2>
+
+<div class="card">
+<h3>The Core Problem: Semantic Equivalence ≠ Lexical Overlap</h3>
+<p>Commit messages are <strong>short, semantically dense</strong>, and there are many valid ways to express the same change. BLEU measures <strong>exact n-gram overlap</strong>, so two sentences with the same meaning but different words score near zero.</p>
+
+<div class="insight-box">
+<h4>Real Example from the Dataset</h4>
+<div class="text-row">
+  <span class="text-label">Reference</span>
+  <span class="text-content">"replace remaining uses of bail"</span>
+</div>
+<div class="text-row">
+  <span class="text-label">dLLM</span>
+  <span class="text-content">"Refactor DAG clear method to include acyclic check and exit condition"</span>
+</div>
+<div class="text-row">
+  <span class="text-label">AR</span>
+  <span class="text-content">"Bail out of infinite loop when clearing DAGs"</span>
+</div>
+<p style="margin-top: 1rem;">The dLLM output is a reasonable commit message — it describes a refactoring of the DAG clearing logic — but shares <strong>zero words</strong> with the reference. BLEU-4 = <span class="score-badge score-low">0.0000</span></p>
+<p>The AR baseline at least shares "bail" and gets a marginal boost, but still scores very low because the <em>phrasing</em> is completely different.</p>
+</div>
+
+<h3 style="margin-top: 1.5rem;">Five Reasons BLEU Is Low for Commit Messages</h3>
+<ol>
+  <li><strong>Short references</strong> — Labels average ~5-8 words. With BLEU-4, you need matching 4-grams, but a 5-word reference has only <em>two</em> possible 4-grams. One mismatch → score crashes.</li>
+  <li><strong>Many valid paraphrases</strong> — "fix bug in X" vs "resolve issue with X" vs "correct X behavior" all describe the same change but share few n-grams.</li>
+  <li><strong>Code identifiers</strong> — The model may reference <code>BashOperator</code> while the reference says "operators" — semantically equivalent but different tokens.</li>
+  <li><strong>Style differences</strong> — References are often lowercase shorthand ("fix mypy issues") while models generate formal sentences ("Bug fix: Corrected incorrect function signature").</li>
+  <li><strong>Brevity Penalty is inverted</strong> — BLEU penalizes short hypotheses. But here, the <em>generated</em> text is often <strong>longer</strong> than the reference, so BP=1.0 (no penalty). The problem is low precision — too many extra words dilute matches.</li>
+</ol>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<h2>2. How Each Metric Works</h2>
+
+<div class="metric-grid">
+
+<!-- BLEU-4 -->
+<div class="metric-card">
+  <h3>BLEU-4 <span class="score-badge score-low">~0.02</span></h3>
+  <p><strong>What it measures:</strong> Precision of 1- through 4-gram matches between hypothesis and reference, with a brevity penalty.</p>
+  <div class="formula">
+    BLEU = BP × exp( Σ wₙ × log(pₙ) )<br><br>
+    pₙ = (clipped n-gram matches) / (total hyp n-grams)<br>
+    BP = min(1, e^(1 - ref_len/hyp_len))<br>
+    wₙ = 0.25 for each n ∈ {1,2,3,4}
+  </div>
+  <p><strong>Why it's low:</strong> Requires exact token sequence matches. A 5-word reference has only 2 four-grams. Generated messages use different vocabulary. Smoothing (method1) adds epsilon to zero counts but can't salvage zero overlap.</p>
+  <p><strong>Range:</strong> 0.0 – 1.0 (0 = no overlap, 1 = perfect match)</p>
+</div>
+
+<!-- BLEU-NORM -->
+<div class="metric-card">
+  <h3>BLEU-NORM <span class="score-badge score-low">~0.03</span></h3>
+  <p><strong>What it measures:</strong> Same as BLEU-4 but after normalizing: lowercase + strip all punctuation.</p>
+  <div class="formula">
+    Normalize: "Fix: Bug-fix!" → "fix bugfix"<br>
+    Then compute BLEU-4 on normalized tokens
+  </div>
+  <p><strong>Why it helps slightly:</strong> Removes case mismatches ("Fix" → "fix") and punctuation noise. Marginal improvement because the core vocabulary mismatch remains.</p>
+</div>
+
+<!-- BLEU-CODE -->
+<div class="metric-card">
+  <h3>BLEU-CODE <span class="score-badge score-low">~0.03</span></h3>
+  <p><strong>What it measures:</strong> BLEU-4 after code-aware tokenization: camelCase splitting, snake_case splitting, and Porter stemming.</p>
+  <div class="formula">
+    "CxfEndpoint" → "cxf endpoint" → stem → "cxf endpoint"<br>
+    "back_off_factor" → "back off factor" → stem → "back off factor"<br>
+    "remaining" → stem → "remain"<br>
+    "removed" → stem → "remov"
+  </div>
+  <p><strong>Why it helps:</strong> Code identifiers like <code>BashOperator</code> become "bash oper" which can partially match "operators" → "oper". Stemming collapses "fixing"/"fixed"/"fix" into "fix".</p>
+  <p><strong>Still low because:</strong> Even with stemming, fundamentally different descriptions ("refactor" vs "replace") don't overlap.</p>
+</div>
+
+<!-- ROUGE-1 -->
+<div class="metric-card">
+  <h3>ROUGE-1 <span class="score-badge score-mid">~0.14</span></h3>
+  <p><strong>What it measures:</strong> Unigram overlap between hypothesis and reference, using both precision <em>and recall</em>, reported as F1.</p>
+  <div class="formula">
+    P = (matching unigrams) / (total hyp unigrams)<br>
+    R = (matching unigrams) / (total ref unigrams)<br>
+    F1 = 2PR / (P + R)
+  </div>
+  <p><strong>Why it's higher than BLEU:</strong> Only needs single-word matches (not sequences). F1 balances precision and recall, so matching even 1-2 words from a 5-word reference gives nonzero recall. Uses stemming internally.</p>
+</div>
+
+<!-- ROUGE-2 -->
+<div class="metric-card">
+  <h3>ROUGE-2 <span class="score-badge score-low">~0.04</span></h3>
+  <p><strong>What it measures:</strong> Bigram overlap (F1). Needs consecutive 2-word matches.</p>
+  <div class="formula">Same as ROUGE-1 but with bigrams instead of unigrams</div>
+  <p><strong>Why it's low:</strong> Same problem as BLEU — needing <em>consecutive word pairs</em> to match is hard when vocabulary diverges. Slightly better than BLEU-4 because it's only 2-grams (not 4).</p>
+</div>
+
+<!-- ROUGE-L -->
+<div class="metric-card">
+  <h3>ROUGE-L <span class="score-badge score-mid">~0.13</span></h3>
+  <p><strong>What it measures:</strong> Longest Common Subsequence (LCS) based F1. Words don't need to be consecutive — just in the same order.</p>
+  <div class="formula">
+    LCS("fix bug in tests", "fix tests issues")<br>
+    → LCS = "fix tests" (length 2, non-consecutive)<br>
+    P = 2/3, R = 2/4 → F1 = 0.571
+  </div>
+  <p><strong>Why it's useful:</strong> Captures word order similarity even with insertions/deletions. More forgiving than n-gram metrics.</p>
+</div>
+
+<!-- METEOR -->
+<div class="metric-card">
+  <h3>METEOR <span class="score-badge score-mid">~0.10</span></h3>
+  <p><strong>What it measures:</strong> Unigram alignment using exact matches, stems, and WordNet synonyms. Penalizes fragmented matches (word order disruption).</p>
+  <div class="formula">
+    1. Align hyp↔ref via: exact → stem → synonym<br>
+    2. P = matched/hyp_len, R = matched/ref_len<br>
+    3. F_mean = 10PR / (R + 9P)  [recall-weighted]<br>
+    4. Penalty = 0.5 × (chunks/matches)³<br>
+    5. METEOR = F_mean × (1 - Penalty)
+  </div>
+  <p><strong>Why it's the highest:</strong> Synonym matching catches "fix"↔"correct", "remove"↔"delete". Stemming helps with "remaining"→"remain". Recall-weighted, so it rewards covering reference words.</p>
+  <p><strong>Best for commit messages</strong> because it handles paraphrasing better than any other metric here.</p>
+</div>
+
+<!-- CIDEr -->
+<div class="metric-card">
+  <h3>CIDEr <span class="score-badge score-mid">~0.5–2.0</span></h3>
+  <p><strong>What it measures:</strong> Corpus-level TF-IDF weighted n-gram cosine similarity. Rewards n-grams that are distinctive (rare across the corpus) and shared between hypothesis and reference.</p>
+  <div class="formula">
+    1. Tokenize hypothesis and reference<br>
+    2. Build document frequency (DF) from all references in the corpus<br>
+    3. For each n-gram: TF = count / total_ngrams, IDF = log(N / DF)<br>
+    4. Build TF-IDF vector for hypothesis and reference<br>
+    5. CIDEr_n = cosine_similarity(hyp_vec, ref_vec)<br>
+    6. CIDEr = 10.0 × average(CIDEr_1..CIDEr_4)
+  </div>
+  <p><strong>Why it matters:</strong> Unlike BLEU which treats all n-grams equally, CIDEr down-weights common n-grams (e.g., "fix", "add") and up-weights distinctive ones (e.g., "backoff_factor", "partition sensor"). This better captures whether the model generated the <em>important</em> parts of the commit message.</p>
+  <p><strong>Scale:</strong> Multiplied by 10.0 (convention from the CIDEr paper). Scores typically range from 0 to ~10, with most commit messages scoring 0.5–3.0.</p>
+</div>
+
+<!-- QS (placeholder) -->
+<div class="metric-card">
+  <h3>Tokens/sec & Speed Metrics</h3>
+  <p><strong>What they measure:</strong> Generation throughput and efficiency.</p>
+  <div class="formula">
+    Tokens/sec = generated_tokens / wall_seconds<br>
+    Tokens/step = generated_tokens / diffusion_steps<br>
+    (AR always has tokens/step = 1.0)
+  </div>
+  <p><strong>Key insight:</strong> dLLM generates multiple tokens per step via parallel diffusion, trading quality for speed. Lower confidence threshold → more tokens accepted per step → faster but noisier.</p>
+</div>
+
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<h2>3. Metric Comparison at a Glance</h2>
+
+<div class="card">
+<table class="metrics-table">
+<thead>
+<tr><th>Metric</th><th>Type</th><th>Handles Synonyms?</th><th>Handles Stemming?</th><th>Order-Sensitive?</th><th>Best dLLM Score</th><th>AR Baseline</th><th>Why This Score Level</th></tr>
+</thead>
+<tbody>
+<tr><td>BLEU-4</td><td>N-gram precision</td><td>❌</td><td>❌</td><td>✅ (4-gram)</td><td class="num">0.0180</td><td class="num">0.0221</td><td>Exact 4-word sequences rarely match</td></tr>
+<tr><td>BLEU-NORM</td><td>N-gram precision</td><td>❌</td><td>❌</td><td>✅ (4-gram)</td><td class="num">0.0211</td><td class="num">0.0264</td><td>Removing punctuation/case helps marginally</td></tr>
+<tr><td>BLEU-CODE</td><td>N-gram precision</td><td>❌</td><td>✅</td><td>✅ (4-gram)</td><td class="num">0.0245</td><td class="num">0.0287</td><td>Stemming + identifier splitting helps slightly</td></tr>
+<tr><td>ROUGE-1</td><td>Unigram F1</td><td>❌</td><td>✅*</td><td>❌</td><td class="num">0.1438</td><td class="num">0.1663</td><td>Single word matches give nonzero recall</td></tr>
+<tr><td>ROUGE-2</td><td>Bigram F1</td><td>❌</td><td>✅*</td><td>✅ (bigram)</td><td class="num">0.0374</td><td class="num">0.0374</td><td>2-word sequences still rarely match</td></tr>
+<tr><td>ROUGE-L</td><td>LCS F1</td><td>❌</td><td>✅*</td><td>Partial</td><td class="num">0.1275</td><td class="num">0.1486</td><td>Non-consecutive matching helps</td></tr>
+<tr><td>METEOR</td><td>Alignment F1</td><td>✅</td><td>✅</td><td>Partial†</td><td class="num">0.1155</td><td class="num">0.0992</td><td>Synonyms + stems + recall-weighted → highest</td></tr>
+<tr><td>CIDEr</td><td>TF-IDF cosine</td><td>❌</td><td>❌</td><td>❌</td><td class="num">—</td><td class="num">—</td><td>Rewards distinctive n-grams; corpus-level IDF weighting</td></tr>
+</tbody>
+</table>
+<p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 0.5rem;">* ROUGE uses stemming internally via <code>use_stemmer=True</code>. † METEOR penalizes fragmented (out-of-order) matches.</p>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<h2>4. Interactive Examples — See the Metrics in Action</h2>
+
+<div class="highlight-legend">
+  <div class="legend-item"><div class="legend-swatch" style="background: var(--match-bg); border: 1px solid var(--match-border);"></div> Matching token</div>
+  <div class="legend-item"><div class="legend-swatch" style="background: var(--no-match-bg); border: 1px solid var(--no-match-border);"></div> Non-matching token</div>
+  <div class="legend-item"><div class="legend-swatch" style="background: var(--surface2); border: 1px solid var(--border);"></div> Reference token</div>
+</div>
+
+<div id="examples-container"></div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<h2 id="bleu-code-section">5. BLEU-CODE Deep Dive</h2>
+
+<div class="card">
+<h3>How BLEU-CODE Tokenization Differs</h3>
+<p>BLEU-CODE applies three transformations before computing BLEU-4:</p>
+<ol>
+  <li><strong>CamelCase splitting:</strong> <code>CxfEndpoint</code> → <code>Cxf Endpoint</code>, <code>BashOperator</code> → <code>Bash Operator</code></li>
+  <li><strong>snake_case splitting:</strong> <code>back_off_factor</code> → <code>back off factor</code></li>
+  <li><strong>Porter stemming:</strong> <code>remaining</code> → <code>remain</code>, <code>operators</code> → <code>oper</code>, <code>fixing</code> → <code>fix</code></li>
+</ol>
+
+<div class="insight-box">
+<h4>When BLEU-CODE Helps vs. Doesn't</h4>
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+<div>
+<p><strong style="color: var(--green);">✓ Helps when:</strong></p>
+<ul>
+  <li>Reference has "operators", generated has "BashOperator" → both stem to "oper"</li>
+  <li>Reference says "fixing", generated says "fixed" → both become "fix"</li>
+  <li>Reference has "retry_config", generated has "retryConfig" → both split + stem similarly</li>
+</ul>
+</div>
+<div>
+<p><strong style="color: var(--red);">✗ Doesn't help when:</strong></p>
+<ul>
+  <li>Completely different vocabulary ("refactor" vs "replace")</li>
+  <li>Different level of description (high-level vs specific)</li>
+  <li>Synonym usage ("remove" vs "delete" — only METEOR catches this)</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+
+<div id="tokenization-comparison"></div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<h2>6. BLEU-CODE Ablation Results</h2>
+
+<div class="card">
+<h3>BLEU-CODE vs Other Metrics Across Configurations</h3>
+<p>Below we plot BLEU-CODE alongside BLEU-4 and BLEU-NORM to show the incremental benefit of code-aware tokenization.</p>
+</div>
+
+<div id="bleu-code-charts"></div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<h2>7. Key Takeaways</h2>
+
+<div class="card">
+<ol>
+  <li><strong>BLEU-4 is a poor metric for commit messages</strong> — short references + paraphrasing → near-zero scores for semantically correct outputs.</li>
+  <li><strong>BLEU-CODE provides ~20-30% relative improvement</strong> over BLEU-4 by handling code identifiers and morphological variants, but is still fundamentally limited by the n-gram precision framework.</li>
+  <li><strong>METEOR is the most informative metric</strong> — synonym matching via WordNet and recall-weighted scoring make it best suited for evaluating paraphrased text.</li>
+  <li><strong>ROUGE-L captures structural similarity</strong> — the subsequence-based approach handles word reordering better than strict n-gram metrics.</li>
+  <li><strong>All metrics agree on the quality-speed trade-off</strong> — higher confidence thresholds consistently improve all scores at the cost of throughput.</li>
+  <li><strong>Semantic similarity metrics (BERTScore, etc.) would likely show much higher scores</strong> — these aren't computed here but would be the "right" tool for this task.</li>
+</ol>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<script>
+// Embedded data from the analysis
+const EXAMPLES_DATA = [{"task_id": "apache_airflow_0d8bc95", "label": "replace remaining uses of bail", "dllm": "Refactor DAG clear method to include acyclic check and exit condition", "ar": "Bail out of infinite loop when clearing DAGs", "dllm_metrics": {"tokens": {"simple": {"hyp": ["refactor", "dag", "clear", "method", "to", "include", "acyclic", "check", "and", "exit", "condition"], "ref": ["replace", "remaining", "uses", "of", "bail"]}, "norm": {"hyp": ["refactor", "dag", "clear", "method", "to", "include", "acyclic", "check", "and", "exit", "condition"], "ref": ["replace", "remaining", "uses", "of", "bail"]}, "code": {"hyp": ["refactor", "dag", "clear", "method", "to", "includ", "acycl", "check", "and", "exit", "condit"], "ref": ["replac", "remain", "use", "of", "bail"]}}, "bleu4": {"score": 0, "brevity_penalty": 1.0, "hyp_len": 11, "ref_len": 5, "ngrams": {"1gram": {"matches": 0, "hyp_count": 11, "ref_count": 5, "precision": 0.0}, "2gram": {"matches": 0, "hyp_count": 10, "ref_count": 4, "precision": 0.0}, "3gram": {"matches": 0, "hyp_count": 9, "ref_count": 3, "precision": 0.0}, "4gram": {"matches": 0, "hyp_count": 8, "ref_count": 2, "precision": 0.0}}}, "bleu_norm": {"score": 0, "brevity_penalty": 1.0, "hyp_len": 11, "ref_len": 5, "ngrams": {"1gram": {"matches": 0, "hyp_count": 11, "ref_count": 5, "precision": 0.0}, "2gram": {"matches": 0, "hyp_count": 10, "ref_count": 4, "precision": 0.0}, "3gram": {"matches": 0, "hyp_count": 9, "ref_count": 3, "precision": 0.0}, "4gram": {"matches": 0, "hyp_count": 8, "ref_count": 2, "precision": 0.0}}}, "bleu_code": {"score": 0, "brevity_penalty": 1.0, "hyp_len": 11, "ref_len": 5, "ngrams": {"1gram": {"matches": 0, "hyp_count": 11, "ref_count": 5, "precision": 0.0}, "2gram": {"matches": 0, "hyp_count": 10, "ref_count": 4, "precision": 0.0}, "3gram": {"matches": 0, "hyp_count": 9, "ref_count": 3, "precision": 0.0}, "4gram": {"matches": 0, "hyp_count": 8, "ref_count": 2, "precision": 0.0}}}, "rouge1": {"precision": 0.0, "recall": 0.0, "f1": 0.0}, "rouge2": {"precision": 0.0, "recall": 0.0, "f1": 0.0}, "rougeL": {"precision": 0.0, "recall": 0.0, "f1": 0.0}, "meteor": 0.0, "common_words": [], "common_code_tokens": []}, "ar_metrics": {"tokens": {"simple": {"hyp": ["bail", "out", "of", "infinite", "loop", "when", "clearing", "dags"], "ref": ["replace", "remaining", "uses", "of", "bail"]}, "norm": {"hyp": ["bail", "out", "of", "infinite", "loop", "when", "clearing", "dags"], "ref": ["replace", "remaining", "uses", "of", "bail"]}, "code": {"hyp": ["bail", "out", "of", "infinit", "loop", "when", "clear", "da", "gs"], "ref": ["replac", "remain", "use", "of", "bail"]}}, "bleu4": {"score": 0.033, "brevity_penalty": 1.0, "hyp_len": 8, "ref_len": 5, "ngrams": {"1gram": {"matches": 2, "hyp_count": 8, "ref_count": 5, "precision": 0.25}, "2gram": {"matches": 0, "hyp_count": 7, "ref_count": 4, "precision": 0.0}, "3gram": {"matches": 0, "hyp_count": 6, "ref_count": 3, "precision": 0.0}, "4gram": {"matches": 0, "hyp_count": 5, "ref_count": 2, "precision": 0.0}}}, "bleu_norm": {"score": 0.033, "brevity_penalty": 1.0, "hyp_len": 8, "ref_len": 5, "ngrams": {"1gram": {"matches": 2, "hyp_count": 8, "ref_count": 5, "precision": 0.25}, "2gram": {"matches": 0, "hyp_count": 7, "ref_count": 4, "precision": 0.0}, "3gram": {"matches": 0, "hyp_count": 6, "ref_count": 3, "precision": 0.0}, "4gram": {"matches": 0, "hyp_count": 5, "ref_count": 2, "precision": 0.0}}}, "bleu_code": {"score": 0.0285, "brevity_penalty": 1.0, "hyp_len": 9, "ref_len": 5, "ngrams": {"1gram": {"matches": 2, "hyp_count": 9, "ref_count": 5, "precision": 0.2222}, "2gram": {"matches": 0, "hyp_count": 8, "ref_count": 4, "precision": 0.0}, "3gram": {"matches": 0, "hyp_count": 7, "ref_count": 3, "precision": 0.0}, "4gram": {"matches": 0, "hyp_count": 6, "ref_count": 2, "precision": 0.0}}}, "rouge1": {"precision": 0.25, "recall": 0.4, "f1": 0.3077}, "rouge2": {"precision": 0.0, "recall": 0.0, "f1": 0.0}, "rougeL": {"precision": 0.125, "recall": 0.2, "f1": 0.1538}, "meteor": 0.1887, "common_words": ["bail", "of"], "common_code_tokens": ["bail", "of"]}}, {"task_id": "apache_airflow_121e2b6", "label": "removed print statement from view", "dllm": "Fix indefinite loading for users by removing the print statement and handling JSON data in the variables function", "ar": "Bug fix: Print variable data before saving it", "dllm_metrics": {"tokens": {"simple": {"hyp": ["fix", "indefinite", "loading", "for", "users", "by", "removing", "the", "print", "statement", "and", "handling", "json", "data", "in", "the", "variables", "function"], "ref": ["removed", "print", "statement", "from", "view"]}, "norm": {"hyp": ["fix", "indefinite", "loading", "for", "users", "by", "removing", "the", "print", "statement", "and", "handling", "json", "data", "in", "the", "variables", "function"], "ref": ["removed", "print", "statement", "from", "view"]}, "code": {"hyp": ["fix", "indefinit", "load", "for", "user", "by", "remov", "the", "print", "statement", "and", "handl", "json", "data", "in", "the", "variabl", "function"], "ref": ["remov", "print", "statement", "from", "view"]}}, "bleu4": {"score": 0.0228, "brevity_penalty": 1.0, "hyp_len": 18, "ref_len": 5, "ngrams": {"1gram": {"matches": 2, "hyp_count": 18, "ref_count": 5, "precision": 0.1111}, "2gram": {"matches": 1, "hyp_count": 17, "ref_count": 4, "precision": 0.0588}, "3gram": {"matches": 0, "hyp_count": 16, "ref_count": 3, "precision": 0.0}, "4gram": {"matches": 0, "hyp_count": 15, "ref_count": 2, "precision": 0.0}}}, "bleu_norm": {"score": 0.0228, "brevity_penalty": 1.0, "hyp_len": 18, "ref_len": 5, "ngrams": {"1gram": {"matches": 2, "hyp_count": 18, "ref_count": 5, "precision": 0.1111}, "2gram": {"matches": 1, "hyp_count": 17, "ref_count": 4, "precision": 0.0588}, "3gram": {"matches": 0, "hyp_count": 16, "ref_count": 3, "precision": 0.0}, "4gram": {"matches": 0, "hyp_count": 15, "ref_count": 2, "precision": 0.0}}}, "bleu_code": {"score": 0.0253, "brevity_penalty": 1.0, "hyp_len": 18, "ref_len": 5, "ngrams": {"1gram": {"matches": 3, "hyp_count": 18, "ref_count": 5, "precision": 0.1667}, "2gram": {"matches": 1, "hyp_count": 17, "ref_count": 4, "precision": 0.0588}, "3gram": {"matches": 0, "hyp_count": 16, "ref_count": 3, "precision": 0.0}, "4gram": {"matches": 0, "hyp_count": 15, "ref_count": 2, "precision": 0.0}}}, "rouge1": {"precision": 0.1667, "recall": 0.6, "f1": 0.2609}, "rouge2": {"precision": 0.0588, "recall": 0.25, "f1": 0.0952}, "rougeL": {"precision": 0.1667, "recall": 0.6, "f1": 0.2609}, "meteor": 0.4056, "common_words": ["print", "statement"], "common_code_tokens": ["print", "remov", "statement"]}, "ar_metrics": {"tokens": {"simple": {"hyp": ["bug", "fix:", "print", "variable", "data", "before", "saving", "it"], "ref": ["removed", "print", "statement", "from", "view"]}, "norm": {"hyp": ["bug", "fix", "print", "variable", "data", "before", "saving", "it"], "ref": ["removed", "print", "statement", "from", "view"]}, "code": {"hyp": ["bug", "fix", "print", "variabl", "data", "befor", "save", "it"], "ref": ["remov", "print", "statement", "from", "view"]}}, "bleu4": {"score": 0.0278, "brevity_penalty": 1.0, "hyp_len": 8, "ref_len": 5, "ngrams": {"1gram": {"matches": 1, "hyp_count": 8, "ref_count": 5, "precision": 0.125}, "2gram": {"matches": 0, "hyp_count": 7, "ref_count": 4, "precision": 0.0}, "3gram": {"matches": 0, "hyp_count": 6, "ref_count": 3, "precision": 0.0}, "4gram": {"matches": 0, "hyp_count": 5, "ref_count": 2, "precision": 0.0}}}, "bleu_norm": {"score": 0.0278, "brevity_penalty": 1.0, "hyp_len": 8, "ref_len": 5, "ngrams": {"1gram": {"matches": 1, "hyp_count": 8, "ref_count": 5, "precision": 0.125}, "2gram": {"matches": 0, "hyp_count": 7, "ref_count": 4, "precision": 0.0}, "3gram": {"matches": 0, "hyp_count": 6, "ref_count": 3, "precision": 0.0}, "4gram": {"matches": 0, "hyp_count": 5, "ref_count": 2, "precision": 0.0}}}, "bleu_code": {"score": 0.0278, "brevity_penalty": 1.0, "hyp_len": 8, "ref_len": 5, "ngrams": {"1gram": {"matches": 1, "hyp_count": 8, "ref_count": 5, "precision": 0.125}, "2gram": {"matches": 0, "hyp_count": 7, "ref_count": 4, "precision": 0.0}, "3gram": {"matches": 0, "hyp_count": 6, "ref_count": 3, "precision": 0.0}, "4gram": {"matches": 0, "hyp_count": 5, "ref_count": 2, "precision": 0.0}}}, "rouge1": {"precision": 0.125, "recall": 0.2, "f1": 0.1538}, "rouge2": {"precision": 0.0, "recall": 0.0, "f1": 0.0}, "rougeL": {"precision": 0.125, "recall": 0.2, "f1": 0.1538}, "meteor": 0.0943, "common_words": ["print"], "common_code_tokens": ["print"]}}, {"task_id": "apache_airflow_12ad64f", "label": "fix mypy issues in tests decorators and hooks", "dllm": "Refactor subprocess execution logic to use `Mock` objects for mocking and better maintainability", "ar": "Bug fix: Corrected incorrect function signature in test file", "dllm_metrics": {"tokens": {"simple": {"hyp": ["refactor", "subprocess", "execution", "logic", "to", "use", "`mock`", "objects", "for", "mocking", "and", "better", "maintainability"], "ref": ["fix", "mypy", "issues", "in", "tests", "decorators", "and", "hooks"]}, "norm": {"hyp": ["refactor", "subprocess", "execution", "logic", "to", "use", "mock", "objects", "for", "mocking", "and", "better", "maintainability"], "ref": ["fix", "mypy", "issues", "in", "tests", "decorators", "and", "hooks"]}, "code": {"hyp": ["refactor", "subprocess", "execut", "logic", "to", "use", "mock", "object", "for", "mock", "and", "better", "maintain"], "ref": ["fix", "mypi", "issu", "in", "test", "decor", "and", "hook"]}}, "bleu4": {"score": 0.0155, "brevity_penalty": 1.0, "hyp_len": 13, "ref_len": 8, "ngrams": {"1gram": {"matches": 1, "hyp_count": 13, "ref_count": 8, "precision": 0.0769}, "2gram": {"matches": 0, "hyp_count": 12, "ref_count": 7, "precision": 0.0}, "3gram": {"matches": 0, "hyp_count": 11, "ref_count": 6, "precision": 0.0}, "4gram": {"matches": 0, "hyp_count": 10, "ref_count": 5, "precision": 0.0}}}, "bleu_norm": {"score": 0.0155, "brevity_penalty": 1.0, "hyp_len": 13, "ref_len": 8, "ngrams": {"1gram": {"matches": 1, "hyp_count": 13, "ref_count": 8, "precision": 0.0769}, "2gram": {"matches": 0, "hyp_count": 12, "ref_count": 7, "precision": 0.0}, "3gram": {"matches": 0, "hyp_count": 11, "ref_count": 6, "precision": 0.0}, "4gram": {"matches": 0, "hyp_count": 10, "ref_count": 5, "precision": 0.0}}}, "bleu_code": {"score": 0.0155, "brevity_penalty": 1.0, "hyp_len": 13, "ref_len": 8, "ngrams": {"1gram": {"matches": 1, "hyp_count": 13, "ref_count": 8, "precision": 0.0769}, "2gram": {"matches": 0, "hyp_count": 12, "ref_count": 7, "precision": 0.0}, "3gram": {"matches": 0, "hyp_count": 11, "ref_count": 6, "precision": 0.0}, "4gram": {"matches": 0, "hyp_count": 10, "ref_count": 5, "precision": 0.0}}}, "rouge1": {"precision": 0.0769, "recall": 0.125, "f1": 0.0952}, "rouge2": {"precision": 0.0, "recall": 0.0, "f1": 0.0}, "rougeL": {"precision": 0.0769, "recall": 0.125, "f1": 0.0952}, "meteor": 0.0588, "common_words": ["and"], "common_code_tokens": ["and"]}, "ar_metrics": {"tokens": {"simple": {"hyp": ["bug", "fix:", "corrected", "incorrect", "function", "signature", "in", "test", "file"], "ref": ["fix", "mypy", "issues", "in", "tests", "decorators", "and", "hooks"]}, "norm": {"hyp": ["bug", "fix", "corrected", "incorrect", "function", "signature", "in", "test", "file"], "ref": ["fix", "mypy", "issues", "in", "tests", "decorators", "and", "hooks"]}, "code": {"hyp": ["bug", "fix", "correct", "incorrect", "function", "signatur", "in", "test", "file"], "ref": ["fix", "mypi", "issu", "in", "test", "decor", "and", "hook"]}}, "bleu4": {"score": 0.024, "brevity_penalty": 1.0, "hyp_len": 9, "ref_len": 8, "ngrams": {"1gram": {"matches": 1, "hyp_count": 9, "ref_count": 8, "precision": 0.1111}, "2gram": {"matches": 0, "hyp_count": 8, "ref_count": 7, "precision": 0.0}, "3gram": {"matches": 0, "hyp_count": 7, "ref_count": 6, "precision": 0.0}, "4gram": {"matches": 0, "hyp_count": 6, "ref_count": 5, "precision": 0.0}}}, "bleu_norm": {"score": 0.0285, "brevity_penalty": 1.0, "hyp_len": 9, "ref_len": 8, "ngrams": {"1gram": {"matches": 2, "hyp_count": 9, "ref_count": 8, "precision": 0.2222}, "2gram": {"matches": 0, "hyp_count": 8, "ref_count": 7, "precision": 0.0}, "3gram": {"matches": 0, "hyp_count": 7, "ref_count": 6, "precision": 0.0}, "4gram": {"matches": 0, "hyp_count": 6, "ref_count": 5, "precision": 0.0}}}, "bleu_code": {"score": 0.0561, "brevity_penalty": 1.0, "hyp_len": 9, "ref_len": 8, "ngrams": {"1gram": {"matches": 3, "hyp_count": 9, "ref_count": 8, "precision": 0.3333}, "2gram": {"matches": 1, "hyp_count": 8, "ref_count": 7, "precision": 0.125}, "3gram": {"matches": 0, "hyp_count": 7, "ref_count": 6, "precision": 0.0}, "4gram": {"matches": 0, "hyp_count": 6, "ref_count": 5, "precision": 0.0}}}, "rouge1": {"precision": 0.3333, "recall": 0.375, "f1": 0.3529}, "rouge2": {"precision": 0.125, "recall": 0.1429, "f1": 0.1333}, "rougeL": {"precision": 0.3333, "recall": 0.375, "f1": 0.3529}, "meteor": 0.2315, "common_words": ["in"], "common_code_tokens": ["fix", "in", "test"]}}, {"task_id": "apache_airflow_15df465", "label": "increase backoff_factor and add try catch in k8s tests", "dllm": "Fixed a retry configuration for the `start_dag` function, which retries the patch request up to 10 times with a backoff factor of 10 seconds between retries, and removed the retry configuration for the `cluster_forWARDED` parameter, which was causing an `MaxRetryError` when trying to start the DAG.", "ar": "Bug fix: Added retry mechanism to handle potential network issues during DAG parsing.", "dllm_metrics": {"tokens": {"simple": {"hyp": ["fixed", "a", "retry", "configuration", "for", "the", "`start_dag`", "function,", "which", "retries", "the", "patch", "request", "up", "to", "10", "times", "with", "a", "backoff", "factor", "of", "10", "seconds", "between", "retries,", "and", "removed", "the", "retry", "configuration", "for", "the", "`cluster_forwarded`", "parameter,", "which", "was", "causing", "an", "`maxretryerror`", "when", "trying", "to", "start", "the", "dag."], "ref": ["increase", "backoff_factor", "and", "add", "try", "catch", "in", "k8s", "tests"]}, "norm": {"hyp": ["fixed", "a", "retry", "configuration", "for", "the", "start", "dag", "function", "which", "retries", "the", "patch", "request", "up", "to", "10", "times", "with", "a", "backoff", "factor", "of", "10", "seconds", "between", "retries", "and", "removed", "the", "retry", "configuration", "for", "the", "cluster", "forwarded", "parameter", "which", "was", "causing", "an", "maxretryerror", "when", "trying", "to", "start", "the", "dag"], "ref": ["increase", "backoff", "factor", "and", "add", "try", "catch", "in", "k8s", "tests"]}, "code": {"hyp": ["fix", "a", "retri", "configur", "for", "the", "start", "dag", "function", "which", "retri", "the", "patch", "request", "up", "to", "10", "time", "with", "a", "backoff", "factor", "of", "10", "second", "between", "retri", "and", "remov", "the", "retri", "configur", "for", "the", "cluster", "for", "ward", "paramet", "which", "wa", "caus", "an", "max", "retri", "error", "when", "tri", "to", "start", "the", "dag"], "ref": ["increas", "backoff", "factor", "and", "add", "tri", "catch", "in", "k8", "test"]}}, "bleu4": {"score": 0.004, "brevity_penalty": 1.0, "hyp_len": 46, "ref_len": 9, "ngrams": {"1gram": {"matches": 1, "hyp_count": 46, "ref_count": 9, "precision": 0.0217}, "2gram": {"matches": 0, "hyp_count": 45, "ref_count": 8, "precision": 0.0}, "3gram": {"matches": 0, "hyp_count": 44, "ref_count": 7, "precision": 0.0}, "4gram": {"matches": 0, "hyp_count": 43, "ref_count": 6, "precision": 0.0}}}, "bleu_norm": {"score": 0.009, "brevity_penalty": 1.0, "hyp_len": 48, "ref_len": 10, "ngrams": {"1gram": {"matches": 3, "hyp_count": 48, "ref_count": 10, "precision": 0.0625}, "2gram": {"matches": 1, "hyp_count": 47, "ref_count": 9, "precision": 0.0213}, "3gram": {"matches": 0, "hyp_count": 46, "ref_count": 8, "precision": 0.0}, "4gram": {"matches": 0, "hyp_count": 45, "ref_count": 7, "precision": 0.0}}}, "bleu_code": {"score": 0.009, "brevity_penalty": 1.0, "hyp_len": 51, "ref_len": 10, "ngrams": {"1gram": {"matches": 4, "hyp_count": 51, "ref_count": 10, "precision": 0.0784}, "2gram": {"matches": 1, "hyp_count": 50, "ref_count": 9, "precision": 0.02}, "3gram": {"matches": 0, "hyp_count": 49, "ref_count": 8, "precision": 0.0}, "4gram": {"matches": 0, "hyp_count": 48, "ref_count": 7, "precision": 0.0}}}, "rouge1": {"precision": 0.0625, "recall": 0.3, "f1": 0.1034}, "rouge2": {"precision": 0.0213, "recall": 0.1111, "f1": 0.0357}, "rougeL": {"precision": 0.0625, "recall": 0.3, "f1": 0.1034}, "meteor": 0.0787, "common_words": ["and"], "common_code_tokens": ["and", "backoff", "factor", "tri"]}, "ar_metrics": {"tokens": {"simple": {"hyp": ["bug", "fix:", "added", "retry", "mechanism", "to", "handle", "potential", "network", "issues", "during", "dag", "parsing."], "ref": ["increase", "backoff_factor", "and", "add", "try", "catch", "in", "k8s", "tests"]}, "norm": {"hyp": ["bug", "fix", "added", "retry", "mechanism", "to", "handle", "potential", "network", "issues", "during", "dag", "parsing"], "ref": ["increase", "backoff", "factor", "and", "add", "try", "catch", "in", "k8s", "tests"]}, "code": {"hyp": ["bug", "fix", "ad", "retri", "mechan", "to", "handl", "potenti", "network", "issu", "dure", "dag", "pars"], "ref": ["increas", "backoff", "factor", "and", "add", "tri", "catch", "in", "k8", "test"]}}, "bleu4": {"score": 0, "brevity_penalty": 1.0, "hyp_len": 13, "ref_len": 9, "ngrams": {"1gram": {"matches": 0, "hyp_count": 13, "ref_count": 9, "precision": 0.0}, "2gram": {"matches": 0, "hyp_count": 12, "ref_count": 8, "precision": 0.0}, "3gram": {"matches": 0, "hyp_count": 11, "ref_count": 7, "precision": 0.0}, "4gram": {"matches": 0, "hyp_count": 10, "ref_count": 6, "precision": 0.0}}}, "bleu_norm": {"score": 0, "brevity_penalty": 1.0, "hyp_len": 13, "ref_len": 10, "ngrams": {"1gram": {"matches": 0, "hyp_count": 13, "ref_count": 10, "precision": 0.0}, "2gram": {"matches": 0, "hyp_count": 12, "ref_count": 9, "precision": 0.0}, "3gram": {"matches": 0, "hyp_count": 11, "ref_count": 8, "precision": 0.0}, "4gram": {"matches": 0, "hyp_count": 10, "ref_count": 7, "precision": 0.0}}}, "bleu_code": {"score": 0, "brevity_penalty": 1.0, "hyp_len": 13, "ref_len": 10, "ngrams": {"1gram": {"matches": 0, "hyp_count": 13, "ref_count": 10, "precision": 0.0}, "2gram": {"matches": 0, "hyp_count": 12, "ref_count": 9, "precision": 0.0}, "3gram": {"matches": 0, "hyp_count": 11, "ref_count": 8, "precision": 0.0}, "4gram": {"matches": 0, "hyp_count": 10, "ref_count": 7, "precision": 0.0}}}, "rouge1": {"precision": 0.0, "recall": 0.0, "f1": 0.0}, "rouge2": {"precision": 0.0, "recall": 0.0, "f1": 0.0}, "rougeL": {"precision": 0.0, "recall": 0.0, "f1": 0.0}, "meteor": 0.0, "common_words": [], "common_code_tokens": []}}, {"task_id": "apache_airflow_167fa33", "label": "fix remnant of nose tests fixup", "dllm": "Fixed the named Hive partition sensor to handle non-existent partitions and add a timeout for non-existent partitions", "ar": "Bug fix: Fixed an issue where NamedHivePartitionSensor times out when checking non-existent partitions.", "dllm_metrics": {"tokens": {"simple": {"hyp": ["fixed", "the", "named", "hive", "partition", "sensor", "to", "handle", "non-existent", "partitions", "and", "add", "a", "timeout", "for", "non-existent", "partitions"], "ref": ["fix", "remnant", "of", "nose", "tests", "fixup"]}, "norm": {"hyp": ["fixed", "the", "named", "hive", "partition", "sensor", "to", "handle", "non", "existent", "partitions", "and", "add", "a", "timeout", "for", "non", "existent", "partitions"], "ref": ["fix", "remnant", "of", "nose", "tests", "fixup"]}, "code": {"hyp": ["fix", "the", "name", "hive", "partit", "sensor", "to", "handl", "non", "exist", "partit", "and", "add", "a", "timeout", "for", "non", "exist", "partit"], "ref": ["fix", "remnant", "of", "nose", "test", "fixup"]}}, "bleu4": {"score": 0, "brevity_penalty": 1.0, "hyp_len": 17, "ref_len": 6, "ngrams": {"1gram": {"matches": 0, "hyp_count": 17, "ref_count": 6, "precision": 0.0}, "2gram": {"matches": 0, "hyp_count": 16, "ref_count": 5, "precision": 0.0}, "3gram": {"matches": 0, "hyp_count": 15, "ref_count": 4, "precision": 0.0}, "4gram": {"matches": 0, "hyp_count": 14, "ref_count": 3, "precision": 0.0}}}, "bleu_norm": {"score": 0, "brevity_penalty": 1.0, "hyp_len": 19, "ref_len": 6, "ngrams": {"1gram": {"matches": 0, "hyp_count": 19, "ref_count": 6, "precision": 0.0}, "2gram": {"matches": 0, "hyp_count": 18, "ref_count": 5, "precision": 0.0}, "3gram": {"matches": 0, "hyp_count": 17, "ref_count": 4, "precision": 0.0}, "4gram": {"matches": 0, "hyp_count": 16, "ref_count": 3, "precision": 0.0}}}, "bleu_code": {"score": 0.0102, "brevity_penalty": 1.0, "hyp_len": 19, "ref_len": 6, "ngrams": {"1gram": {"matches": 1, "hyp_count": 19, "ref_count": 6, "precision": 0.0526}, "2gram": {"matches": 0, "hyp_count": 18, "ref_count": 5, "precision": 0.0}, "3gram": {"matches": 0, "hyp_count": 17, "ref_count": 4, "precision": 0.0}, "4gram": {"matches": 0, "hyp_count": 16, "ref_count": 3, "precision": 0.0}}}, "rouge1": {"precision": 0.0526, "recall": 0.1667, "f1": 0.08}, "rouge2": {"precision": 0.0, "recall": 0.0, "f1": 0.0}, "rougeL": {"precision": 0.0526, "recall": 0.1667, "f1": 0.08}, "meteor": 0.0704, "common_words": [], "common_code_tokens": ["fix"]}, "ar_metrics": {"tokens": {"simple": {"hyp": ["bug", "fix:", "fixed", "an", "issue", "where", "namedhivepartitionsensor", "times", "out", "when", "checking", "non-existent", "partitions."], "ref": ["fix", "remnant", "of", "nose", "tests", "fixup"]}, "norm": {"hyp": ["bug", "fix", "fixed", "an", "issue", "where", "namedhivepartitionsensor", "times", "out", "when", "checking", "non", "existent", "partitions"], "ref": ["fix", "remnant", "of", "nose", "tests", "fixup"]}, "code": {"hyp": ["bug", "fix", "fix", "an", "issu", "where", "name", "hive", "partit", "sensor", "time", "out", "when", "check", "non", "exist", "partit"], "ref": ["fix", "remnant", "of", "nose", "test", "fixup"]}}, "bleu4": {"score": 0, "brevity_penalty": 1.0, "hyp_len": 13, "ref_len": 6, "ngrams": {"1gram": {"matches": 0, "hyp_count": 13, "ref_count": 6, "precision": 0.0}, "2gram": {"matches": 0, "hyp_count": 12, "ref_count": 5, "precision": 0.0}, "3gram": {"matches": 0, "hyp_count": 11, "ref_count": 4, "precision": 0.0}, "4gram": {"matches": 0, "hyp_count": 10, "ref_count": 3, "precision": 0.0}}}, "bleu_norm": {"score": 0.0143, "brevity_penalty": 1.0, "hyp_len": 14, "ref_len": 6, "ngrams": {"1gram": {"matches": 1, "hyp_count": 14, "ref_count": 6, "precision": 0.0714}, "2gram": {"matches": 0, "hyp_count": 13, "ref_count": 5, "precision": 0.0}, "3gram": {"matches": 0, "hyp_count": 12, "ref_count": 4, "precision": 0.0}, "4gram": {"matches": 0, "hyp_count": 11, "ref_count": 3, "precision": 0.0}}}, "bleu_code": {"score": 0.0115, "brevity_penalty": 1.0, "hyp_len": 17, "ref_len": 6, "ngrams": {"1gram": {"matches": 1, "hyp_count": 17, "ref_count": 6, "precision": 0.0588}, "2gram": {"matches": 0, "hyp_count": 16, "ref_count": 5, "precision": 0.0}, "3gram": {"matches": 0, "hyp_count": 15, "ref_count": 4, "precision": 0.0}, "4gram": {"matches": 0, "hyp_count": 14, "ref_count": 3, "precision": 0.0}}}, "rouge1": {"precision": 0.0714, "recall": 0.1667, "f1": 0.1}, "rouge2": {"precision": 0.0, "recall": 0.0, "f1": 0.0}, "rougeL": {"precision": 0.0714, "recall": 0.1667, "f1": 0.1}, "meteor": 0.0746, "common_words": [], "common_code_tokens": ["fix"]}}, {"task_id": "apache_airflow_1d641d8", "label": "update remaining old import paths of operators", "dllm": "Refactor Google Cloud Data Catalog operations and removed deprecated `BashOperator` reference", "ar": "Update sensor module documentation and remove unused imports", "dllm_metrics": {"tokens": {"simple": {"hyp": ["refactor", "google", "cloud", "data", "catalog", "operations", "and", "removed", "deprecated", "`bashoperator`", "reference"], "ref": ["update", "remaining", "old", "import", "paths", "of", "operators"]}, "norm": {"hyp": ["refactor", "google", "cloud", "data", "catalog", "operations", "and", "removed", "deprecated", "bashoperator", "reference"], "ref": ["update", "remaining", "old", "import", "paths", "of", "operators"]}, "code": {"hyp": ["refactor", "googl", "cloud", "data", "catalog", "oper", "and", "remov", "deprec", "bash", "oper", "refer"], "ref": ["updat", "remain", "old", "import", "path", "of", "oper"]}}, "bleu4": {"score": 0, "brevity_penalty": 1.0, "hyp_len": 11, "ref_len": 7, "ngrams": {"1gram": {"matches": 0, "hyp_count": 11, "ref_count": 7, "precision": 0.0}, "2gram": {"matches": 0, "hyp_count": 10, "ref_count": 6, "precision": 0.0}, "3gram": {"matches": 0, "hyp_count": 9, "ref_count": 5, "precision": 0.0}, "4gram": {"matches": 0, "hyp_count": 8, "ref_count": 4, "precision": 0.0}}}, "bleu_norm": {"score": 0, "brevity_penalty": 1.0, "hyp_len": 11, "ref_len": 7, "ngrams": {"1gram": {"matches": 0, "hyp_count": 11, "ref_count": 7, "precision": 0.0}, "2gram": {"matches": 0, "hyp_count": 10, "ref_count": 6, "precision": 0.0}, "3gram": {"matches": 0, "hyp_count": 9, "ref_count": 5, "precision": 0.0}, "4gram": {"matches": 0, "hyp_count": 8, "ref_count": 4, "precision": 0.0}}}, "bleu_code": {"score": 0.017, "brevity_penalty": 1.0, "hyp_len": 12, "ref_len": 7, "ngrams": {"1gram": {"matches": 1, "hyp_count": 12, "ref_count": 7, "precision": 0.0833}, "2gram": {"matches": 0, "hyp_count": 11, "ref_count": 6, "precision": 0.0}, "3gram": {"matches": 0, "hyp_count": 10, "ref_count": 5, "precision": 0.0}, "4gram": {"matches": 0, "hyp_count": 9, "ref_count": 4, "precision": 0.0}}}, "rouge1": {"precision": 0.0909, "recall": 0.1429, "f1": 0.1111}, "rouge2": {"precision": 0.0, "recall": 0.0, "f1": 0.0}, "rougeL": {"precision": 0.0909, "recall": 0.1429, "f1": 0.1111}, "meteor": 0.0676, "common_words": [], "common_code_tokens": ["oper"]}, "ar_metrics": {"tokens": {"simple": {"hyp": ["update", "sensor", "module", "documentation", "and", "remove", "unused", "imports"], "ref": ["update", "remaining", "old", "import", "paths", "of", "operators"]}, "norm": {"hyp": ["update", "sensor", "module", "documentation", "and", "remove", "unused", "imports"], "ref": ["update", "remaining", "old", "import", "paths", "of", "operators"]}, "code": {"hyp": ["updat", "sensor", "modul", "document", "and", "remov", "unus", "import"], "ref": ["updat", "remain", "old", "import", "path", "of", "oper"]}}, "bleu4": {"score": 0.0278, "brevity_penalty": 1.0, "hyp_len": 8, "ref_len": 7, "ngrams": {"1gram": {"matches": 1, "hyp_count": 8, "ref_count": 7, "precision": 0.125}, "2gram": {"matches": 0, "hyp_count": 7, "ref_count": 6, "precision": 0.0}, "3gram": {"matches": 0, "hyp_count": 6, "ref_count": 5, "precision": 0.0}, "4gram": {"matches": 0, "hyp_count": 5, "ref_count": 4, "precision": 0.0}}}, "bleu_norm": {"score": 0.0278, "brevity_penalty": 1.0, "hyp_len": 8, "ref_len": 7, "ngrams": {"1gram": {"matches": 1, "hyp_count": 8, "ref_count": 7, "precision": 0.125}, "2gram": {"matches": 0, "hyp_count": 7, "ref_count": 6, "precision": 0.0}, "3gram": {"matches": 0, "hyp_count": 6, "ref_count": 5, "precision": 0.0}, "4gram": {"matches": 0, "hyp_count": 5, "ref_count": 4, "precision": 0.0}}}, "bleu_code": {"score": 0.033, "brevity_penalty": 1.0, "hyp_len": 8, "ref_len": 7, "ngrams": {"1gram": {"matches": 2, "hyp_count": 8, "ref_count": 7, "precision": 0.25}, "2gram": {"matches": 0, "hyp_count": 7, "ref_count": 6, "precision": 0.0}, "3gram": {"matches": 0, "hyp_count": 6, "ref_count": 5, "precision": 0.0}, "4gram": {"matches": 0, "hyp_count": 5, "ref_count": 4, "precision": 0.0}}}, "rouge1": {"precision": 0.25, "recall": 0.2857, "f1": 0.2667}, "rouge2": {"precision": 0.0, "recall": 0.0, "f1": 0.0}, "rougeL": {"precision": 0.25, "recall": 0.2857, "f1": 0.2667}, "meteor": 0.1408, "common_words": ["update"], "common_code_tokens": ["import", "updat"]}}, {"task_id": "apache_airflow_2134875", "label": "refactor attempting loops in tests", "dllm": "Refactor test suite to use itertools.count() for generating DAG IDs in the test_pipe_full_deadlock function", "ar": "Bug fix: Fixed infinite loop in keep_pipe_full function", "dllm_metrics": {"tokens": {"simple": {"hyp": ["refactor", "test", "suite", "to", "use", "itertools.count()", "for", "generating", "dag", "ids", "in", "the", "test_pipe_full_deadlock", "function"], "ref": ["refactor", "attempting", "loops", "in", "tests"]}, "norm": {"hyp": ["refactor", "test", "suite", "to", "use", "itertools", "count", "for", "generating", "dag", "ids", "in", "the", "test", "pipe", "full", "deadlock", "function"], "ref": ["refactor", "attempting", "loops", "in", "tests"]}, "code": {"hyp": ["refactor", "test", "suit", "to", "use", "itertool", "count", "for", "gener", "dag", "i", "ds", "in", "the", "test", "pipe", "full", "deadlock", "function"], "ref": ["refactor", "attempt", "loop", "in", "test"]}}, "bleu4": {"score": 0.017, "brevity_penalty": 1.0, "hyp_len": 14, "ref_len": 5, "ngrams": {"1gram": {"matches": 2, "hyp_count": 14, "ref_count": 5, "precision": 0.1429}, "2gram": {"matches": 0, "hyp_count": 13, "ref_count": 4, "precision": 0.0}, "3gram": {"matches": 0, "hyp_count": 12, "ref_count": 3, "precision": 0.0}, "4gram": {"matches": 0, "hyp_count": 11, "ref_count": 2, "precision": 0.0}}}, "bleu_norm": {"score": 0.0128, "brevity_penalty": 1.0, "hyp_len": 18, "ref_len": 5, "ngrams": {"1gram": {"matches": 2, "hyp_count": 18, "ref_count": 5, "precision": 0.1111}, "2gram": {"matches": 0, "hyp_count": 17, "ref_count": 4, "precision": 0.0}, "3gram": {"matches": 0, "hyp_count": 16, "ref_count": 3, "precision": 0.0}, "4gram": {"matches": 0, "hyp_count": 15, "ref_count": 2, "precision": 0.0}}}, "bleu_code": {"score": 0.0134, "brevity_penalty": 1.0, "hyp_len": 19, "ref_len": 5, "ngrams": {"1gram": {"matches": 3, "hyp_count": 19, "ref_count": 5, "precision": 0.1579}, "2gram": {"matches": 0, "hyp_count": 18, "ref_count": 4, "precision": 0.0}, "3gram": {"matches": 0, "hyp_count": 17, "ref_count": 3, "precision": 0.0}, "4gram": {"matches": 0, "hyp_count": 16, "ref_count": 2, "precision": 0.0}}}, "rouge1": {"precision": 0.1667, "recall": 0.6, "f1": 0.2609}, "rouge2": {"precision": 0.0, "recall": 0.0, "f1": 0.0}, "rougeL": {"precision": 0.1667, "recall": 0.6, "f1": 0.2609}, "meteor": 0.2542, "common_words": ["in", "refactor"], "common_code_tokens": ["in", "refactor", "test"]}, "ar_metrics": {"tokens": {"simple": {"hyp": ["bug", "fix:", "fixed", "infinite", "loop", "in", "keep_pipe_full", "function"], "ref": ["refactor", "attempting", "loops", "in", "tests"]}, "norm": {"hyp": ["bug", "fix", "fixed", "infinite", "loop", "in", "keep", "pipe", "full", "function"], "ref": ["refactor", "attempting", "loops", "in", "tests"]}, "code": {"hyp": ["bug", "fix", "fix", "infinit", "loop", "in", "keep", "pipe", "full", "function"], "ref": ["refactor", "attempt", "loop", "in", "test"]}}, "bleu4": {"score": 0.0278, "brevity_penalty": 1.0, "hyp_len": 8, "ref_len": 5, "ngrams": {"1gram": {"matches": 1, "hyp_count": 8, "ref_count": 5, "precision": 0.125}, "2gram": {"matches": 0, "hyp_count": 7, "ref_count": 4, "precision": 0.0}, "3gram": {"matches": 0, "hyp_count": 6, "ref_count": 3, "precision": 0.0}, "4gram": {"matches": 0, "hyp_count": 5, "ref_count": 2, "precision": 0.0}}}, "bleu_norm": {"score": 0.0211, "brevity_penalty": 1.0, "hyp_len": 10, "ref_len": 5, "ngrams": {"1gram": {"matches": 1, "hyp_count": 10, "ref_count": 5, "precision": 0.1}, "2gram": {"matches": 0, "hyp_count": 9, "ref_count": 4, "precision": 0.0}, "3gram": {"matches": 0, "hyp_count": 8, "ref_count": 3, "precision": 0.0}, "4gram": {"matches": 0, "hyp_count": 7, "ref_count": 2, "precision": 0.0}}}, "bleu_code": {"score": 0.0446, "brevity_penalty": 1.0, "hyp_len": 10, "ref_len": 5, "ngrams": {"1gram": {"matches": 2, "hyp_count": 10, "ref_count": 5, "precision": 0.2}, "2gram": {"matches": 1, "hyp_count": 9, "ref_count": 4, "precision": 0.1111}, "3gram": {"matches": 0, "hyp_count": 8, "ref_count": 3, "precision": 0.0}, "4gram": {"matches": 0, "hyp_count": 7, "ref_count": 2, "precision": 0.0}}}, "rouge1": {"precision": 0.2, "recall": 0.4, "f1": 0.2667}, "rouge2": {"precision": 0.1111, "recall": 0.25, "f1": 0.1538}, "rougeL": {"precision": 0.2, "recall": 0.4, "f1": 0.2667}, "meteor": 0.3538, "common_words": ["in"], "common_code_tokens": ["in", "loop"]}}, {"task_id": "apache_airflow_215b8c8", "label": "catch transient db exceptions from scheduler heartbeat it does not crash", "dllm": "Fixed the heartbeat scheduler to properly handle the shutdown state and ensure that the last heartbeat time is updated correctly when the scheduler is stopped.</", "ar": "Bug fix: Fixed infinite loop issue in heartbeat function", "dllm_metrics": {"tokens": {"simple": {"hyp": ["fixed", "the", "heartbeat", "scheduler", "to", "properly", "handle", "the", "shutdown", "state", "and", "ensure", "that", "the", "last", "heartbeat", "time", "is", "updated", "correctly", "when", "the", "scheduler", "is", "stopped.</"], "ref": ["catch", "transient", "db", "exceptions", "from", "scheduler", "heartbeat", "it", "does", "not", "crash"]}, "norm": {"hyp": ["fixed", "the", "heartbeat", "scheduler", "to", "properly", "handle", "the", "shutdown", "state", "and", "ensure", "that", "the", "last", "heartbeat", "time", "is", "updated", "correctly", "when", "the", "scheduler", "is", "stopped"], "ref": ["catch", "transient", "db", "exceptions", "from", "scheduler", "heartbeat", "it", "does", "not", "crash"]}, "code": {"hyp": ["fix", "the", "heartbeat", "schedul", "to", "properli", "handl", "the", "shutdown", "state", "and", "ensur", "that", "the", "last", "heartbeat", "time", "is", "updat", "correctli", "when", "the", "schedul", "is", "stop"], "ref": ["catch", "transient", "db", "except", "from", "schedul", "heartbeat", "it", "doe", "not", "crash"]}}, "bleu4": {"score": 0.009, "brevity_penalty": 1.0, "hyp_len": 25, "ref_len": 11, "ngrams": {"1gram": {"matches": 2, "hyp_count": 25, "ref_count": 11, "precision": 0.08}, "2gram": {"matches": 0, "hyp_count": 24, "ref_count": 10, "precision": 0.0}, "3gram": {"matches": 0, "hyp_count": 23, "ref_count": 9, "precision": 0.0}, "4gram": {"matches": 0, "hyp_count": 22, "ref_count": 8, "precision": 0.0}}}, "bleu_norm": {"score": 0.009, "brevity_penalty": 1.0, "hyp_len": 25, "ref_len": 11, "ngrams": {"1gram": {"matches": 2, "hyp_count": 25, "ref_count": 11, "precision": 0.08}, "2gram": {"matches": 0, "hyp_count": 24, "ref_count": 10, "precision": 0.0}, "3gram": {"matches": 0, "hyp_count": 23, "ref_count": 9, "precision": 0.0}, "4gram": {"matches": 0, "hyp_count": 22, "ref_count": 8, "precision": 0.0}}}, "bleu_code": {"score": 0.009, "brevity_penalty": 1.0, "hyp_len": 25, "ref_len": 11, "ngrams": {"1gram": {"matches": 2, "hyp_count": 25, "ref_count": 11, "precision": 0.08}, "2gram": {"matches": 0, "hyp_count": 24, "ref_count": 10, "precision": 0.0}, "3gram": {"matches": 0, "hyp_count": 23, "ref_count": 9, "precision": 0.0}, "4gram": {"matches": 0, "hyp_count": 22, "ref_count": 8, "precision": 0.0}}}, "rouge1": {"precision": 0.08, "recall": 0.1818, "f1": 0.1111}, "rouge2": {"precision": 0.0, "recall": 0.0, "f1": 0.0}, "rougeL": {"precision": 0.08, "recall": 0.1818, "f1": 0.1111}, "meteor": 0.0806, "common_words": ["heartbeat", "scheduler"], "common_code_tokens": ["heartbeat", "schedul"]}, "ar_metrics": {"tokens": {"simple": {"hyp": ["bug", "fix:", "fixed", "infinite", "loop", "issue", "in", "heartbeat", "function"], "ref": ["catch", "transient", "db", "exceptions", "from", "scheduler", "heartbeat", "it", "does", "not", "crash"]}, "norm": {"hyp": ["bug", "fix", "fixed", "infinite", "loop", "issue", "in", "heartbeat", "function"], "ref": ["catch", "transient", "db", "exceptions", "from", "scheduler", "heartbeat", "it", "does", "not", "crash"]}, "code": {"hyp": ["bug", "fix", "fix", "infinit", "loop", "issu", "in", "heartbeat", "function"], "ref": ["catch", "transient", "db", "except", "from", "schedul", "heartbeat", "it", "doe", "not", "crash"]}}, "bleu4": {"score": 0.0192, "brevity_penalty": 0.8007, "hyp_len": 9, "ref_len": 11, "ngrams": {"1gram": {"matches": 1, "hyp_count": 9, "ref_count": 11, "precision": 0.1111}, "2gram": {"matches": 0, "hyp_count": 8, "ref_count": 10, "precision": 0.0}, "3gram": {"matches": 0, "hyp_count": 7, "ref_count": 9, "precision": 0.0}, "4gram": {"matches": 0, "hyp_count": 6, "ref_count": 8, "precision": 0.0}}}, "bleu_norm": {"score": 0.0192, "brevity_penalty": 0.8007, "hyp_len": 9, "ref_len": 11, "ngrams": {"1gram": {"matches": 1, "hyp_count": 9, "ref_count": 11, "precision": 0.1111}, "2gram": {"matches": 0, "hyp_count": 8, "ref_count": 10, "precision": 0.0}, "3gram": {"matches": 0, "hyp_count": 7, "ref_count": 9, "precision": 0.0}, "4gram": {"matches": 0, "hyp_count": 6, "ref_count": 8, "precision": 0.0}}}, "bleu_code": {"score": 0.0192, "brevity_penalty": 0.8007, "hyp_len": 9, "ref_len": 11, "ngrams": {"1gram": {"matches": 1, "hyp_count": 9, "ref_count": 11, "precision": 0.1111}, "2gram": {"matches": 0, "hyp_count": 8, "ref_count": 10, "precision": 0.0}, "3gram": {"matches": 0, "hyp_count": 7, "ref_count": 9, "precision": 0.0}, "4gram": {"matches": 0, "hyp_count": 6, "ref_count": 8, "precision": 0.0}}}, "rouge1": {"precision": 0.1111, "recall": 0.0909, "f1": 0.1}, "rouge2": {"precision": 0.0, "recall": 0.0, "f1": 0.0}, "rougeL": {"precision": 0.1111, "recall": 0.0909, "f1": 0.1}, "meteor": 0.0463, "common_words": ["heartbeat"], "common_code_tokens": ["heartbeat"]}}, {"task_id": "apache_airflow_24e2152", "label": "fix timestamp fix in refreshkubeconfigloader", "dllm": "Refactor timezone parsing function to use pendulum and convert timestamps to Unix timestamps", "ar": "Update timestamp parsing function in refresh_config.py", "dllm_metrics": {"tokens": {"simple": {"hyp": ["refactor", "timezone", "parsing", "function", "to", "use", "pendulum", "and", "convert", "timestamps", "to", "unix", "timestamps"], "ref": ["fix", "timestamp", "fix", "in", "refreshkubeconfigloader"]}, "norm": {"hyp": ["refactor", "timezone", "parsing", "function", "to", "use", "pendulum", "and", "convert", "timestamps", "to", "unix", "timestamps"], "ref": ["fix", "timestamp", "fix", "in", "refreshkubeconfigloader"]}, "code": {"hyp": ["refactor", "timezon", "pars", "function", "to", "use", "pendulum", "and", "convert", "timestamp", "to", "unix", "timestamp"], "ref": ["fix", "timestamp", "fix", "in", "refreshkubeconfigload"]}}, "bleu4": {"score": 0, "brevity_penalty": 1.0, "hyp_len": 13, "ref_len": 5, "ngrams": {"1gram": {"matches": 0, "hyp_count": 13, "ref_count": 5, "precision": 0.0}, "2gram": {"matches": 0, "hyp_count": 12, "ref_count": 4, "precision": 0.0}, "3gram": {"matches": 0, "hyp_count": 11, "ref_count": 3, "precision": 0.0}, "4gram": {"matches": 0, "hyp_count": 10, "ref_count": 2, "precision": 0.0}}}, "bleu_norm": {"score": 0, "brevity_penalty": 1.0, "hyp_len": 13, "ref_len": 5, "ngrams": {"1gram": {"matches": 0, "hyp_count": 13, "ref_count": 5, "precision": 0.0}, "2gram": {"matches": 0, "hyp_count": 12, "ref_count": 4, "precision": 0.0}, "3gram": {"matches": 0, "hyp_count": 11, "ref_count": 3, "precision": 0.0}, "4gram": {"matches": 0, "hyp_count": 10, "ref_count": 2, "precision": 0.0}}}, "bleu_code": {"score": 0.0155, "brevity_penalty": 1.0, "hyp_len": 13, "ref_len": 5, "ngrams": {"1gram": {"matches": 1, "hyp_count": 13, "ref_count": 5, "precision": 0.0769}, "2gram": {"matches": 0, "hyp_count": 12, "ref_count": 4, "precision": 0.0}, "3gram": {"matches": 0, "hyp_count": 11, "ref_count": 3, "precision": 0.0}, "4gram": {"matches": 0, "hyp_count": 10, "ref_count": 2, "precision": 0.0}}}, "rouge1": {"precision": 0.0769, "recall": 0.2, "f1": 0.1111}, "rouge2": {"precision": 0.0, "recall": 0.0, "f1": 0.0}, "rougeL": {"precision": 0.0769, "recall": 0.2, "f1": 0.1111}, "meteor": 0.0862, "common_words": [], "common_code_tokens": ["timestamp"]}, "ar_metrics": {"tokens": {"simple": {"hyp": ["update", "timestamp", "parsing", "function", "in", "refresh_config.py"], "ref": ["fix", "timestamp", "fix", "in", "refreshkubeconfigloader"]}, "norm": {"hyp": ["update", "timestamp", "parsing", "function", "in", "refresh", "config", "py"], "ref": ["fix", "timestamp", "fix", "in", "refreshkubeconfigloader"]}, "code": {"hyp": ["updat", "timestamp", "pars", "function", "in", "refresh", "config", "py"], "ref": ["fix", "timestamp", "fix", "in", "refreshkubeconfigload"]}}, "bleu4": {"score": 0.0485, "brevity_penalty": 1.0, "hyp_len": 6, "ref_len": 5, "ngrams": {"1gram": {"matches": 2, "hyp_count": 6, "ref_count": 5, "precision": 0.3333}, "2gram": {"matches": 0, "hyp_count": 5, "ref_count": 4, "precision": 0.0}, "3gram": {"matches": 0, "hyp_count": 4, "ref_count": 3, "precision": 0.0}, "4gram": {"matches": 0, "hyp_count": 3, "ref_count": 2, "precision": 0.0}}}, "bleu_norm": {"score": 0.033, "brevity_penalty": 1.0, "hyp_len": 8, "ref_len": 5, "ngrams": {"1gram": {"matches": 2, "hyp_count": 8, "ref_count": 5, "precision": 0.25}, "2gram": {"matches": 0, "hyp_count": 7, "ref_count": 4, "precision": 0.0}, "3gram": {"matches": 0, "hyp_count": 6, "ref_count": 3, "precision": 0.0}, "4gram": {"matches": 0, "hyp_count": 5, "ref_count": 2, "precision": 0.0}}}, "bleu_code": {"score": 0.033, "brevity_penalty": 1.0, "hyp_len": 8, "ref_len": 5, "ngrams": {"1gram": {"matches": 2, "hyp_count": 8, "ref_count": 5, "precision": 0.25}, "2gram": {"matches": 0, "hyp_count": 7, "ref_count": 4, "precision": 0.0}, "3gram": {"matches": 0, "hyp_count": 6, "ref_count": 3, "precision": 0.0}, "4gram": {"matches": 0, "hyp_count": 5, "ref_count": 2, "precision": 0.0}}}, "rouge1": {"precision": 0.25, "recall": 0.4, "f1": 0.3077}, "rouge2": {"precision": 0.0, "recall": 0.0, "f1": 0.0}, "rougeL": {"precision": 0.25, "recall": 0.4, "f1": 0.3077}, "meteor": 0.1961, "common_words": ["in", "timestamp"], "common_code_tokens": ["in", "timestamp"]}}, {"task_id": "apache_airflow_27144bd", "label": "doc change: xcom taskflow", "dllm": "Fix logging configuration in test providers manager", "ar": "Bug fix: Corrected mock usage in test providers manager", "dllm_metrics": {"tokens": {"simple": {"hyp": ["fix", "logging", "configuration", "in", "test", "providers", "manager"], "ref": ["doc", "change:", "xcom", "taskflow"]}, "norm": {"hyp": ["fix", "logging", "configuration", "in", "test", "providers", "manager"], "ref": ["doc", "change", "xcom", "taskflow"]}, "code": {"hyp": ["fix", "log", "configur", "in", "test", "provid", "manag"], "ref": ["doc", "chang", "xcom", "taskflow"]}}, "bleu4": {"score": 0, "brevity_penalty": 1.0, "hyp_len": 7, "ref_len": 4, "ngrams": {"1gram": {"matches": 0, "hyp_count": 7, "ref_count": 4, "precision": 0.0}, "2gram": {"matches": 0, "hyp_count": 6, "ref_count": 3, "precision": 0.0}, "3gram": {"matches": 0, "hyp_count": 5, "ref_count": 2, "precision": 0.0}, "4gram": {"matches": 0, "hyp_count": 4, "ref_count": 1, "precision": 0.0}}}, "bleu_norm": {"score": 0, "brevity_penalty": 1.0, "hyp_len": 7, "ref_len": 4, "ngrams": {"1gram": {"matches": 0, "hyp_count": 7, "ref_count": 4, "precision": 0.0}, "2gram": {"matches": 0, "hyp_count": 6, "ref_count": 3, "precision": 0.0}, "3gram": {"matches": 0, "hyp_count": 5, "ref_count": 2, "precision": 0.0}, "4gram": {"matches": 0, "hyp_count": 4, "ref_count": 1, "precision": 0.0}}}, "bleu_code": {"score": 0, "brevity_penalty": 1.0, "hyp_len": 7, "ref_len": 4, "ngrams": {"1gram": {"matches": 0, "hyp_count": 7, "ref_count": 4, "precision": 0.0}, "2gram": {"matches": 0, "hyp_count": 6, "ref_count": 3, "precision": 0.0}, "3gram": {"matches": 0, "hyp_count": 5, "ref_count": 2, "precision": 0.0}, "4gram": {"matches": 0, "hyp_count": 4, "ref_count": 1, "precision": 0.0}}}, "rouge1": {"precision": 0.0, "recall": 0.0, "f1": 0.0}, "rouge2": {"precision": 0.0, "recall": 0.0, "f1": 0.0}, "rougeL": {"precision": 0.0, "recall": 0.0, "f1": 0.0}, "meteor": 0.0, "common_words": [], "common_code_tokens": []}, "ar_metrics": {"tokens": {"simple": {"hyp": ["bug", "fix:", "corrected", "mock", "usage", "in", "test", "providers", "manager"], "ref": ["doc", "change:", "xcom", "taskflow"]}, "norm": {"hyp": ["bug", "fix", "corrected", "mock", "usage", "in", "test", "providers", "manager"], "ref": ["doc", "change", "xcom", "taskflow"]}, "code": {"hyp": ["bug", "fix", "correct", "mock", "usag", "in", "test", "provid", "manag"], "ref": ["doc", "chang", "xcom", "taskflow"]}}, "bleu4": {"score": 0, "brevity_penalty": 1.0, "hyp_len": 9, "ref_len": 4, "ngrams": {"1gram": {"matches": 0, "hyp_count": 9, "ref_count": 4, "precision": 0.0}, "2gram": {"matches": 0, "hyp_count": 8, "ref_count": 3, "precision": 0.0}, "3gram": {"matches": 0, "hyp_count": 7, "ref_count": 2, "precision": 0.0}, "4gram": {"matches": 0, "hyp_count": 6, "ref_count": 1, "precision": 0.0}}}, "bleu_norm": {"score": 0, "brevity_penalty": 1.0, "hyp_len": 9, "ref_len": 4, "ngrams": {"1gram": {"matches": 0, "hyp_count": 9, "ref_count": 4, "precision": 0.0}, "2gram": {"matches": 0, "hyp_count": 8, "ref_count": 3, "precision": 0.0}, "3gram": {"matches": 0, "hyp_count": 7, "ref_count": 2, "precision": 0.0}, "4gram": {"matches": 0, "hyp_count": 6, "ref_count": 1, "precision": 0.0}}}, "bleu_code": {"score": 0, "brevity_penalty": 1.0, "hyp_len": 9, "ref_len": 4, "ngrams": {"1gram": {"matches": 0, "hyp_count": 9, "ref_count": 4, "precision": 0.0}, "2gram": {"matches": 0, "hyp_count": 8, "ref_count": 3, "precision": 0.0}, "3gram": {"matches": 0, "hyp_count": 7, "ref_count": 2, "precision": 0.0}, "4gram": {"matches": 0, "hyp_count": 6, "ref_count": 1, "precision": 0.0}}}, "rouge1": {"precision": 0.0, "recall": 0.0, "f1": 0.0}, "rouge2": {"precision": 0.0, "recall": 0.0, "f1": 0.0}, "rougeL": {"precision": 0.0, "recall": 0.0, "f1": 0.0}, "meteor": 0.0, "common_words": [], "common_code_tokens": []}}, {"task_id": "apache_airflow_298435a", "label": "add button to set all tasks to skipped", "dllm": "Refactor state management logic for task instance", "ar": "Update task instance actions to include 'set_skipped'", "dllm_metrics": {"tokens": {"simple": {"hyp": ["refactor", "state", "management", "logic", "for", "task", "instance"], "ref": ["add", "button", "to", "set", "all", "tasks", "to", "skipped"]}, "norm": {"hyp": ["refactor", "state", "management", "logic", "for", "task", "instance"], "ref": ["add", "button", "to", "set", "all", "tasks", "to", "skipped"]}, "code": {"hyp": ["refactor", "state", "manag", "logic", "for", "task", "instanc"], "ref": ["add", "button", "to", "set", "all", "task", "to", "skip"]}}, "bleu4": {"score": 0, "brevity_penalty": 0.8669, "hyp_len": 7, "ref_len": 8, "ngrams": {"1gram": {"matches": 0, "hyp_count": 7, "ref_count": 8, "precision": 0.0}, "2gram": {"matches": 0, "hyp_count": 6, "ref_count": 7, "precision": 0.0}, "3gram": {"matches": 0, "hyp_count": 5, "ref_count": 6, "precision": 0.0}, "4gram": {"matches": 0, "hyp_count": 4, "ref_count": 5, "precision": 0.0}}}, "bleu_norm": {"score": 0, "brevity_penalty": 0.8669, "hyp_len": 7, "ref_len": 8, "ngrams": {"1gram": {"matches": 0, "hyp_count": 7, "ref_count": 8, "precision": 0.0}, "2gram": {"matches": 0, "hyp_count": 6, "ref_count": 7, "precision": 0.0}, "3gram": {"matches": 0, "hyp_count": 5, "ref_count": 6, "precision": 0.0}, "4gram": {"matches": 0, "hyp_count": 4, "ref_count": 5, "precision": 0.0}}}, "bleu_code": {"score": 0.0286, "brevity_penalty": 0.8669, "hyp_len": 7, "ref_len": 8, "ngrams": {"1gram": {"matches": 1, "hyp_count": 7, "ref_count": 8, "precision": 0.1429}, "2gram": {"matches": 0, "hyp_count": 6, "ref_count": 7, "precision": 0.0}, "3gram": {"matches": 0, "hyp_count": 5, "ref_count": 6, "precision": 0.0}, "4gram": {"matches": 0, "hyp_count": 4, "ref_count": 5, "precision": 0.0}}}, "rouge1": {"precision": 0.1429, "recall": 0.125, "f1": 0.1333}, "rouge2": {"precision": 0.0, "recall": 0.0, "f1": 0.0}, "rougeL": {"precision": 0.1429, "recall": 0.125, "f1": 0.1333}, "meteor": 0.0633, "common_words": [], "common_code_tokens": ["task"]}, "ar_metrics": {"tokens": {"simple": {"hyp": ["update", "task", "instance", "actions", "to", "include", "'set_skipped'"], "ref": ["add", "button", "to", "set", "all", "tasks", "to", "skipped"]}, "norm": {"hyp": ["update", "task", "instance", "actions", "to", "include", "set", "skipped"], "ref": ["add", "button", "to", "set", "all", "tasks", "to", "skipped"]}, "code": {"hyp": ["updat", "task", "instanc", "action", "to", "includ", "set", "skip"], "ref": ["add", "button", "to", "set", "all", "task", "to", "skip"]}}, "bleu4": {"score": 0.0286, "brevity_penalty": 0.8669, "hyp_len": 7, "ref_len": 8, "ngrams": {"1gram": {"matches": 1, "hyp_count": 7, "ref_count": 8, "precision": 0.1429}, "2gram": {"matches": 0, "hyp_count": 6, "ref_count": 7, "precision": 0.0}, "3gram": {"matches": 0, "hyp_count": 5, "ref_count": 6, "precision": 0.0}, "4gram": {"matches": 0, "hyp_count": 4, "ref_count": 5, "precision": 0.0}}}, "bleu_norm": {"score": 0.0366, "brevity_penalty": 1.0, "hyp_len": 8, "ref_len": 8, "ngrams": {"1gram": {"matches": 3, "hyp_count": 8, "ref_count": 8, "precision": 0.375}, "2gram": {"matches": 0, "hyp_count": 7, "ref_count": 7, "precision": 0.0}, "3gram": {"matches": 0, "hyp_count": 6, "ref_count": 6, "precision": 0.0}, "4gram": {"matches": 0, "hyp_count": 5, "ref_count": 5, "precision": 0.0}}}, "bleu_code": {"score": 0.0393, "brevity_penalty": 1.0, "hyp_len": 8, "ref_len": 8, "ngrams": {"1gram": {"matches": 4, "hyp_count": 8, "ref_count": 8, "precision": 0.5}, "2gram": {"matches": 0, "hyp_count": 7, "ref_count": 7, "precision": 0.0}, "3gram": {"matches": 0, "hyp_count": 6, "ref_count": 6, "precision": 0.0}, "4gram": {"matches": 0, "hyp_count": 5, "ref_count": 5, "precision": 0.0}}}, "rouge1": {"precision": 0.5, "recall": 0.5, "f1": 0.5}, "rouge2": {"precision": 0.0, "recall": 0.0, "f1": 0.0}, "rougeL": {"precision": 0.375, "recall": 0.375, "f1": 0.375}, "meteor": 0.1266, "common_words": ["to"], "common_code_tokens": ["set", "skip", "task", "to"]}}, {"task_id": "apache_airflow_2c394e3", "label": "feature: added fast_executemany parameter to insert_rows of dbapihook", "dllm": "Fixed the `fast_executemany` parameter in the `insert_rows` method to enable better performance for large datasets, and removed the `autocommit` parameter as it is not used and can lead to concurrency issues.</", "ar": "Optimize database insertion performance by enabling fast_executemany", "dllm_metrics": {"tokens": {"simple": {"hyp": ["fixed", "the", "`fast_executemany`", "parameter", "in", "the", "`insert_rows`", "method", "to", "enable", "better", "performance", "for", "large", "datasets,", "and", "removed", "the", "`autocommit`", "parameter", "as", "it", "is", "not", "used", "and", "can", "lead", "to", "concurrency", "issues.</"], "ref": ["feature:", "added", "fast_executemany", "parameter", "to", "insert_rows", "of", "dbapihook"]}, "norm": {"hyp": ["fixed", "the", "fast", "executemany", "parameter", "in", "the", "insert", "rows", "method", "to", "enable", "better", "performance", "for", "large", "datasets", "and", "removed", "the", "autocommit", "parameter", "as", "it", "is", "not", "used", "and", "can", "lead", "to", "concurrency", "issues"], "ref": ["feature", "added", "fast", "executemany", "parameter", "to", "insert", "rows", "of", "dbapihook"]}, "code": {"hyp": ["fix", "the", "fast", "executemani", "paramet", "in", "the", "insert", "row", "method", "to", "enabl", "better", "perform", "for", "larg", "dataset", "and", "remov", "the", "autocommit", "paramet", "as", "it", "is", "not", "use", "and", "can", "lead", "to", "concurr", "issu"], "ref": ["featur", "ad", "fast", "executemani", "paramet", "to", "insert", "row", "of", "dbapihook"]}}, "bleu4": {"score": 0.0072, "brevity_penalty": 1.0, "hyp_len": 31, "ref_len": 8, "ngrams": {"1gram": {"matches": 2, "hyp_count": 31, "ref_count": 8, "precision": 0.0645}, "2gram": {"matches": 0, "hyp_count": 30, "ref_count": 7, "precision": 0.0}, "3gram": {"matches": 0, "hyp_count": 29, "ref_count": 6, "precision": 0.0}, "4gram": {"matches": 0, "hyp_count": 28, "ref_count": 5, "precision": 0.0}}}, "bleu_norm": {"score": 0.0368, "brevity_penalty": 1.0, "hyp_len": 33, "ref_len": 10, "ngrams": {"1gram": {"matches": 6, "hyp_count": 33, "ref_count": 10, "precision": 0.1818}, "2gram": {"matches": 3, "hyp_count": 32, "ref_count": 9, "precision": 0.0938}, "3gram": {"matches": 1, "hyp_count": 31, "ref_count": 8, "precision": 0.0323}, "4gram": {"matches": 0, "hyp_count": 30, "ref_count": 7, "precision": 0.0}}}, "bleu_code": {"score": 0.0368, "brevity_penalty": 1.0, "hyp_len": 33, "ref_len": 10, "ngrams": {"1gram": {"matches": 6, "hyp_count": 33, "ref_count": 10, "precision": 0.1818}, "2gram": {"matches": 3, "hyp_count": 32, "ref_count": 9, "precision": 0.0938}, "3gram": {"matches": 1, "hyp_count": 31, "ref_count": 8, "precision": 0.0323}, "4gram": {"matches": 0, "hyp_count": 30, "ref_count": 7, "precision": 0.0}}}, "rouge1": {"precision": 0.1818, "recall": 0.6, "f1": 0.2791}, "rouge2": {"precision": 0.0938, "recall": 0.3333, "f1": 0.1463}, "rougeL": {"precision": 0.1515, "recall": 0.5, "f1": 0.2326}, "meteor": 0.0971, "common_words": ["parameter", "to"], "common_code_tokens": ["executemani", "fast", "insert", "paramet", "row", "to"]}, "ar_metrics": {"tokens": {"simple": {"hyp": ["optimize", "database", "insertion", "performance", "by", "enabling", "fast_executemany"], "ref": ["feature:", "added", "fast_executemany", "parameter", "to", "insert_rows", "of", "dbapihook"]}, "norm": {"hyp": ["optimize", "database", "insertion", "performance", "by", "enabling", "fast", "executemany"], "ref": ["feature", "added", "fast", "executemany", "parameter", "to", "insert", "rows", "of", "dbapihook"]}, "code": {"hyp": ["optim", "databas", "insert", "perform", "by", "enabl", "fast", "executemani"], "ref": ["featur", "ad", "fast", "executemani", "paramet", "to", "insert", "row", "of", "dbapihook"]}}, "bleu4": {"score": 0.0286, "brevity_penalty": 0.8669, "hyp_len": 7, "ref_len": 8, "ngrams": {"1gram": {"matches": 1, "hyp_count": 7, "ref_count": 8, "precision": 0.1429}, "2gram": {"matches": 0, "hyp_count": 6, "ref_count": 7, "precision": 0.0}, "3gram": {"matches": 0, "hyp_count": 5, "ref_count": 6, "precision": 0.0}, "4gram": {"matches": 0, "hyp_count": 4, "ref_count": 5, "precision": 0.0}}}, "bleu_norm": {"score": 0.0457, "brevity_penalty": 0.7788, "hyp_len": 8, "ref_len": 10, "ngrams": {"1gram": {"matches": 2, "hyp_count": 8, "ref_count": 10, "precision": 0.25}, "2gram": {"matches": 1, "hyp_count": 7, "ref_count": 9, "precision": 0.1429}, "3gram": {"matches": 0, "hyp_count": 6, "ref_count": 8, "precision": 0.0}, "4gram": {"matches": 0, "hyp_count": 5, "ref_count": 7, "precision": 0.0}}}, "bleu_code": {"score": 0.0506, "brevity_penalty": 0.7788, "hyp_len": 8, "ref_len": 10, "ngrams": {"1gram": {"matches": 3, "hyp_count": 8, "ref_count": 10, "precision": 0.375}, "2gram": {"matches": 1, "hyp_count": 7, "ref_count": 9, "precision": 0.1429}, "3gram": {"matches": 0, "hyp_count": 6, "ref_count": 8, "precision": 0.0}, "4gram": {"matches": 0, "hyp_count": 5, "ref_count": 7, "precision": 0.0}}}, "rouge1": {"precision": 0.375, "recall": 0.3, "f1": 0.3333}, "rouge2": {"precision": 0.1429, "recall": 0.1111, "f1": 0.125}, "rougeL": {"precision": 0.25, "recall": 0.2, "f1": 0.2222}, "meteor": 0.0633, "common_words": ["fast_executemany"], "common_code_tokens": ["executemani", "fast", "insert"]}}, {"task_id": "apache_airflow_3853a84", "label": "check for missing dagrun should know version", "dllm": "Fix migration logic for TaskRun in Airflow 2.2 migration", "ar": "Bug fix: Correctly handle version-specific table names in DB schema reflection.", "dllm_metrics": {"tokens": {"simple": {"hyp": ["fix", "migration", "logic", "for", "taskrun", "in", "airflow", "2.2", "migration"], "ref": ["check", "for", "missing", "dagrun", "should", "know", "version"]}, "norm": {"hyp": ["fix", "migration", "logic", "for", "taskrun", "in", "airflow", "2", "2", "migration"], "ref": ["check", "for", "missing", "dagrun", "should", "know", "version"]}, "code": {"hyp": ["fix", "migrat", "logic", "for", "task", "run", "in", "airflow", "2", "2", "migrat"], "ref": ["check", "for", "miss", "dagrun", "should", "know", "version"]}}, "bleu4": {"score": 0.024, "brevity_penalty": 1.0, "hyp_len": 9, "ref_len": 7, "ngrams": {"1gram": {"matches": 1, "hyp_count": 9, "ref_count": 7, "precision": 0.1111}, "2gram": {"matches": 0, "hyp_count": 8, "ref_count": 6, "precision": 0.0}, "3gram": {"matches": 0, "hyp_count": 7, "ref_count": 5, "precision": 0.0}, "4gram": {"matches": 0, "hyp_count": 6, "ref_count": 4, "precision": 0.0}}}, "bleu_norm": {"score": 0.0211, "brevity_penalty": 1.0, "hyp_len": 10, "ref_len": 7, "ngrams": {"1gram": {"matches": 1, "hyp_count": 10, "ref_count": 7, "precision": 0.1}, "2gram": {"matches": 0, "hyp_count": 9, "ref_count": 6, "precision": 0.0}, "3gram": {"matches": 0, "hyp_count": 8, "ref_count": 5, "precision": 0.0}, "4gram": {"matches": 0, "hyp_count": 7, "ref_count": 4, "precision": 0.0}}}, "bleu_code": {"score": 0.0189, "brevity_penalty": 1.0, "hyp_len": 11, "ref_len": 7, "ngrams": {"1gram": {"matches": 1, "hyp_count": 11, "ref_count": 7, "precision": 0.0909}, "2gram": {"matches": 0, "hyp_count": 10, "ref_count": 6, "precision": 0.0}, "3gram": {"matches": 0, "hyp_count": 9, "ref_count": 5, "precision": 0.0}, "4gram": {"matches": 0, "hyp_count": 8, "ref_count": 4, "precision": 0.0}}}, "rouge1": {"precision": 0.1, "recall": 0.1429, "f1": 0.1176}, "rouge2": {"precision": 0.0, "recall": 0.0, "f1": 0.0}, "rougeL": {"precision": 0.1, "recall": 0.1429, "f1": 0.1176}, "meteor": 0.0694, "common_words": ["for"], "common_code_tokens": ["for"]}, "ar_metrics": {"tokens": {"simple": {"hyp": ["bug", "fix:", "correctly", "handle", "version-specific", "table", "names", "in", "db", "schema", "reflection."], "ref": ["check", "for", "missing", "dagrun", "should", "know", "version"]}, "norm": {"hyp": ["bug", "fix", "correctly", "handle", "version", "specific", "table", "names", "in", "db", "schema", "reflection"], "ref": ["check", "for", "missing", "dagrun", "should", "know", "version"]}, "code": {"hyp": ["bug", "fix", "correctli", "handl", "version", "specif", "tabl", "name", "in", "db", "schema", "reflect"], "ref": ["check", "for", "miss", "dagrun", "should", "know", "version"]}}, "bleu4": {"score": 0, "brevity_penalty": 1.0, "hyp_len": 11, "ref_len": 7, "ngrams": {"1gram": {"matches": 0, "hyp_count": 11, "ref_count": 7, "precision": 0.0}, "2gram": {"matches": 0, "hyp_count": 10, "ref_count": 6, "precision": 0.0}, "3gram": {"matches": 0, "hyp_count": 9, "ref_count": 5, "precision": 0.0}, "4gram": {"matches": 0, "hyp_count": 8, "ref_count": 4, "precision": 0.0}}}, "bleu_norm": {"score": 0.017, "brevity_penalty": 1.0, "hyp_len": 12, "ref_len": 7, "ngrams": {"1gram": {"matches": 1, "hyp_count": 12, "ref_count": 7, "precision": 0.0833}, "2gram": {"matches": 0, "hyp_count": 11, "ref_count": 6, "precision": 0.0}, "3gram": {"matches": 0, "hyp_count": 10, "ref_count": 5, "precision": 0.0}, "4gram": {"matches": 0, "hyp_count": 9, "ref_count": 4, "precision": 0.0}}}, "bleu_code": {"score": 0.017, "brevity_penalty": 1.0, "hyp_len": 12, "ref_len": 7, "ngrams": {"1gram": {"matches": 1, "hyp_count": 12, "ref_count": 7, "precision": 0.0833}, "2gram": {"matches": 0, "hyp_count": 11, "ref_count": 6, "precision": 0.0}, "3gram": {"matches": 0, "hyp_count": 10, "ref_count": 5, "precision": 0.0}, "4gram": {"matches": 0, "hyp_count": 9, "ref_count": 4, "precision": 0.0}}}, "rouge1": {"precision": 0.0833, "recall": 0.1429, "f1": 0.1053}, "rouge2": {"precision": 0.0, "recall": 0.0, "f1": 0.0}, "rougeL": {"precision": 0.0833, "recall": 0.1429, "f1": 0.1053}, "meteor": 0.0, "common_words": [], "common_code_tokens": ["version"]}}, {"task_id": "apache_airflow_3aa05cb", "label": "fix custom celery config loading", "dllm": "Refactor data processing logic for improved readability", "ar": "Refactor module imports and add missing tests", "dllm_metrics": {"tokens": {"simple": {"hyp": ["refactor", "data", "processing", "logic", "for", "improved", "readability"], "ref": ["fix", "custom", "celery", "config", "loading"]}, "norm": {"hyp": ["refactor", "data", "processing", "logic", "for", "improved", "readability"], "ref": ["fix", "custom", "celery", "config", "loading"]}, "code": {"hyp": ["refactor", "data", "process", "logic", "for", "improv", "readabl"], "ref": ["fix", "custom", "celeri", "config", "load"]}}, "bleu4": {"score": 0, "brevity_penalty": 1.0, "hyp_len": 7, "ref_len": 5, "ngrams": {"1gram": {"matches": 0, "hyp_count": 7, "ref_count": 5, "precision": 0.0}, "2gram": {"matches": 0, "hyp_count": 6, "ref_count": 4, "precision": 0.0}, "3gram": {"matches": 0, "hyp_count": 5, "ref_count": 3, "precision": 0.0}, "4gram": {"matches": 0, "hyp_count": 4, "ref_count": 2, "precision": 0.0}}}, "bleu_norm": {"score": 0, "brevity_penalty": 1.0, "hyp_len": 7, "ref_len": 5, "ngrams": {"1gram": {"matches": 0, "hyp_count": 7, "ref_count": 5, "precision": 0.0}, "2gram": {"matches": 0, "hyp_count": 6, "ref_count": 4, "precision": 0.0}, "3gram": {"matches": 0, "hyp_count": 5, "ref_count": 3, "precision": 0.0}, "4gram": {"matches": 0, "hyp_count": 4, "ref_count": 2, "precision": 0.0}}}, "bleu_code": {"score": 0, "brevity_penalty": 1.0, "hyp_len": 7, "ref_len": 5, "ngrams": {"1gram": {"matches": 0, "hyp_count": 7, "ref_count": 5, "precision": 0.0}, "2gram": {"matches": 0, "hyp_count": 6, "ref_count": 4, "precision": 0.0}, "3gram": {"matches": 0, "hyp_count": 5, "ref_count": 3, "precision": 0.0}, "4gram": {"matches": 0, "hyp_count": 4, "ref_count": 2, "precision": 0.0}}}, "rouge1": {"precision": 0.0, "recall": 0.0, "f1": 0.0}, "rouge2": {"precision": 0.0, "recall": 0.0, "f1": 0.0}, "rougeL": {"precision": 0.0, "recall": 0.0, "f1": 0.0}, "meteor": 0.0, "common_words": [], "common_code_tokens": []}, "ar_metrics": {"tokens": {"simple": {"hyp": ["refactor", "module", "imports", "and", "add", "missing", "tests"], "ref": ["fix", "custom", "celery", "config", "loading"]}, "norm": {"hyp": ["refactor", "module", "imports", "and", "add", "missing", "tests"], "ref": ["fix", "custom", "celery", "config", "loading"]}, "code": {"hyp": ["refactor", "modul", "import", "and", "add", "miss", "test"], "ref": ["fix", "custom", "celeri", "config", "load"]}}, "bleu4": {"score": 0, "brevity_penalty": 1.0, "hyp_len": 7, "ref_len": 5, "ngrams": {"1gram": {"matches": 0, "hyp_count": 7, "ref_count": 5, "precision": 0.0}, "2gram": {"matches": 0, "hyp_count": 6, "ref_count": 4, "precision": 0.0}, "3gram": {"matches": 0, "hyp_count": 5, "ref_count": 3, "precision": 0.0}, "4gram": {"matches": 0, "hyp_count": 4, "ref_count": 2, "precision": 0.0}}}, "bleu_norm": {"score": 0, "brevity_penalty": 1.0, "hyp_len": 7, "ref_len": 5, "ngrams": {"1gram": {"matches": 0, "hyp_count": 7, "ref_count": 5, "precision": 0.0}, "2gram": {"matches": 0, "hyp_count": 6, "ref_count": 4, "precision": 0.0}, "3gram": {"matches": 0, "hyp_count": 5, "ref_count": 3, "precision": 0.0}, "4gram": {"matches": 0, "hyp_count": 4, "ref_count": 2, "precision": 0.0}}}, "bleu_code": {"score": 0, "brevity_penalty": 1.0, "hyp_len": 7, "ref_len": 5, "ngrams": {"1gram": {"matches": 0, "hyp_count": 7, "ref_count": 5, "precision": 0.0}, "2gram": {"matches": 0, "hyp_count": 6, "ref_count": 4, "precision": 0.0}, "3gram": {"matches": 0, "hyp_count": 5, "ref_count": 3, "precision": 0.0}, "4gram": {"matches": 0, "hyp_count": 4, "ref_count": 2, "precision": 0.0}}}, "rouge1": {"precision": 0.0, "recall": 0.0, "f1": 0.0}, "rouge2": {"precision": 0.0, "recall": 0.0, "f1": 0.0}, "rougeL": {"precision": 0.0, "recall": 0.0, "f1": 0.0}, "meteor": 0.0, "common_words": [], "common_code_tokens": []}}, {"task_id": "apache_airflow_3aadc44", "label": "remove unused backcompat method in k8s hook", "dllm": "Refactor Kubernetes connection management to use an Airflow connection instead of deprecated core Airflow settings.</", "ar": "Remove unused static method and deprecated warning", "dllm_metrics": {"tokens": {"simple": {"hyp": ["refactor", "kubernetes", "connection", "management", "to", "use", "an", "airflow", "connection", "instead", "of", "deprecated", "core", "airflow", "settings.</"], "ref": ["remove", "unused", "backcompat", "method", "in", "k8s", "hook"]}, "norm": {"hyp": ["refactor", "kubernetes", "connection", "management", "to", "use", "an", "airflow", "connection", "instead", "of", "deprecated", "core", "airflow", "settings"], "ref": ["remove", "unused", "backcompat", "method", "in", "k8s", "hook"]}, "code": {"hyp": ["refactor", "kubernet", "connect", "manag", "to", "use", "an", "airflow", "connect", "instead", "of", "deprec", "core", "airflow", "set"], "ref": ["remov", "unus", "backcompat", "method", "in", "k8", "hook"]}}, "bleu4": {"score": 0, "brevity_penalty": 1.0, "hyp_len": 15, "ref_len": 7, "ngrams": {"1gram": {"matches": 0, "hyp_count": 15, "ref_count": 7, "precision": 0.0}, "2gram": {"matches": 0, "hyp_count": 14, "ref_count": 6, "precision": 0.0}, "3gram": {"matches": 0, "hyp_count": 13, "ref_count": 5, "precision": 0.0}, "4gram": {"matches": 0, "hyp_count": 12, "ref_count": 4, "precision": 0.0}}}, "bleu_norm": {"score": 0, "brevity_penalty": 1.0, "hyp_len": 15, "ref_len": 7, "ngrams": {"1gram": {"matches": 0, "hyp_count": 15, "ref_count": 7, "precision": 0.0}, "2gram": {"matches": 0, "hyp_count": 14, "ref_count": 6, "precision": 0.0}, "3gram": {"matches": 0, "hyp_count": 13, "ref_count": 5, "precision": 0.0}, "4gram": {"matches": 0, "hyp_count": 12, "ref_count": 4, "precision": 0.0}}}, "bleu_code": {"score": 0, "brevity_penalty": 1.0, "hyp_len": 15, "ref_len": 7, "ngrams": {"1gram": {"matches": 0, "hyp_count": 15, "ref_count": 7, "precision": 0.0}, "2gram": {"matches": 0, "hyp_count": 14, "ref_count": 6, "precision": 0.0}, "3gram": {"matches": 0, "hyp_count": 13, "ref_count": 5, "precision": 0.0}, "4gram": {"matches": 0, "hyp_count": 12, "ref_count": 4, "precision": 0.0}}}, "rouge1": {"precision": 0.0, "recall": 0.0, "f1": 0.0}, "rouge2": {"precision": 0.0, "recall": 0.0, "f1": 0.0}, "rougeL": {"precision": 0.0, "recall": 0.0, "f1": 0.0}, "meteor": 0.0, "common_words": [], "common_code_tokens": []}, "ar_metrics": {"tokens": {"simple": {"hyp": ["remove", "unused", "static", "method", "and", "deprecated", "warning"], "ref": ["remove", "unused", "backcompat", "method", "in", "k8s", "hook"]}, "norm": {"hyp": ["remove", "unused", "static", "method", "and", "deprecated", "warning"], "ref": ["remove", "unused", "backcompat", "method", "in", "k8s", "hook"]}, "code": {"hyp": ["remov", "unus", "static", "method", "and", "deprec", "warn"], "ref": ["remov", "unus", "backcompat", "method", "in", "k8", "hook"]}}, "bleu4": {"score": 0.0773, "brevity_penalty": 1.0, "hyp_len": 7, "ref_len": 7, "ngrams": {"1gram": {"matches": 3, "hyp_count": 7, "ref_count": 7, "precision": 0.4286}, "2gram": {"matches": 1, "hyp_count": 6, "ref_count": 6, "precision": 0.1667}, "3gram": {"matches": 0, "hyp_count": 5, "ref_count": 5, "precision": 0.0}, "4gram": {"matches": 0, "hyp_count": 4, "ref_count": 4, "precision": 0.0}}}, "bleu_norm": {"score": 0.0773, "brevity_penalty": 1.0, "hyp_len": 7, "ref_len": 7, "ngrams": {"1gram": {"matches": 3, "hyp_count": 7, "ref_count": 7, "precision": 0.4286}, "2gram": {"matches": 1, "hyp_count": 6, "ref_count": 6, "precision": 0.1667}, "3gram": {"matches": 0, "hyp_count": 5, "ref_count": 5, "precision": 0.0}, "4gram": {"matches": 0, "hyp_count": 4, "ref_count": 4, "precision": 0.0}}}, "bleu_code": {"score": 0.0773, "brevity_penalty": 1.0, "hyp_len": 7, "ref_len": 7, "ngrams": {"1gram": {"matches": 3, "hyp_count": 7, "ref_count": 7, "precision": 0.4286}, "2gram": {"matches": 1, "hyp_count": 6, "ref_count": 6, "precision": 0.1667}, "3gram": {"matches": 0, "hyp_count": 5, "ref_count": 5, "precision": 0.0}, "4gram": {"matches": 0, "hyp_count": 4, "ref_count": 4, "precision": 0.0}}}, "rouge1": {"precision": 0.4286, "recall": 0.4286, "f1": 0.4286}, "rouge2": {"precision": 0.1667, "recall": 0.1667, "f1": 0.1667}, "rougeL": {"precision": 0.4286, "recall": 0.4286, "f1": 0.4286}, "meteor": 0.3651, "common_words": ["method", "remove", "unused"], "common_code_tokens": ["method", "remov", "unus"]}}];
+const ABLATION_DATA = [{"config": "AR_baseline", "model_type": "AR", "block_size": 0, "small_block_size": 0, "threshold": 0, "batch_size": 1, "max_new_tokens": 1024, "num_samples": 1000, "avg_bleu4": 0.0221, "avg_bleu_norm": 0.0264, "avg_bleu_code": 0.0287, "avg_rouge1": 0.1663, "avg_rouge2": 0.0374, "avg_rougeL": 0.1486, "avg_meteor": 0.0992, "avg_tokens_per_second": 9.53, "avg_ms_per_token": 111.439, "avg_tokens_per_step": 1.0}, {"config": "bs16_sbs4_th0.2_cacheTrue_batch1_mnt128", "model_type": "dLLM", "block_size": 16, "small_block_size": 4, "threshold": 0.2, "batch_size": 1, "max_new_tokens": 128, "num_samples": 1000, "avg_bleu4": 0.0149, "avg_bleu_norm": 0.0172, "avg_bleu_code": 0.0181, "avg_rouge1": 0.1291, "avg_rouge2": 0.0235, "avg_rougeL": 0.1164, "avg_meteor": 0.0997, "avg_tokens_per_second": 11.19, "avg_ms_per_token": 95.882, "avg_tokens_per_step": 2.1618}, {"config": "bs16_sbs4_th0.4_cacheTrue_batch1_mnt128", "model_type": "dLLM", "block_size": 16, "small_block_size": 4, "threshold": 0.4, "batch_size": 1, "max_new_tokens": 128, "num_samples": 1000, "avg_bleu4": 0.0167, "avg_bleu_norm": 0.02, "avg_bleu_code": 0.0204, "avg_rouge1": 0.1372, "avg_rouge2": 0.0277, "avg_rougeL": 0.1215, "avg_meteor": 0.1084, "avg_tokens_per_second": 9.28, "avg_ms_per_token": 114.615, "avg_tokens_per_step": 1.6577}, {"config": "bs16_sbs4_th0.6_cacheTrue_batch1_mnt128", "model_type": "dLLM", "block_size": 16, "small_block_size": 4, "threshold": 0.6, "batch_size": 1, "max_new_tokens": 128, "num_samples": 1000, "avg_bleu4": 0.0163, "avg_bleu_norm": 0.0201, "avg_bleu_code": 0.0207, "avg_rouge1": 0.141, "avg_rouge2": 0.0278, "avg_rougeL": 0.1257, "avg_meteor": 0.1114, "avg_tokens_per_second": 8.26, "avg_ms_per_token": 127.996, "avg_tokens_per_step": 1.4381}, {"config": "bs16_sbs4_th0.8_cacheTrue_batch1_mnt128", "model_type": "dLLM", "block_size": 16, "small_block_size": 4, "threshold": 0.8, "batch_size": 1, "max_new_tokens": 128, "num_samples": 1000, "avg_bleu4": 0.0163, "avg_bleu_norm": 0.0199, "avg_bleu_code": 0.0206, "avg_rouge1": 0.143, "avg_rouge2": 0.0284, "avg_rougeL": 0.1268, "avg_meteor": 0.1137, "avg_tokens_per_second": 7.69, "avg_ms_per_token": 136.596, "avg_tokens_per_step": 1.3125}, {"config": "bs16_sbs4_th1.0_cacheTrue_batch1_mnt128", "model_type": "dLLM", "block_size": 16, "small_block_size": 4, "threshold": 1.0, "batch_size": 1, "max_new_tokens": 128, "num_samples": 1000, "avg_bleu4": 0.0158, "avg_bleu_norm": 0.0195, "avg_bleu_code": 0.0207, "avg_rouge1": 0.1438, "avg_rouge2": 0.0289, "avg_rougeL": 0.1275, "avg_meteor": 0.1155, "avg_tokens_per_second": 6.22, "avg_ms_per_token": 164.438, "avg_tokens_per_step": 1.0026}, {"config": "bs16_sbs8_th0.2_cacheTrue_batch1_mnt128", "model_type": "dLLM", "block_size": 16, "small_block_size": 8, "threshold": 0.2, "batch_size": 1, "max_new_tokens": 128, "num_samples": 1000, "avg_bleu4": 0.0162, "avg_bleu_norm": 0.0189, "avg_bleu_code": 0.0199, "avg_rouge1": 0.1266, "avg_rouge2": 0.0247, "avg_rougeL": 0.1133, "avg_meteor": 0.0955, "avg_tokens_per_second": 12.97, "avg_ms_per_token": 84.283, "avg_tokens_per_step": 2.6013}, {"config": "bs16_sbs8_th0.4_cacheTrue_batch1_mnt128", "model_type": "dLLM", "block_size": 16, "small_block_size": 8, "threshold": 0.4, "batch_size": 1, "max_new_tokens": 128, "num_samples": 1000, "avg_bleu4": 0.0168, "avg_bleu_norm": 0.0189, "avg_bleu_code": 0.0199, "avg_rouge1": 0.1345, "avg_rouge2": 0.0276, "avg_rougeL": 0.1195, "avg_meteor": 0.111, "avg_tokens_per_second": 10.02, "avg_ms_per_token": 107.896, "avg_tokens_per_step": 1.8353}, {"config": "bs16_sbs8_th0.6_cacheTrue_batch1_mnt128", "model_type": "dLLM", "block_size": 16, "small_block_size": 8, "threshold": 0.6, "batch_size": 1, "max_new_tokens": 128, "num_samples": 1000, "avg_bleu4": 0.0162, "avg_bleu_norm": 0.0195, "avg_bleu_code": 0.0204, "avg_rouge1": 0.1342, "avg_rouge2": 0.0284, "avg_rougeL": 0.1199, "avg_meteor": 0.109, "avg_tokens_per_second": 8.73, "avg_ms_per_token": 122.451, "avg_tokens_per_step": 1.5399}, {"config": "bs16_sbs8_th0.8_cacheTrue_batch1_mnt128", "model_type": "dLLM", "block_size": 16, "small_block_size": 8, "threshold": 0.8, "batch_size": 1, "max_new_tokens": 128, "num_samples": 1000, "avg_bleu4": 0.0163, "avg_bleu_norm": 0.0198, "avg_bleu_code": 0.0205, "avg_rouge1": 0.1354, "avg_rouge2": 0.0296, "avg_rougeL": 0.1207, "avg_meteor": 0.1096, "avg_tokens_per_second": 8.03, "avg_ms_per_token": 132.037, "avg_tokens_per_step": 1.3816}, {"config": "bs16_sbs8_th1.0_cacheTrue_batch1_mnt128", "model_type": "dLLM", "block_size": 16, "small_block_size": 8, "threshold": 1.0, "batch_size": 1, "max_new_tokens": 128, "num_samples": 1000, "avg_bleu4": 0.0156, "avg_bleu_norm": 0.0191, "avg_bleu_code": 0.0202, "avg_rouge1": 0.1354, "avg_rouge2": 0.0294, "avg_rougeL": 0.1209, "avg_meteor": 0.1098, "avg_tokens_per_second": 6.24, "avg_ms_per_token": 164.275, "avg_tokens_per_step": 1.0025}, {"config": "bs32_sbs16_th0.2_cacheTrue_batch1_mnt128", "model_type": "dLLM", "block_size": 32, "small_block_size": 16, "threshold": 0.2, "batch_size": 1, "max_new_tokens": 128, "num_samples": 1000, "avg_bleu4": 0.0148, "avg_bleu_norm": 0.0174, "avg_bleu_code": 0.0187, "avg_rouge1": 0.1167, "avg_rouge2": 0.0215, "avg_rougeL": 0.1067, "avg_meteor": 0.0859, "avg_tokens_per_second": 18.31, "avg_ms_per_token": 60.927, "avg_tokens_per_step": 3.45}, {"config": "bs32_sbs16_th0.4_cacheTrue_batch1_mnt128", "model_type": "dLLM", "block_size": 32, "small_block_size": 16, "threshold": 0.4, "batch_size": 1, "max_new_tokens": 128, "num_samples": 1000, "avg_bleu4": 0.0165, "avg_bleu_norm": 0.0192, "avg_bleu_code": 0.0208, "avg_rouge1": 0.1223, "avg_rouge2": 0.0272, "avg_rougeL": 0.1109, "avg_meteor": 0.0995, "avg_tokens_per_second": 12.66, "avg_ms_per_token": 86.151, "avg_tokens_per_step": 2.2063}, {"config": "bs32_sbs16_th0.6_cacheTrue_batch1_mnt128", "model_type": "dLLM", "block_size": 32, "small_block_size": 16, "threshold": 0.6, "batch_size": 1, "max_new_tokens": 128, "num_samples": 1000, "avg_bleu4": 0.017, "avg_bleu_norm": 0.0205, "avg_bleu_code": 0.0221, "avg_rouge1": 0.1252, "avg_rouge2": 0.0299, "avg_rougeL": 0.1131, "avg_meteor": 0.103, "avg_tokens_per_second": 10.65, "avg_ms_per_token": 100.843, "avg_tokens_per_step": 1.8046}, {"config": "bs32_sbs16_th0.8_cacheTrue_batch1_mnt128", "model_type": "dLLM", "block_size": 32, "small_block_size": 16, "threshold": 0.8, "batch_size": 1, "max_new_tokens": 128, "num_samples": 1000, "avg_bleu4": 0.0171, "avg_bleu_norm": 0.0211, "avg_bleu_code": 0.0226, "avg_rouge1": 0.1289, "avg_rouge2": 0.0307, "avg_rougeL": 0.1156, "avg_meteor": 0.1041, "avg_tokens_per_second": 9.55, "avg_ms_per_token": 111.689, "avg_tokens_per_step": 1.5822}, {"config": "bs32_sbs16_th1.0_cacheTrue_batch1_mnt128", "model_type": "dLLM", "block_size": 32, "small_block_size": 16, "threshold": 1.0, "batch_size": 1, "max_new_tokens": 128, "num_samples": 1000, "avg_bleu4": 0.0168, "avg_bleu_norm": 0.0207, "avg_bleu_code": 0.0222, "avg_rouge1": 0.1275, "avg_rouge2": 0.0302, "avg_rougeL": 0.1145, "avg_meteor": 0.1033, "avg_tokens_per_second": 6.61, "avg_ms_per_token": 154.104, "avg_tokens_per_step": 1.0011}, {"config": "bs32_sbs8_th0.2_cacheTrue_batch1_mnt1024", "model_type": "dLLM", "block_size": 32, "small_block_size": 8, "threshold": 0.2, "batch_size": 1, "max_new_tokens": 1024, "num_samples": 1000, "avg_bleu4": 0.0157, "avg_bleu_norm": 0.0174, "avg_bleu_code": 0.0191, "avg_rouge1": 0.1181, "avg_rouge2": 0.0203, "avg_rougeL": 0.1064, "avg_meteor": 0.0865, "avg_tokens_per_second": 16.42, "avg_ms_per_token": 71.808, "avg_tokens_per_step": 3.0523}, {"config": "bs32_sbs8_th0.2_cacheTrue_batch1_mnt128", "model_type": "dLLM", "block_size": 32, "small_block_size": 8, "threshold": 0.2, "batch_size": 1, "max_new_tokens": 128, "num_samples": 1000, "avg_bleu4": 0.0157, "avg_bleu_norm": 0.0175, "avg_bleu_code": 0.0191, "avg_rouge1": 0.1182, "avg_rouge2": 0.0203, "avg_rougeL": 0.1066, "avg_meteor": 0.0868, "avg_tokens_per_second": 15.65, "avg_ms_per_token": 68.821, "avg_tokens_per_step": 2.8311}, {"config": "bs32_sbs8_th0.2_cacheTrue_batch1_mnt256", "model_type": "dLLM", "block_size": 32, "small_block_size": 8, "threshold": 0.2, "batch_size": 1, "max_new_tokens": 256, "num_samples": 1000, "avg_bleu4": 0.0157, "avg_bleu_norm": 0.0175, "avg_bleu_code": 0.0191, "avg_rouge1": 0.1181, "avg_rouge2": 0.0203, "avg_rougeL": 0.1065, "avg_meteor": 0.0866, "avg_tokens_per_second": 15.61, "avg_ms_per_token": 71.729, "avg_tokens_per_step": 2.9302}, {"config": "bs32_sbs8_th0.2_cacheTrue_batch1_mnt512", "model_type": "dLLM", "block_size": 32, "small_block_size": 8, "threshold": 0.2, "batch_size": 1, "max_new_tokens": 512, "num_samples": 1000, "avg_bleu4": 0.0157, "avg_bleu_norm": 0.0175, "avg_bleu_code": 0.0191, "avg_rouge1": 0.1181, "avg_rouge2": 0.0203, "avg_rougeL": 0.1064, "avg_meteor": 0.0866, "avg_tokens_per_second": 17.23, "avg_ms_per_token": 66.492, "avg_tokens_per_step": 3.0048}, {"config": "bs32_sbs8_th0.2_cacheTrue_batch4_mnt1024", "model_type": "dLLM", "block_size": 32, "small_block_size": 8, "threshold": 0.2, "batch_size": 4, "max_new_tokens": 1024, "num_samples": 1000, "avg_bleu4": 0.0156, "avg_bleu_norm": 0.0172, "avg_bleu_code": 0.019, "avg_rouge1": 0.1169, "avg_rouge2": 0.0206, "avg_rougeL": 0.1055, "avg_meteor": 0.0859, "avg_tokens_per_second": 24.4, "avg_ms_per_token": 51.461, "avg_tokens_per_step": 4.7113}, {"config": "bs32_sbs8_th0.2_cacheTrue_batch4_mnt256", "model_type": "dLLM", "block_size": 32, "small_block_size": 8, "threshold": 0.2, "batch_size": 4, "max_new_tokens": 256, "num_samples": 1000, "avg_bleu4": 0.0156, "avg_bleu_norm": 0.0172, "avg_bleu_code": 0.019, "avg_rouge1": 0.117, "avg_rouge2": 0.0206, "avg_rougeL": 0.1056, "avg_meteor": 0.086, "avg_tokens_per_second": 19.53, "avg_ms_per_token": 58.245, "avg_tokens_per_step": 4.317}, {"config": "bs32_sbs8_th0.2_cacheTrue_batch4_mnt512", "model_type": "dLLM", "block_size": 32, "small_block_size": 8, "threshold": 0.2, "batch_size": 4, "max_new_tokens": 512, "num_samples": 1000, "avg_bleu4": 0.0156, "avg_bleu_norm": 0.0172, "avg_bleu_code": 0.019, "avg_rouge1": 0.117, "avg_rouge2": 0.0206, "avg_rougeL": 0.1056, "avg_meteor": 0.0859, "avg_tokens_per_second": 23.05, "avg_ms_per_token": 51.472, "avg_tokens_per_step": 4.5226}, {"config": "bs32_sbs8_th0.4_cacheTrue_batch1_mnt1024", "model_type": "dLLM", "block_size": 32, "small_block_size": 8, "threshold": 0.4, "batch_size": 1, "max_new_tokens": 1024, "num_samples": 1000, "avg_bleu4": 0.0167, "avg_bleu_norm": 0.0191, "avg_bleu_code": 0.0211, "avg_rouge1": 0.1242, "avg_rouge2": 0.0271, "avg_rougeL": 0.1113, "avg_meteor": 0.0982, "avg_tokens_per_second": 11.52, "avg_ms_per_token": 95.862, "avg_tokens_per_step": 2.0847}, {"config": "bs32_sbs8_th0.4_cacheTrue_batch1_mnt128", "model_type": "dLLM", "block_size": 32, "small_block_size": 8, "threshold": 0.4, "batch_size": 1, "max_new_tokens": 128, "num_samples": 1000, "avg_bleu4": 0.0167, "avg_bleu_norm": 0.0191, "avg_bleu_code": 0.0211, "avg_rouge1": 0.1242, "avg_rouge2": 0.0271, "avg_rougeL": 0.1113, "avg_meteor": 0.0982, "avg_tokens_per_second": 11.9, "avg_ms_per_token": 89.653, "avg_tokens_per_step": 2.0328}, {"config": "bs32_sbs8_th0.4_cacheTrue_batch1_mnt256", "model_type": "dLLM", "block_size": 32, "small_block_size": 8, "threshold": 0.4, "batch_size": 1, "max_new_tokens": 256, "num_samples": 1000, "avg_bleu4": 0.0167, "avg_bleu_norm": 0.0191, "avg_bleu_code": 0.0211, "avg_rouge1": 0.1242, "avg_rouge2": 0.0271, "avg_rougeL": 0.1113, "avg_meteor": 0.0982, "avg_tokens_per_second": 11.45, "avg_ms_per_token": 94.618, "avg_tokens_per_step": 2.0558}, {"config": "bs32_sbs8_th0.4_cacheTrue_batch1_mnt512", "model_type": "dLLM", "block_size": 32, "small_block_size": 8, "threshold": 0.4, "batch_size": 1, "max_new_tokens": 512, "num_samples": 1000, "avg_bleu4": 0.0167, "avg_bleu_norm": 0.0191, "avg_bleu_code": 0.0211, "avg_rouge1": 0.1242, "avg_rouge2": 0.0271, "avg_rougeL": 0.1113, "avg_meteor": 0.0982, "avg_tokens_per_second": 12.25, "avg_ms_per_token": 88.768, "avg_tokens_per_step": 2.0715}, {"config": "bs32_sbs8_th0.4_cacheTrue_batch4_mnt1024", "model_type": "dLLM", "block_size": 32, "small_block_size": 8, "threshold": 0.4, "batch_size": 4, "max_new_tokens": 1024, "num_samples": 1000, "avg_bleu4": 0.0167, "avg_bleu_norm": 0.0191, "avg_bleu_code": 0.0209, "avg_rouge1": 0.1233, "avg_rouge2": 0.026, "avg_rougeL": 0.1106, "avg_meteor": 0.0972, "avg_tokens_per_second": 15.2, "avg_ms_per_token": 77.919, "avg_tokens_per_step": 2.995}, {"config": "bs32_sbs8_th0.4_cacheTrue_batch4_mnt256", "model_type": "dLLM", "block_size": 32, "small_block_size": 8, "threshold": 0.4, "batch_size": 4, "max_new_tokens": 256, "num_samples": 1000, "avg_bleu4": 0.0167, "avg_bleu_norm": 0.0191, "avg_bleu_code": 0.0209, "avg_rouge1": 0.1233, "avg_rouge2": 0.026, "avg_rougeL": 0.1106, "avg_meteor": 0.0972, "avg_tokens_per_second": 13.55, "avg_ms_per_token": 83.11, "avg_tokens_per_step": 2.8778}, {"config": "bs32_sbs8_th0.4_cacheTrue_batch4_mnt512", "model_type": "dLLM", "block_size": 32, "small_block_size": 8, "threshold": 0.4, "batch_size": 4, "max_new_tokens": 512, "num_samples": 1000, "avg_bleu4": 0.0167, "avg_bleu_norm": 0.0191, "avg_bleu_code": 0.0209, "avg_rouge1": 0.1233, "avg_rouge2": 0.026, "avg_rougeL": 0.1106, "avg_meteor": 0.0972, "avg_tokens_per_second": 15.08, "avg_ms_per_token": 76.241, "avg_tokens_per_step": 2.938}, {"config": "bs32_sbs8_th0.6_cacheTrue_batch1_mnt1024", "model_type": "dLLM", "block_size": 32, "small_block_size": 8, "threshold": 0.6, "batch_size": 1, "max_new_tokens": 1024, "num_samples": 1000, "avg_bleu4": 0.0175, "avg_bleu_norm": 0.0209, "avg_bleu_code": 0.0233, "avg_rouge1": 0.1281, "avg_rouge2": 0.03, "avg_rougeL": 0.1146, "avg_meteor": 0.1015, "avg_tokens_per_second": 9.85, "avg_ms_per_token": 110.721, "avg_tokens_per_step": 1.7454}, {"config": "bs32_sbs8_th0.6_cacheTrue_batch1_mnt128", "model_type": "dLLM", "block_size": 32, "small_block_size": 8, "threshold": 0.6, "batch_size": 1, "max_new_tokens": 128, "num_samples": 1000, "avg_bleu4": 0.0175, "avg_bleu_norm": 0.0209, "avg_bleu_code": 0.0233, "avg_rouge1": 0.1281, "avg_rouge2": 0.03, "avg_rougeL": 0.1146, "avg_meteor": 0.1015, "avg_tokens_per_second": 10.26, "avg_ms_per_token": 103.381, "avg_tokens_per_step": 1.7111}, {"config": "bs32_sbs8_th0.6_cacheTrue_batch1_mnt256", "model_type": "dLLM", "block_size": 32, "small_block_size": 8, "threshold": 0.6, "batch_size": 1, "max_new_tokens": 256, "num_samples": 1000, "avg_bleu4": 0.0175, "avg_bleu_norm": 0.0209, "avg_bleu_code": 0.0233, "avg_rouge1": 0.1281, "avg_rouge2": 0.03, "avg_rougeL": 0.1146, "avg_meteor": 0.1015, "avg_tokens_per_second": 9.86, "avg_ms_per_token": 108.925, "avg_tokens_per_step": 1.7257}, {"config": "bs32_sbs8_th0.6_cacheTrue_batch1_mnt512", "model_type": "dLLM", "block_size": 32, "small_block_size": 8, "threshold": 0.6, "batch_size": 1, "max_new_tokens": 512, "num_samples": 1000, "avg_bleu4": 0.0175, "avg_bleu_norm": 0.0209, "avg_bleu_code": 0.0233, "avg_rouge1": 0.1281, "avg_rouge2": 0.03, "avg_rougeL": 0.1146, "avg_meteor": 0.1015, "avg_tokens_per_second": 10.48, "avg_ms_per_token": 102.709, "avg_tokens_per_step": 1.736}, {"config": "bs32_sbs8_th0.6_cacheTrue_batch4_mnt1024", "model_type": "dLLM", "block_size": 32, "small_block_size": 8, "threshold": 0.6, "batch_size": 4, "max_new_tokens": 1024, "num_samples": 1000, "avg_bleu4": 0.0173, "avg_bleu_norm": 0.0206, "avg_bleu_code": 0.0225, "avg_rouge1": 0.1261, "avg_rouge2": 0.0291, "avg_rougeL": 0.1128, "avg_meteor": 0.1007, "avg_tokens_per_second": 11.86, "avg_ms_per_token": 94.638, "avg_tokens_per_step": 2.3211}, {"config": "bs32_sbs8_th0.6_cacheTrue_batch4_mnt256", "model_type": "dLLM", "block_size": 32, "small_block_size": 8, "threshold": 0.6, "batch_size": 4, "max_new_tokens": 256, "num_samples": 1000, "avg_bleu4": 0.0173, "avg_bleu_norm": 0.0206, "avg_bleu_code": 0.0225, "avg_rouge1": 0.1261, "avg_rouge2": 0.0291, "avg_rougeL": 0.1128, "avg_meteor": 0.1008, "avg_tokens_per_second": 11.0, "avg_ms_per_token": 99.309, "avg_tokens_per_step": 2.2666}, {"config": "bs32_sbs8_th0.6_cacheTrue_batch4_mnt512", "model_type": "dLLM", "block_size": 32, "small_block_size": 8, "threshold": 0.6, "batch_size": 4, "max_new_tokens": 512, "num_samples": 1000, "avg_bleu4": 0.0173, "avg_bleu_norm": 0.0206, "avg_bleu_code": 0.0225, "avg_rouge1": 0.1261, "avg_rouge2": 0.0291, "avg_rougeL": 0.1128, "avg_meteor": 0.1007, "avg_tokens_per_second": 11.99, "avg_ms_per_token": 92.013, "avg_tokens_per_step": 2.2924}, {"config": "bs32_sbs8_th0.8_cacheTrue_batch1_mnt1024", "model_type": "dLLM", "block_size": 32, "small_block_size": 8, "threshold": 0.8, "batch_size": 1, "max_new_tokens": 1024, "num_samples": 1000, "avg_bleu4": 0.018, "avg_bleu_norm": 0.0218, "avg_bleu_code": 0.0245, "avg_rouge1": 0.1294, "avg_rouge2": 0.0322, "avg_rougeL": 0.1158, "avg_meteor": 0.1032, "avg_tokens_per_second": 8.98, "avg_ms_per_token": 119.226, "avg_tokens_per_step": 1.5441}, {"config": "bs32_sbs8_th0.8_cacheTrue_batch1_mnt128", "model_type": "dLLM", "block_size": 32, "small_block_size": 8, "threshold": 0.8, "batch_size": 1, "max_new_tokens": 128, "num_samples": 1000, "avg_bleu4": 0.018, "avg_bleu_norm": 0.0218, "avg_bleu_code": 0.0245, "avg_rouge1": 0.1294, "avg_rouge2": 0.0322, "avg_rougeL": 0.1158, "avg_meteor": 0.1032, "avg_tokens_per_second": 9.37, "avg_ms_per_token": 112.473, "avg_tokens_per_step": 1.5279}, {"config": "bs32_sbs8_th0.8_cacheTrue_batch1_mnt256", "model_type": "dLLM", "block_size": 32, "small_block_size": 8, "threshold": 0.8, "batch_size": 1, "max_new_tokens": 256, "num_samples": 1000, "avg_bleu4": 0.018, "avg_bleu_norm": 0.0218, "avg_bleu_code": 0.0245, "avg_rouge1": 0.1294, "avg_rouge2": 0.0322, "avg_rougeL": 0.1158, "avg_meteor": 0.1032, "avg_tokens_per_second": 9.06, "avg_ms_per_token": 117.248, "avg_tokens_per_step": 1.5354}, {"config": "bs32_sbs8_th0.8_cacheTrue_batch1_mnt512", "model_type": "dLLM", "block_size": 32, "small_block_size": 8, "threshold": 0.8, "batch_size": 1, "max_new_tokens": 512, "num_samples": 1000, "avg_bleu4": 0.018, "avg_bleu_norm": 0.0218, "avg_bleu_code": 0.0245, "avg_rouge1": 0.1294, "avg_rouge2": 0.0322, "avg_rougeL": 0.1158, "avg_meteor": 0.1032, "avg_tokens_per_second": 8.98, "avg_ms_per_token": 118.318, "avg_tokens_per_step": 1.5399}, {"config": "bs32_sbs8_th0.8_cacheTrue_batch4_mnt1024", "model_type": "dLLM", "block_size": 32, "small_block_size": 8, "threshold": 0.8, "batch_size": 4, "max_new_tokens": 1024, "num_samples": 1000, "avg_bleu4": 0.0179, "avg_bleu_norm": 0.0217, "avg_bleu_code": 0.024, "avg_rouge1": 0.1283, "avg_rouge2": 0.0313, "avg_rougeL": 0.115, "avg_meteor": 0.1029, "avg_tokens_per_second": 10.74, "avg_ms_per_token": 103.705, "avg_tokens_per_step": 2.0808}, {"config": "bs32_sbs8_th0.8_cacheTrue_batch4_mnt256", "model_type": "dLLM", "block_size": 32, "small_block_size": 8, "threshold": 0.8, "batch_size": 4, "max_new_tokens": 256, "num_samples": 1000, "avg_bleu4": 0.0179, "avg_bleu_norm": 0.0217, "avg_bleu_code": 0.024, "avg_rouge1": 0.1283, "avg_rouge2": 0.0313, "avg_rougeL": 0.115, "avg_meteor": 0.1029, "avg_tokens_per_second": 10.1, "avg_ms_per_token": 108.508, "avg_tokens_per_step": 2.0501}, {"config": "bs32_sbs8_th0.8_cacheTrue_batch4_mnt512", "model_type": "dLLM", "block_size": 32, "small_block_size": 8, "threshold": 0.8, "batch_size": 4, "max_new_tokens": 512, "num_samples": 1000, "avg_bleu4": 0.0179, "avg_bleu_norm": 0.0217, "avg_bleu_code": 0.024, "avg_rouge1": 0.1283, "avg_rouge2": 0.0313, "avg_rougeL": 0.115, "avg_meteor": 0.1029, "avg_tokens_per_second": 10.91, "avg_ms_per_token": 100.886, "avg_tokens_per_step": 2.0634}, {"config": "bs32_sbs8_th1.0_cacheTrue_batch1_mnt1024", "model_type": "dLLM", "block_size": 32, "small_block_size": 8, "threshold": 1.0, "batch_size": 1, "max_new_tokens": 1024, "num_samples": 1000, "avg_bleu4": 0.018, "avg_bleu_norm": 0.0218, "avg_bleu_code": 0.0243, "avg_rouge1": 0.1303, "avg_rouge2": 0.0317, "avg_rougeL": 0.1162, "avg_meteor": 0.1045, "avg_tokens_per_second": 6.38, "avg_ms_per_token": 160.213, "avg_tokens_per_step": 1.0012}, {"config": "bs32_sbs8_th1.0_cacheTrue_batch1_mnt128", "model_type": "dLLM", "block_size": 32, "small_block_size": 8, "threshold": 1.0, "batch_size": 1, "max_new_tokens": 128, "num_samples": 1000, "avg_bleu4": 0.018, "avg_bleu_norm": 0.0218, "avg_bleu_code": 0.0243, "avg_rouge1": 0.1303, "avg_rouge2": 0.0317, "avg_rougeL": 0.1162, "avg_meteor": 0.1045, "avg_tokens_per_second": 6.69, "avg_ms_per_token": 151.971, "avg_tokens_per_step": 1.0012}, {"config": "bs32_sbs8_th1.0_cacheTrue_batch1_mnt256", "model_type": "dLLM", "block_size": 32, "small_block_size": 8, "threshold": 1.0, "batch_size": 1, "max_new_tokens": 256, "num_samples": 1000, "avg_bleu4": 0.018, "avg_bleu_norm": 0.0218, "avg_bleu_code": 0.0243, "avg_rouge1": 0.1303, "avg_rouge2": 0.0317, "avg_rougeL": 0.1162, "avg_meteor": 0.1045, "avg_tokens_per_second": 6.46, "avg_ms_per_token": 157.761, "avg_tokens_per_step": 1.0012}, {"config": "bs32_sbs8_th1.0_cacheTrue_batch1_mnt512", "model_type": "dLLM", "block_size": 32, "small_block_size": 8, "threshold": 1.0, "batch_size": 1, "max_new_tokens": 512, "num_samples": 1000, "avg_bleu4": 0.018, "avg_bleu_norm": 0.0218, "avg_bleu_code": 0.0243, "avg_rouge1": 0.1303, "avg_rouge2": 0.0317, "avg_rougeL": 0.1162, "avg_meteor": 0.1045, "avg_tokens_per_second": 6.31, "avg_ms_per_token": 162.144, "avg_tokens_per_step": 1.0012}, {"config": "bs32_sbs8_th1.0_cacheTrue_batch4_mnt1024", "model_type": "dLLM", "block_size": 32, "small_block_size": 8, "threshold": 1.0, "batch_size": 4, "max_new_tokens": 1024, "num_samples": 1000, "avg_bleu4": 0.0181, "avg_bleu_norm": 0.0217, "avg_bleu_code": 0.024, "avg_rouge1": 0.1298, "avg_rouge2": 0.0314, "avg_rougeL": 0.116, "avg_meteor": 0.1041, "avg_tokens_per_second": 8.08, "avg_ms_per_token": 135.524, "avg_tokens_per_step": 1.4693}, {"config": "bs32_sbs8_th1.0_cacheTrue_batch4_mnt256", "model_type": "dLLM", "block_size": 32, "small_block_size": 8, "threshold": 1.0, "batch_size": 4, "max_new_tokens": 256, "num_samples": 1000, "avg_bleu4": 0.0181, "avg_bleu_norm": 0.0217, "avg_bleu_code": 0.024, "avg_rouge1": 0.1298, "avg_rouge2": 0.0314, "avg_rougeL": 0.116, "avg_meteor": 0.1041, "avg_tokens_per_second": 7.82, "avg_ms_per_token": 140.244, "avg_tokens_per_step": 1.4718}, {"config": "bs32_sbs8_th1.0_cacheTrue_batch4_mnt512", "model_type": "dLLM", "block_size": 32, "small_block_size": 8, "threshold": 1.0, "batch_size": 4, "max_new_tokens": 512, "num_samples": 1000, "avg_bleu4": 0.0181, "avg_bleu_norm": 0.0217, "avg_bleu_code": 0.024, "avg_rouge1": 0.1298, "avg_rouge2": 0.0314, "avg_rougeL": 0.116, "avg_meteor": 0.1041, "avg_tokens_per_second": 8.27, "avg_ms_per_token": 132.052, "avg_tokens_per_step": 1.4702}, {"config": "bs64_sbs16_th0.2_cacheTrue_batch1_mnt128", "model_type": "dLLM", "block_size": 64, "small_block_size": 16, "threshold": 0.2, "batch_size": 1, "max_new_tokens": 128, "num_samples": 1000, "avg_bleu4": 0.0146, "avg_bleu_norm": 0.0165, "avg_bleu_code": 0.0171, "avg_rouge1": 0.1185, "avg_rouge2": 0.0213, "avg_rougeL": 0.1069, "avg_meteor": 0.0855, "avg_tokens_per_second": 18.7, "avg_ms_per_token": 58.996, "avg_tokens_per_step": 3.7263}, {"config": "bs64_sbs16_th0.4_cacheTrue_batch1_mnt128", "model_type": "dLLM", "block_size": 64, "small_block_size": 16, "threshold": 0.4, "batch_size": 1, "max_new_tokens": 128, "num_samples": 1000, "avg_bleu4": 0.0173, "avg_bleu_norm": 0.0197, "avg_bleu_code": 0.0215, "avg_rouge1": 0.1301, "avg_rouge2": 0.0279, "avg_rougeL": 0.117, "avg_meteor": 0.1058, "avg_tokens_per_second": 13.33, "avg_ms_per_token": 81.373, "avg_tokens_per_step": 2.3931}, {"config": "bs64_sbs16_th0.6_cacheTrue_batch1_mnt128", "model_type": "dLLM", "block_size": 64, "small_block_size": 16, "threshold": 0.6, "batch_size": 1, "max_new_tokens": 128, "num_samples": 1000, "avg_bleu4": 0.0174, "avg_bleu_norm": 0.0206, "avg_bleu_code": 0.0218, "avg_rouge1": 0.1335, "avg_rouge2": 0.0299, "avg_rougeL": 0.1193, "avg_meteor": 0.1086, "avg_tokens_per_second": 11.62, "avg_ms_per_token": 94.039, "avg_tokens_per_step": 2.0375}, {"config": "bs64_sbs16_th0.8_cacheTrue_batch1_mnt128", "model_type": "dLLM", "block_size": 64, "small_block_size": 16, "threshold": 0.8, "batch_size": 1, "max_new_tokens": 128, "num_samples": 1000, "avg_bleu4": 0.0179, "avg_bleu_norm": 0.0214, "avg_bleu_code": 0.0225, "avg_rouge1": 0.1349, "avg_rouge2": 0.0316, "avg_rougeL": 0.1207, "avg_meteor": 0.1102, "avg_tokens_per_second": 10.63, "avg_ms_per_token": 102.602, "avg_tokens_per_step": 1.8189}, {"config": "bs64_sbs16_th1.0_cacheTrue_batch1_mnt128", "model_type": "dLLM", "block_size": 64, "small_block_size": 16, "threshold": 1.0, "batch_size": 1, "max_new_tokens": 128, "num_samples": 1000, "avg_bleu4": 0.018, "avg_bleu_norm": 0.0218, "avg_bleu_code": 0.0231, "avg_rouge1": 0.1349, "avg_rouge2": 0.0326, "avg_rougeL": 0.1213, "avg_meteor": 0.1109, "avg_tokens_per_second": 6.51, "avg_ms_per_token": 156.136, "avg_tokens_per_step": 1.0004}, {"config": "bs64_sbs32_th0.2_cacheTrue_batch1_mnt128", "model_type": "dLLM", "block_size": 64, "small_block_size": 32, "threshold": 0.2, "batch_size": 1, "max_new_tokens": 128, "num_samples": 1000, "avg_bleu4": 0.0142, "avg_bleu_norm": 0.0166, "avg_bleu_code": 0.0169, "avg_rouge1": 0.1192, "avg_rouge2": 0.0211, "avg_rougeL": 0.1082, "avg_meteor": 0.0868, "avg_tokens_per_second": 20.36, "avg_ms_per_token": 55.453, "avg_tokens_per_step": 4.2434}, {"config": "bs64_sbs32_th0.4_cacheTrue_batch1_mnt128", "model_type": "dLLM", "block_size": 64, "small_block_size": 32, "threshold": 0.4, "batch_size": 1, "max_new_tokens": 128, "num_samples": 1000, "avg_bleu4": 0.0162, "avg_bleu_norm": 0.0182, "avg_bleu_code": 0.0196, "avg_rouge1": 0.1279, "avg_rouge2": 0.0256, "avg_rougeL": 0.1146, "avg_meteor": 0.1046, "avg_tokens_per_second": 13.73, "avg_ms_per_token": 79.531, "avg_tokens_per_step": 2.5149}, {"config": "bs64_sbs32_th0.6_cacheTrue_batch1_mnt128", "model_type": "dLLM", "block_size": 64, "small_block_size": 32, "threshold": 0.6, "batch_size": 1, "max_new_tokens": 128, "num_samples": 1000, "avg_bleu4": 0.0174, "avg_bleu_norm": 0.0201, "avg_bleu_code": 0.0216, "avg_rouge1": 0.1309, "avg_rouge2": 0.0289, "avg_rougeL": 0.1169, "avg_meteor": 0.1071, "avg_tokens_per_second": 11.75, "avg_ms_per_token": 93.179, "avg_tokens_per_step": 2.0981}, {"config": "bs64_sbs32_th0.8_cacheTrue_batch1_mnt128", "model_type": "dLLM", "block_size": 64, "small_block_size": 32, "threshold": 0.8, "batch_size": 1, "max_new_tokens": 128, "num_samples": 1000, "avg_bleu4": 0.0175, "avg_bleu_norm": 0.0206, "avg_bleu_code": 0.022, "avg_rouge1": 0.1343, "avg_rouge2": 0.0308, "avg_rougeL": 0.1205, "avg_meteor": 0.1097, "avg_tokens_per_second": 10.78, "avg_ms_per_token": 101.403, "avg_tokens_per_step": 1.879}, {"config": "bs64_sbs32_th1.0_cacheTrue_batch1_mnt128", "model_type": "dLLM", "block_size": 64, "small_block_size": 32, "threshold": 1.0, "batch_size": 1, "max_new_tokens": 128, "num_samples": 1000, "avg_bleu4": 0.0173, "avg_bleu_norm": 0.0205, "avg_bleu_code": 0.022, "avg_rouge1": 0.134, "avg_rouge2": 0.0308, "avg_rougeL": 0.12, "avg_meteor": 0.1092, "avg_tokens_per_second": 6.4, "avg_ms_per_token": 158.565, "avg_tokens_per_step": 1.0004}];
+
+// ─── Helper functions ────────────────────────────────────────────────────────
+
+function scoreBadge(score, thresholds=[0.05, 0.10]) {
+  const cls = score >= thresholds[1] ? 'score-high' : score >= thresholds[0] ? 'score-mid' : 'score-low';
+  return `<span class="score-badge ${cls}">${score.toFixed(4)}</span>`;
+}
+
+function tokenSpans(tokens, matchSet, cssClass='token-neutral') {
+  return tokens.map(t => {
+    const isMatch = matchSet.has(t.toLowerCase());
+    const cls = isMatch ? 'token-match' : 'token-miss';
+    return `<span class="token ${cls}">${escapeHtml(t)}</span>`;
+  }).join('');
+}
+
+function refTokenSpans(tokens, matchSet) {
+  return tokens.map(t => {
+    const isMatch = matchSet.has(t.toLowerCase());
+    const cls = isMatch ? 'token-match' : 'token-neutral';
+    return `<span class="token ${cls}">${escapeHtml(t)}</span>`;
+  }).join('');
+}
+
+function escapeHtml(text) {
+  const div = document.createElement('div');
+  div.textContent = text;
+  return div.innerHTML;
+}
+
+function barHtml(value, maxVal, colorClass, label) {
+  const pct = Math.min(100, (value / maxVal) * 100);
+  return `<div class="bar-container">
+    <div class="bar ${colorClass}" style="width: ${Math.max(pct, 1)}%; max-width: 200px;"></div>
+    <span style="font-family: monospace; font-size: 0.85rem;">${value.toFixed(4)}</span>
+    <span style="color: var(--text-muted); font-size: 0.8rem;">${label}</span>
+  </div>`;
+}
+
+function ngramPrecisionBar(ngData) {
+  let html = '<table class="metrics-table"><thead><tr><th>N-gram</th><th>Matches</th><th>Hyp Count</th><th>Precision</th><th></th></tr></thead><tbody>';
+  for (const n of ['1gram', '2gram', '3gram', '4gram']) {
+    const d = ngData[n];
+    const pct = d.precision * 100;
+    html += `<tr>
+      <td>${n}</td>
+      <td class="num">${d.matches}</td>
+      <td class="num">${d.hyp_count}</td>
+      <td class="num">${(d.precision * 100).toFixed(1)}%</td>
+      <td><div class="bar bar-bleu" style="width: ${Math.max(pct, 1)}px; max-width: 150px; height: 12px; display: inline-block;"></div></td>
+    </tr>`;
+  }
+  html += '</tbody></table>';
+  return html;
+}
+
+// ─── Render examples ─────────────────────────────────────────────────────────
+
+function renderExamples() {
+  const container = document.getElementById('examples-container');
+  let html = '';
+
+  EXAMPLES_DATA.forEach((ex, idx) => {
+    const dm = ex.dllm_metrics;
+    const am = ex.ar_metrics;
+    const dCommon = new Set(dm.common_words || []);
+    const aCommon = new Set(am.common_words || []);
+    const dCodeCommon = new Set(dm.common_code_tokens || []);
+    const aCodeCommon = new Set(am.common_code_tokens || []);
+
+    html += `<div class="example-box">
+      <div class="example-header" onclick="toggleExample(${idx})">
+        <div>
+          <strong>Example ${idx + 1}:</strong> ${escapeHtml(ex.task_id)}
+          <span style="color: var(--text-muted); margin-left: 1rem;">Label: "${escapeHtml(ex.label)}"</span>
+        </div>
+        <div style="display: flex; gap: 1rem; align-items: center;">
+          <span style="font-size: 0.8rem; color: var(--text-muted);">METEOR: dLLM ${scoreBadge(dm.meteor)} AR ${scoreBadge(am.meteor)}</span>
+          <span class="arrow" id="arrow-${idx}">▶</span>
+        </div>
+      </div>
+      <div class="example-body" id="example-${idx}">
+
+        <!-- Text display -->
+        <div class="text-row">
+          <span class="text-label">Reference</span>
+          <div class="text-content">${escapeHtml(ex.label)}</div>
+        </div>
+        <div class="text-row">
+          <span class="text-label">dLLM</span>
+          <div class="text-content" style="border-left: 3px solid var(--accent);">${escapeHtml(ex.dllm)}</div>
+        </div>
+        <div class="text-row">
+          <span class="text-label">AR</span>
+          <div class="text-content" style="border-left: 3px solid var(--orange);">${escapeHtml(ex.ar)}</div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="tab-container" id="tabs-${idx}">
+          <div class="tab active" onclick="switchTab(${idx}, 'tokens')">Token Overlap</div>
+          <div class="tab" onclick="switchTab(${idx}, 'bleu')">BLEU Breakdown</div>
+          <div class="tab" onclick="switchTab(${idx}, 'rouge')">ROUGE</div>
+          <div class="tab" onclick="switchTab(${idx}, 'meteor')">METEOR</div>
+          <div class="tab" onclick="switchTab(${idx}, 'code')">BLEU-CODE</div>
+        </div>
+
+        <!-- Token Overlap Panel -->
+        <div class="tab-panel active" id="panel-${idx}-tokens">
+          <h4>Simple Tokenization (used by BLEU-4)</h4>
+          <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 8px;">Reference tokens:</p>
+          <div>${refTokenSpans(dm.tokens.simple.ref, dCommon)}</div>
+          <p style="font-size: 0.85rem; color: var(--text-muted); margin: 8px 0;">dLLM tokens (${dm.common_words.length}/${dm.tokens.simple.hyp.length} match):</p>
+          <div>${tokenSpans(dm.tokens.simple.hyp, dCommon)}</div>
+          <p style="font-size: 0.85rem; color: var(--text-muted); margin: 8px 0;">AR tokens (${am.common_words.length}/${am.tokens.simple.hyp.length} match):</p>
+          <div>${tokenSpans(am.tokens.simple.hyp, aCommon)}</div>
+
+          <h4 style="margin-top: 1rem;">Code Tokenization (used by BLEU-CODE)</h4>
+          <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 8px;">Reference code tokens:</p>
+          <div>${refTokenSpans(dm.tokens.code.ref, dCodeCommon)}</div>
+          <p style="font-size: 0.85rem; color: var(--text-muted); margin: 8px 0;">dLLM code tokens (${dm.common_code_tokens.length}/${dm.tokens.code.hyp.length} match):</p>
+          <div>${tokenSpans(dm.tokens.code.hyp, dCodeCommon)}</div>
+          <p style="font-size: 0.85rem; color: var(--text-muted); margin: 8px 0;">AR code tokens (${am.common_code_tokens.length}/${am.tokens.code.hyp.length} match):</p>
+          <div>${tokenSpans(am.tokens.code.hyp, aCodeCommon)}</div>
+        </div>
+
+        <!-- BLEU Breakdown Panel -->
+        <div class="tab-panel" id="panel-${idx}-bleu">
+          <div class="comparison-grid">
+            <div>
+              <h4>dLLM — BLEU-4: ${scoreBadge(dm.bleu4.score)}</h4>
+              <p style="font-size: 0.85rem;">BP=${dm.bleu4.brevity_penalty} | hyp_len=${dm.bleu4.hyp_len} | ref_len=${dm.bleu4.ref_len}</p>
+              ${ngramPrecisionBar(dm.bleu4.ngrams)}
+            </div>
+            <div>
+              <h4>AR — BLEU-4: ${scoreBadge(am.bleu4.score)}</h4>
+              <p style="font-size: 0.85rem;">BP=${am.bleu4.brevity_penalty} | hyp_len=${am.bleu4.hyp_len} | ref_len=${am.bleu4.ref_len}</p>
+              ${ngramPrecisionBar(am.bleu4.ngrams)}
+            </div>
+          </div>
+          <h4 style="margin-top: 1rem;">All BLEU Variants Compared</h4>
+          <table class="metrics-table">
+            <thead><tr><th></th><th>BLEU-4</th><th>BLEU-NORM</th><th>BLEU-CODE</th></tr></thead>
+            <tbody>
+              <tr><td>dLLM</td><td class="num">${dm.bleu4.score.toFixed(4)}</td><td class="num">${dm.bleu_norm.score.toFixed(4)}</td><td class="num">${dm.bleu_code.score.toFixed(4)}</td></tr>
+              <tr><td>AR</td><td class="num">${am.bleu4.score.toFixed(4)}</td><td class="num">${am.bleu_norm.score.toFixed(4)}</td><td class="num">${am.bleu_code.score.toFixed(4)}</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- ROUGE Panel -->
+        <div class="tab-panel" id="panel-${idx}-rouge">
+          <div class="comparison-grid">
+            <div>
+              <h4>dLLM ROUGE Scores</h4>
+              <table class="metrics-table">
+                <thead><tr><th>Metric</th><th>Precision</th><th>Recall</th><th>F1</th></tr></thead>
+                <tbody>
+                  <tr><td>ROUGE-1</td><td class="num">${dm.rouge1.precision.toFixed(4)}</td><td class="num">${dm.rouge1.recall.toFixed(4)}</td><td class="num">${scoreBadge(dm.rouge1.f1)}</td></tr>
+                  <tr><td>ROUGE-2</td><td class="num">${dm.rouge2.precision.toFixed(4)}</td><td class="num">${dm.rouge2.recall.toFixed(4)}</td><td class="num">${scoreBadge(dm.rouge2.f1)}</td></tr>
+                  <tr><td>ROUGE-L</td><td class="num">${dm.rougeL.precision.toFixed(4)}</td><td class="num">${dm.rougeL.recall.toFixed(4)}</td><td class="num">${scoreBadge(dm.rougeL.f1)}</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <div>
+              <h4>AR ROUGE Scores</h4>
+              <table class="metrics-table">
+                <thead><tr><th>Metric</th><th>Precision</th><th>Recall</th><th>F1</th></tr></thead>
+                <tbody>
+                  <tr><td>ROUGE-1</td><td class="num">${am.rouge1.precision.toFixed(4)}</td><td class="num">${am.rouge1.recall.toFixed(4)}</td><td class="num">${scoreBadge(am.rouge1.f1)}</td></tr>
+                  <tr><td>ROUGE-2</td><td class="num">${am.rouge2.precision.toFixed(4)}</td><td class="num">${am.rouge2.recall.toFixed(4)}</td><td class="num">${scoreBadge(am.rouge2.f1)}</td></tr>
+                  <tr><td>ROUGE-L</td><td class="num">${am.rougeL.precision.toFixed(4)}</td><td class="num">${am.rougeL.recall.toFixed(4)}</td><td class="num">${scoreBadge(am.rougeL.f1)}</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div class="insight-box" style="margin-top: 1rem;">
+            <h4>Understanding Precision vs Recall</h4>
+            <p><strong>Precision:</strong> Of the words in the <em>generated</em> text, how many appear in the reference? (Low when generated is verbose)</p>
+            <p><strong>Recall:</strong> Of the words in the <em>reference</em>, how many appear in the generated text? (Low when reference words are missed)</p>
+            <p><strong>F1:</strong> Harmonic mean of both. Balances coverage and conciseness.</p>
+          </div>
+        </div>
+
+        <!-- METEOR Panel -->
+        <div class="tab-panel" id="panel-${idx}-meteor">
+          <div class="comparison-grid">
+            <div>
+              <h4>dLLM METEOR: ${scoreBadge(dm.meteor)}</h4>
+              <p>METEOR aligns words using:</p>
+              <ol style="font-size: 0.9rem;">
+                <li><strong>Exact match:</strong> "fix" ↔ "fix"</li>
+                <li><strong>Stem match:</strong> "fixing" ↔ "fixed" (both stem to "fix")</li>
+                <li><strong>Synonym match:</strong> "remove" ↔ "delete" (via WordNet)</li>
+              </ol>
+              <p style="margin-top: 0.5rem;">Common words (exact): <strong>${dm.common_words.length > 0 ? dm.common_words.join(', ') : 'none'}</strong></p>
+            </div>
+            <div>
+              <h4>AR METEOR: ${scoreBadge(am.meteor)}</h4>
+              <p>Common words (exact): <strong>${am.common_words.length > 0 ? am.common_words.join(', ') : 'none'}</strong></p>
+              <p style="margin-top: 0.5rem; color: var(--text-muted); font-size: 0.9rem;">METEOR often gives higher scores than BLEU because it can match via stems and synonyms even when exact words differ.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- BLEU-CODE Panel -->
+        <div class="tab-panel" id="panel-${idx}-code">
+          <h4>BLEU-CODE Tokenization Pipeline</h4>
+          <div class="comparison-grid">
+            <div>
+              <h4>dLLM — BLEU-CODE: ${scoreBadge(dm.bleu_code.score)}</h4>
+              <p style="font-size: 0.85rem;">BP=${dm.bleu_code.brevity_penalty} | hyp_len=${dm.bleu_code.hyp_len} | ref_len=${dm.bleu_code.ref_len}</p>
+              ${ngramPrecisionBar(dm.bleu_code.ngrams)}
+              <p style="font-size: 0.85rem; margin-top: 0.5rem;">Shared code tokens: <strong>${dm.common_code_tokens.length > 0 ? dm.common_code_tokens.join(', ') : 'none'}</strong></p>
+              <p style="font-size: 0.85rem; color: var(--text-muted);">vs BLEU-4: ${dm.bleu4.score.toFixed(4)} → BLEU-CODE: ${dm.bleu_code.score.toFixed(4)} (${dm.bleu_code.score > dm.bleu4.score ? '+' : ''}${((dm.bleu_code.score - dm.bleu4.score) * 100).toFixed(2)}pp)</p>
+            </div>
+            <div>
+              <h4>AR — BLEU-CODE: ${scoreBadge(am.bleu_code.score)}</h4>
+              <p style="font-size: 0.85rem;">BP=${am.bleu_code.brevity_penalty} | hyp_len=${am.bleu_code.hyp_len} | ref_len=${am.bleu_code.ref_len}</p>
+              ${ngramPrecisionBar(am.bleu_code.ngrams)}
+              <p style="font-size: 0.85rem; margin-top: 0.5rem;">Shared code tokens: <strong>${am.common_code_tokens.length > 0 ? am.common_code_tokens.join(', ') : 'none'}</strong></p>
+              <p style="font-size: 0.85rem; color: var(--text-muted);">vs BLEU-4: ${am.bleu4.score.toFixed(4)} → BLEU-CODE: ${am.bleu_code.score.toFixed(4)} (${am.bleu_code.score > am.bleu4.score ? '+' : ''}${((am.bleu_code.score - am.bleu4.score) * 100).toFixed(2)}pp)</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>`;
+  });
+
+  container.innerHTML = html;
+  // Auto-expand first example
+  toggleExample(0);
+}
+
+function toggleExample(idx) {
+  const body = document.getElementById(`example-${idx}`);
+  const arrow = document.getElementById(`arrow-${idx}`);
+  body.classList.toggle('active');
+  arrow.classList.toggle('open');
+}
+
+function switchTab(idx, tabName) {
+  const tabs = document.querySelectorAll(`#tabs-${idx} .tab`);
+  tabs.forEach(t => t.classList.remove('active'));
+  event.target.classList.add('active');
+
+  const panels = document.querySelectorAll(`[id^="panel-${idx}-"]`);
+  panels.forEach(p => p.classList.remove('active'));
+  document.getElementById(`panel-${idx}-${tabName}`).classList.add('active');
+}
+
+// ─── BLEU-CODE Charts (using SVG) ───────────────────────────────────────────
+
+function renderBleuCodeCharts() {
+  const container = document.getElementById('bleu-code-charts');
+  const dllmData = ABLATION_DATA.filter(d => d.model_type === 'dLLM');
+  const arData = ABLATION_DATA.find(d => d.model_type === 'AR');
+
+  // Chart 1: Block size sweep (mnt=128, batch=1) — BLEU variants
+  const bsSweep = dllmData.filter(d => d.max_new_tokens === 128 && d.batch_size === 1);
+  const groups = {};
+  bsSweep.forEach(d => {
+    const key = `bs${d.block_size}/sbs${d.small_block_size}`;
+    if (!groups[key]) groups[key] = [];
+    groups[key].push(d);
+  });
+
+  // Chart 2: Threshold sweep for bs32_sbs8_mnt128_batch1 comparing all BLEU variants
+  const bs32 = dllmData.filter(d => d.block_size === 32 && d.small_block_size === 8 && d.max_new_tokens === 128 && d.batch_size === 1)
+    .sort((a, b) => a.threshold - b.threshold);
+
+  let html = '';
+
+  // === Chart: BLEU Variants Comparison (Grouped Bar) ===
+  html += `<div class="card">
+    <h3>BLEU-4 vs BLEU-NORM vs BLEU-CODE — Block Size Sweep (mnt=128, batch=1)</h3>
+    <p style="color: var(--text-muted); margin-bottom: 1rem;">Grouped by block_size/small_block_size at threshold=0.8 (best quality-speed balance)</p>`;
+
+  const th08 = bsSweep.filter(d => d.threshold === 0.8).sort((a, b) => a.block_size - b.block_size || a.small_block_size - b.small_block_size);
+  if (th08.length > 0) {
+    const maxBleu = Math.max(...th08.flatMap(d => [d.avg_bleu4, d.avg_bleu_norm, d.avg_bleu_code]), arData.avg_bleu_code) * 1.2;
+    const barW = 20, groupGap = 40, groupW = barW * 3 + 10;
+    const svgW = th08.length * (groupW + groupGap) + 120;
+    const svgH = 280;
+    const plotH = 200, plotY = 30;
+
+    html += `<svg width="${svgW}" height="${svgH}" style="display: block; margin: 0 auto;">`;
+    // AR baseline line
+    const arY = plotY + plotH - (arData.avg_bleu_code / maxBleu) * plotH;
+    html += `<line x1="40" y1="${arY}" x2="${svgW - 20}" y2="${arY}" stroke="#f85149" stroke-dasharray="5,5" opacity="0.7"/>`;
+    html += `<text x="${svgW - 15}" y="${arY - 5}" fill="#f85149" font-size="10" text-anchor="end">AR BLEU-CODE</text>`;
+
+    th08.forEach((d, i) => {
+      const x = 60 + i * (groupW + groupGap);
+      const vals = [
+        { v: d.avg_bleu4, color: '#58a6ff', label: 'BLEU-4' },
+        { v: d.avg_bleu_norm, color: '#d29922', label: 'BLEU-NORM' },
+        { v: d.avg_bleu_code, color: '#bc8cff', label: 'BLEU-CODE' },
+      ];
+      vals.forEach((item, j) => {
+        const bx = x + j * (barW + 3);
+        const bh = (item.v / maxBleu) * plotH;
+        const by = plotY + plotH - bh;
+        html += `<rect x="${bx}" y="${by}" width="${barW}" height="${bh}" fill="${item.color}" rx="2" opacity="0.85"/>`;
+        html += `<text x="${bx + barW/2}" y="${by - 3}" fill="${item.color}" font-size="9" text-anchor="middle">${(item.v * 100).toFixed(1)}</text>`;
+      });
+      html += `<text x="${x + groupW/2}" y="${plotY + plotH + 15}" fill="var(--text-muted)" font-size="10" text-anchor="middle">bs${d.block_size}/sbs${d.small_block_size}</text>`;
+    });
+
+    // Legend
+    html += `<rect x="60" y="${svgH - 25}" width="12" height="12" fill="#58a6ff" rx="2"/>`;
+    html += `<text x="76" y="${svgH - 15}" fill="var(--text)" font-size="11">BLEU-4</text>`;
+    html += `<rect x="140" y="${svgH - 25}" width="12" height="12" fill="#d29922" rx="2"/>`;
+    html += `<text x="156" y="${svgH - 15}" fill="var(--text)" font-size="11">BLEU-NORM</text>`;
+    html += `<rect x="240" y="${svgH - 25}" width="12" height="12" fill="#bc8cff" rx="2"/>`;
+    html += `<text x="256" y="${svgH - 15}" fill="var(--text)" font-size="11">BLEU-CODE</text>`;
+    html += `</svg>`;
+  }
+  html += `</div>`;
+
+  // === Chart: BLEU-CODE vs Threshold (line chart) ===
+  html += `<div class="card">
+    <h3>BLEU-CODE vs Threshold — All Block Sizes (mnt=128, batch=1)</h3>
+    <p style="color: var(--text-muted); margin-bottom: 1rem;">How BLEU-CODE varies with confidence threshold for each block size configuration</p>`;
+
+  const colors = ['#58a6ff', '#3fb950', '#d29922', '#f85149', '#bc8cff', '#f0883e'];
+  const svgW2 = 700, svgH2 = 350, padL = 60, padR = 180, padT = 30, padB = 50;
+  const plotW2 = svgW2 - padL - padR, plotH2 = svgH2 - padT - padB;
+  const thresholds = [0.2, 0.4, 0.6, 0.8, 1.0];
+  const maxBC = Math.max(...bsSweep.map(d => d.avg_bleu_code), arData.avg_bleu_code) * 1.15;
+
+  html += `<svg width="${svgW2}" height="${svgH2}" style="display: block; margin: 0 auto;">`;
+  // Grid
+  for (let i = 0; i <= 5; i++) {
+    const y = padT + (i / 5) * plotH2;
+    const val = maxBC * (1 - i / 5);
+    html += `<line x1="${padL}" y1="${y}" x2="${padL + plotW2}" y2="${y}" stroke="var(--border)" opacity="0.5"/>`;
+    html += `<text x="${padL - 8}" y="${y + 4}" fill="var(--text-muted)" font-size="10" text-anchor="end">${(val * 100).toFixed(1)}%</text>`;
+  }
+  // X axis labels
+  thresholds.forEach((th, i) => {
+    const x = padL + (i / (thresholds.length - 1)) * plotW2;
+    html += `<text x="${x}" y="${svgH2 - padB + 20}" fill="var(--text-muted)" font-size="11" text-anchor="middle">${th}</text>`;
+  });
+  html += `<text x="${padL + plotW2/2}" y="${svgH2 - 5}" fill="var(--text-muted)" font-size="12" text-anchor="middle">Confidence Threshold</text>`;
+
+  // AR baseline
+  const arBCY = padT + (1 - arData.avg_bleu_code / maxBC) * plotH2;
+  html += `<line x1="${padL}" y1="${arBCY}" x2="${padL + plotW2}" y2="${arBCY}" stroke="#f85149" stroke-dasharray="6,4" opacity="0.7"/>`;
+  html += `<text x="${padL + plotW2 + 5}" y="${arBCY + 4}" fill="#f85149" font-size="10">AR baseline</text>`;
+
+  // Lines per group
+  const sortedGroups = Object.keys(groups).sort();
+  sortedGroups.forEach((key, gi) => {
+    const pts = groups[key].sort((a, b) => a.threshold - b.threshold);
+    const color = colors[gi % colors.length];
+    let pathD = '';
+    pts.forEach((d, i) => {
+      const x = padL + (thresholds.indexOf(d.threshold) / (thresholds.length - 1)) * plotW2;
+      const y = padT + (1 - d.avg_bleu_code / maxBC) * plotH2;
+      pathD += (i === 0 ? 'M' : 'L') + `${x},${y}`;
+      html += `<circle cx="${x}" cy="${y}" r="4" fill="${color}"/>`;
+    });
+    html += `<path d="${pathD}" fill="none" stroke="${color}" stroke-width="2" opacity="0.8"/>`;
+    // Legend
+    const ly = padT + 10 + gi * 20;
+    html += `<line x1="${padL + plotW2 + 15}" y1="${ly}" x2="${padL + plotW2 + 30}" y2="${ly}" stroke="${color}" stroke-width="2"/>`;
+    html += `<circle cx="${padL + plotW2 + 22}" cy="${ly}" r="3" fill="${color}"/>`;
+    html += `<text x="${padL + plotW2 + 35}" y="${ly + 4}" fill="var(--text)" font-size="11">${key}</text>`;
+  });
+  html += `</svg></div>`;
+
+  // === Chart: BLEU-CODE improvement over BLEU-4 ===
+  html += `<div class="card">
+    <h3>BLEU-CODE Improvement Over BLEU-4 (Percentage Points)</h3>
+    <p style="color: var(--text-muted); margin-bottom: 1rem;">Shows how much BLEU-CODE gains over standard BLEU-4 for each configuration at threshold=0.8</p>`;
+
+  if (th08.length > 0) {
+    html += `<table class="metrics-table">
+      <thead><tr><th>Config</th><th>BLEU-4</th><th>BLEU-NORM</th><th>BLEU-CODE</th><th>CODE−4 Δ</th><th>Relative Improvement</th></tr></thead><tbody>`;
+    th08.forEach(d => {
+      const delta = d.avg_bleu_code - d.avg_bleu4;
+      const relImpr = d.avg_bleu4 > 0 ? (delta / d.avg_bleu4 * 100) : 0;
+      html += `<tr>
+        <td>bs${d.block_size}/sbs${d.small_block_size}</td>
+        <td class="num">${d.avg_bleu4.toFixed(4)}</td>
+        <td class="num">${d.avg_bleu_norm.toFixed(4)}</td>
+        <td class="num">${d.avg_bleu_code.toFixed(4)}</td>
+        <td class="num" style="color: var(--green);">+${(delta * 100).toFixed(2)}pp</td>
+        <td class="num" style="color: var(--green);">+${relImpr.toFixed(1)}%</td>
+      </tr>`;
+    });
+    // AR baseline row
+    const arDelta = arData.avg_bleu_code - arData.avg_bleu4;
+    const arRelImpr = arData.avg_bleu4 > 0 ? (arDelta / arData.avg_bleu4 * 100) : 0;
+    html += `<tr style="border-top: 2px solid var(--border);">
+      <td><strong>AR Baseline</strong></td>
+      <td class="num">${arData.avg_bleu4.toFixed(4)}</td>
+      <td class="num">${arData.avg_bleu_norm.toFixed(4)}</td>
+      <td class="num">${arData.avg_bleu_code.toFixed(4)}</td>
+      <td class="num" style="color: var(--green);">+${(arDelta * 100).toFixed(2)}pp</td>
+      <td class="num" style="color: var(--green);">+${arRelImpr.toFixed(1)}%</td>
+    </tr>`;
+    html += `</tbody></table>`;
+  }
+  html += `</div>`;
+
+  // === Chart: BLEU-CODE Speed-Quality Pareto ===
+  html += `<div class="card">
+    <h3>BLEU-CODE vs Speed (Tokens/sec) — All Configs</h3>
+    <p style="color: var(--text-muted); margin-bottom: 1rem;">Each dot is a dLLM configuration, colored by threshold. Red star = AR baseline.</p>`;
+
+  const svgW3 = 700, svgH3 = 400, padL3 = 70, padR3 = 30, padT3 = 30, padB3 = 50;
+  const plotW3 = svgW3 - padL3 - padR3, plotH3 = svgH3 - padT3 - padB3;
+  const maxTps = Math.max(...dllmData.map(d => d.avg_tokens_per_second), arData.avg_tokens_per_second) * 1.1;
+  const maxBCode = Math.max(...dllmData.map(d => d.avg_bleu_code), arData.avg_bleu_code) * 1.15;
+  const minBCode = Math.min(...dllmData.map(d => d.avg_bleu_code)) * 0.85;
+  const bCodeRange = maxBCode - minBCode;
+
+  const thColors = { 0.2: '#58a6ff', 0.4: '#3fb950', 0.6: '#d29922', 0.8: '#f0883e', 1.0: '#f85149' };
+
+  html += `<svg width="${svgW3}" height="${svgH3}" style="display: block; margin: 0 auto;">`;
+  // Grid
+  for (let i = 0; i <= 5; i++) {
+    const y = padT3 + (i / 5) * plotH3;
+    const val = maxBCode - (i / 5) * bCodeRange;
+    html += `<line x1="${padL3}" y1="${y}" x2="${padL3 + plotW3}" y2="${y}" stroke="var(--border)" opacity="0.3"/>`;
+    html += `<text x="${padL3 - 8}" y="${y + 4}" fill="var(--text-muted)" font-size="10" text-anchor="end">${(val * 100).toFixed(2)}%</text>`;
+  }
+  for (let i = 0; i <= 5; i++) {
+    const x = padL3 + (i / 5) * plotW3;
+    const val = (i / 5) * maxTps;
+    html += `<line x1="${x}" y1="${padT3}" x2="${x}" y2="${padT3 + plotH3}" stroke="var(--border)" opacity="0.3"/>`;
+    html += `<text x="${x}" y="${svgH3 - padB3 + 20}" fill="var(--text-muted)" font-size="10" text-anchor="middle">${val.toFixed(0)}</text>`;
+  }
+  html += `<text x="${padL3 + plotW3/2}" y="${svgH3 - 5}" fill="var(--text-muted)" font-size="12" text-anchor="middle">Tokens/sec</text>`;
+  html += `<text x="15" y="${padT3 + plotH3/2}" fill="var(--text-muted)" font-size="12" text-anchor="middle" transform="rotate(-90, 15, ${padT3 + plotH3/2})">BLEU-CODE</text>`;
+
+  // Data points
+  dllmData.forEach(d => {
+    const x = padL3 + (d.avg_tokens_per_second / maxTps) * plotW3;
+    const y = padT3 + (1 - (d.avg_bleu_code - minBCode) / bCodeRange) * plotH3;
+    const color = thColors[d.threshold] || '#888';
+    html += `<circle cx="${x}" cy="${y}" r="5" fill="${color}" opacity="0.7"><title>bs${d.block_size}_sbs${d.small_block_size}_th${d.threshold}_mnt${d.max_new_tokens}_batch${d.batch_size}\nBLEU-CODE: ${d.avg_bleu_code.toFixed(4)}\nTok/s: ${d.avg_tokens_per_second.toFixed(1)}</title></circle>`;
+  });
+  // AR baseline star
+  const arX3 = padL3 + (arData.avg_tokens_per_second / maxTps) * plotW3;
+  const arY3 = padT3 + (1 - (arData.avg_bleu_code - minBCode) / bCodeRange) * plotH3;
+  html += `<text x="${arX3}" y="${arY3 + 5}" fill="#f85149" font-size="18" text-anchor="middle" font-weight="bold">★</text>`;
+  html += `<text x="${arX3 + 12}" y="${arY3 - 5}" fill="#f85149" font-size="10">AR</text>`;
+
+  // Threshold legend
+  let lx = padL3 + 10;
+  Object.entries(thColors).forEach(([th, color]) => {
+    html += `<circle cx="${lx}" cy="${padT3 + 10}" r="5" fill="${color}"/>`;
+    html += `<text x="${lx + 10}" y="${padT3 + 14}" fill="var(--text)" font-size="10">th=${th}</text>`;
+    lx += 80;
+  });
+  html += `</svg></div>`;
+
+  container.innerHTML = html;
+}
+
+// ─── Tokenization Comparison ─────────────────────────────────────────────────
+
+function renderTokenizationComparison() {
+  const container = document.getElementById('tokenization-comparison');
+  let html = '<div class="card"><h3>Tokenization Pipeline — Side by Side</h3>';
+  html += '<p style="color: var(--text-muted); margin-bottom: 1rem;">Showing how the same text is tokenized differently by each BLEU variant for the first 5 examples</p>';
+
+  EXAMPLES_DATA.slice(0, 5).forEach((ex, idx) => {
+    const dm = ex.dllm_metrics;
+    html += `<div style="margin-bottom: 1.5rem; padding-bottom: 1.5rem; border-bottom: 1px solid var(--border);">
+      <h4>Example ${idx + 1}: "${escapeHtml(ex.label)}"</h4>
+      <p style="font-size: 0.85rem; color: var(--text-muted);">Generated (dLLM): "${escapeHtml(ex.dllm.substring(0, 80))}${ex.dllm.length > 80 ? '...' : ''}"</p>
+      <table class="metrics-table" style="font-size: 0.85rem;">
+        <thead><tr><th>Variant</th><th>Ref Tokens</th><th>Hyp Tokens</th><th>Shared</th><th>1-gram P</th><th>Score</th></tr></thead>
+        <tbody>
+          <tr>
+            <td>BLEU-4 (simple)</td>
+            <td><code>${dm.tokens.simple.ref.join(' ')}</code></td>
+            <td><code>${dm.tokens.simple.hyp.slice(0, 8).join(' ')}${dm.tokens.simple.hyp.length > 8 ? '...' : ''}</code></td>
+            <td>${dm.bleu4.ngrams['1gram'].matches}/${dm.bleu4.ngrams['1gram'].hyp_count}</td>
+            <td>${(dm.bleu4.ngrams['1gram'].precision * 100).toFixed(1)}%</td>
+            <td>${dm.bleu4.score.toFixed(4)}</td>
+          </tr>
+          <tr>
+            <td>BLEU-NORM</td>
+            <td><code>${dm.tokens.norm.ref.join(' ')}</code></td>
+            <td><code>${dm.tokens.norm.hyp.slice(0, 8).join(' ')}${dm.tokens.norm.hyp.length > 8 ? '...' : ''}</code></td>
+            <td>${dm.bleu_norm.ngrams['1gram'].matches}/${dm.bleu_norm.ngrams['1gram'].hyp_count}</td>
+            <td>${(dm.bleu_norm.ngrams['1gram'].precision * 100).toFixed(1)}%</td>
+            <td>${dm.bleu_norm.score.toFixed(4)}</td>
+          </tr>
+          <tr>
+            <td>BLEU-CODE</td>
+            <td><code>${dm.tokens.code.ref.join(' ')}</code></td>
+            <td><code>${dm.tokens.code.hyp.slice(0, 8).join(' ')}${dm.tokens.code.hyp.length > 8 ? '...' : ''}</code></td>
+            <td>${dm.bleu_code.ngrams['1gram'].matches}/${dm.bleu_code.ngrams['1gram'].hyp_count}</td>
+            <td>${(dm.bleu_code.ngrams['1gram'].precision * 100).toFixed(1)}%</td>
+            <td>${dm.bleu_code.score.toFixed(4)}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>`;
+  });
+  html += '</div>';
+  container.innerHTML = html;
+}
+
+// ─── Initialize ──────────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  renderExamples();
+  renderTokenizationComparison();
+  renderBleuCodeCharts();
+});
+</script>
+
+</body>
+</html>

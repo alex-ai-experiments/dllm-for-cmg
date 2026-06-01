@@ -1,0 +1,92 @@
+[
+  {
+    "task_id": "apache_airflow_0d8bc95",
+    "label": "replace remaining uses of bail",
+    "dllm": "Refactor DAG clear method to include acyclic check and exit condition",
+    "ar": "Bail out of infinite loop when clearing DAGs"
+  },
+  {
+    "task_id": "apache_airflow_121e2b6",
+    "label": "removed print statement from view",
+    "dllm": "Fix indefinite loading for users by removing the print statement and handling JSON data in the variables function",
+    "ar": "Bug fix: Print variable data before saving it"
+  },
+  {
+    "task_id": "apache_airflow_12ad64f",
+    "label": "fix mypy issues in tests decorators and hooks",
+    "dllm": "Refactor subprocess execution logic to use `Mock` objects for mocking and better maintainability",
+    "ar": "Bug fix: Corrected incorrect function signature in test file"
+  },
+  {
+    "task_id": "apache_airflow_15df465",
+    "label": "increase backoff_factor and add try catch in k8s tests",
+    "dllm": "Fixed a retry configuration for the `start_dag` function, which retries the patch request up to 10 times with a backoff factor of 10 seconds between retries, and removed the retry configuration for the `cluster_forWARDED` parameter, which was causing an `MaxRetryError` when trying to start the DAG.",
+    "ar": "Bug fix: Added retry mechanism to handle potential network issues during DAG parsing."
+  },
+  {
+    "task_id": "apache_airflow_167fa33",
+    "label": "fix remnant of nose tests fixup",
+    "dllm": "Fixed the named Hive partition sensor to handle non-existent partitions and add a timeout for non-existent partitions",
+    "ar": "Bug fix: Fixed an issue where NamedHivePartitionSensor times out when checking non-existent partitions."
+  },
+  {
+    "task_id": "apache_airflow_1d641d8",
+    "label": "update remaining old import paths of operators",
+    "dllm": "Refactor Google Cloud Data Catalog operations and removed deprecated `BashOperator` reference",
+    "ar": "Update sensor module documentation and remove unused imports"
+  },
+  {
+    "task_id": "apache_airflow_2134875",
+    "label": "refactor attempting loops in tests",
+    "dllm": "Refactor test suite to use itertools.count() for generating DAG IDs in the test_pipe_full_deadlock function",
+    "ar": "Bug fix: Fixed infinite loop in keep_pipe_full function"
+  },
+  {
+    "task_id": "apache_airflow_215b8c8",
+    "label": "catch transient db exceptions from scheduler heartbeat it does not crash",
+    "dllm": "Fixed the heartbeat scheduler to properly handle the shutdown state and ensure that the last heartbeat time is updated correctly when the scheduler is stopped.</",
+    "ar": "Bug fix: Fixed infinite loop issue in heartbeat function"
+  },
+  {
+    "task_id": "apache_airflow_24e2152",
+    "label": "fix timestamp fix in refreshkubeconfigloader",
+    "dllm": "Refactor timezone parsing function to use pendulum and convert timestamps to Unix timestamps",
+    "ar": "Update timestamp parsing function in refresh_config.py"
+  },
+  {
+    "task_id": "apache_airflow_27144bd",
+    "label": "doc change: xcom taskflow",
+    "dllm": "Fix logging configuration in test providers manager",
+    "ar": "Bug fix: Corrected mock usage in test providers manager"
+  },
+  {
+    "task_id": "apache_airflow_298435a",
+    "label": "add button to set all tasks to skipped",
+    "dllm": "Refactor state management logic for task instance",
+    "ar": "Update task instance actions to include 'set_skipped'"
+  },
+  {
+    "task_id": "apache_airflow_2c394e3",
+    "label": "feature: added fast_executemany parameter to insert_rows of dbapihook",
+    "dllm": "Fixed the `fast_executemany` parameter in the `insert_rows` method to enable better performance for large datasets, and removed the `autocommit` parameter as it is not used and can lead to concurrency issues.</",
+    "ar": "Optimize database insertion performance by enabling fast_executemany"
+  },
+  {
+    "task_id": "apache_airflow_3853a84",
+    "label": "check for missing dagrun should know version",
+    "dllm": "Fix migration logic for TaskRun in Airflow 2.2 migration",
+    "ar": "Bug fix: Correctly handle version-specific table names in DB schema reflection."
+  },
+  {
+    "task_id": "apache_airflow_3aa05cb",
+    "label": "fix custom celery config loading",
+    "dllm": "Refactor data processing logic for improved readability",
+    "ar": "Refactor module imports and add missing tests"
+  },
+  {
+    "task_id": "apache_airflow_3aadc44",
+    "label": "remove unused backcompat method in k8s hook",
+    "dllm": "Refactor Kubernetes connection management to use an Airflow connection instead of deprecated core Airflow settings.</",
+    "ar": "Remove unused static method and deprecated warning"
+  }
+]

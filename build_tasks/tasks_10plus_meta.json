@@ -1,0 +1,2186 @@
+[
+  {
+    "task_id": "apache_camel_b643670",
+    "num_files": 10,
+    "language": "Java",
+    "files": [
+      "camel-core/src/main/java/org/apache/camel/ExchangePattern.java",
+      "camel-core/src/main/java/org/apache/camel/ShutdownRoute.java",
+      "camel-core/src/main/java/org/apache/camel/ShutdownRunningTask.java",
+      "camel-core/src/main/java/org/apache/camel/ThreadPoolRejectedPolicy.java",
+      "camel-core/src/main/java/org/apache/camel/WaitForTaskToComplete.java",
+      "camel-core/src/main/java/org/apache/camel/model/OnCompletionMode.java",
+      "camel-core/src/main/java/org/apache/camel/model/dataformat/BindyType.java",
+      "camel-core/src/main/java/org/apache/camel/model/dataformat/JsonLibrary.java",
+      "camel-core/src/main/java/org/apache/camel/model/rest/RestBindingMode.java",
+      "camel-core/src/main/java/org/apache/camel/model/rest/RestHostNameResolver.java"
+    ]
+  },
+  {
+    "task_id": "apache_spark_a3feffd",
+    "num_files": 14,
+    "language": "Scala",
+    "files": [
+      "connector/docker-integration-tests/src/test/scala/org/apache/spark/sql/jdbc/v2/V2JDBCTest.scala",
+      "sql/core/src/main/scala/org/apache/spark/sql/jdbc/AggregatedDialect.scala",
+      "sql/core/src/main/scala/org/apache/spark/sql/jdbc/DB2Dialect.scala",
+      "sql/core/src/main/scala/org/apache/spark/sql/jdbc/DatabricksDialect.scala",
+      "sql/core/src/main/scala/org/apache/spark/sql/jdbc/DerbyDialect.scala",
+      "sql/core/src/main/scala/org/apache/spark/sql/jdbc/H2Dialect.scala",
+      "sql/core/src/main/scala/org/apache/spark/sql/jdbc/JdbcDialects.scala",
+      "sql/core/src/main/scala/org/apache/spark/sql/jdbc/MsSqlServerDialect.scala",
+      "sql/core/src/main/scala/org/apache/spark/sql/jdbc/MySQLDialect.scala",
+      "sql/core/src/main/scala/org/apache/spark/sql/jdbc/OracleDialect.scala",
+      "sql/core/src/main/scala/org/apache/spark/sql/jdbc/PostgresDialect.scala",
+      "sql/core/src/main/scala/org/apache/spark/sql/jdbc/SnowflakeDialect.scala",
+      "sql/core/src/main/scala/org/apache/spark/sql/jdbc/TeradataDialect.scala",
+      "sql/core/src/test/scala/org/apache/spark/sql/execution/datasources/v2/jdbc/JDBCTableCatalogSuite.scala"
+    ]
+  },
+  {
+    "task_id": "apache_incubator-kie-drools_41ab8ae",
+    "num_files": 12,
+    "language": "Java",
+    "files": [
+      "drools-model/drools-model-codegen/src/main/resources/class-templates/ruleunits/RuleUnitJavaTemplate.java",
+      "drools-model/drools-model-codegen/src/main/resources/class-templates/ruleunits/RuleUnitQuarkusTemplate.java",
+      "drools-model/drools-model-codegen/src/main/resources/class-templates/ruleunits/RuleUnitSpringTemplate.java",
+      "drools-ruleunits/drools-ruleunits-api/src/main/java/org/drools/ruleunits/api/RuleUnits.java",
+      "drools-ruleunits/drools-ruleunits-api/src/main/java/org/drools/ruleunits/api/conf/RuleUnitConfig.java",
+      "drools-ruleunits/drools-ruleunits-impl/src/main/java/org/drools/ruleunits/impl/AbstractRuleUnitDescription.java",
+      "drools-ruleunits/drools-ruleunits-impl/src/main/java/org/drools/ruleunits/impl/GeneratedRuleUnitDescription.java",
+      "drools-ruleunits/drools-ruleunits-impl/src/main/java/org/drools/ruleunits/impl/ReflectiveRuleUnitDescription.java",
+      "drools-ruleunits/drools-ruleunits-impl/src/main/java/org/drools/ruleunits/impl/factory/AbstractRuleUnit.java",
+      "drools-ruleunits/drools-ruleunits-impl/src/main/java/org/drools/ruleunits/impl/factory/AbstractRuleUnits.java",
+      "drools-ruleunits/drools-ruleunits-impl/src/main/java/org/drools/ruleunits/impl/sessions/RuleUnitExecutorImpl.java",
+      "drools-ruleunits/drools-ruleunits-impl/src/main/java/org/drools/ruleunits/impl/sessions/RuleUnitStatefulKnowledgeSessionImpl.java"
+    ]
+  },
+  {
+    "task_id": "apache_iceberg_f129588",
+    "num_files": 11,
+    "language": "Java",
+    "files": [
+      "core/src/main/java/org/apache/iceberg/CatalogProperties.java",
+      "core/src/main/java/org/apache/iceberg/rest/RESTSessionCatalog.java",
+      "core/src/main/java/org/apache/iceberg/view/BaseMetastoreViewCatalog.java",
+      "core/src/test/java/org/apache/iceberg/inmemory/TestInMemoryViewCatalog.java",
+      "core/src/test/java/org/apache/iceberg/jdbc/TestJdbcViewCatalog.java",
+      "core/src/test/java/org/apache/iceberg/rest/TestRESTViewCatalog.java",
+      "core/src/test/java/org/apache/iceberg/rest/TestRESTViewCatalogWithAssumedViewSupport.java",
+      "core/src/test/java/org/apache/iceberg/view/ViewCatalogTests.java",
+      "hive-metastore/src/test/java/org/apache/iceberg/hive/TestHiveViewCatalog.java",
+      "nessie/src/test/java/org/apache/iceberg/nessie/TestNessieViewCatalog.java",
+      "open-api/src/testFixtures/java/org/apache/iceberg/rest/RCKUtils.java"
+    ]
+  },
+  {
+    "task_id": "apache_hadoop_c488abb",
+    "num_files": 19,
+    "language": "Java",
+    "files": [
+      "hadoop-common-project/hadoop-common/src/main/java/org/apache/hadoop/fs/BlockLocation.java",
+      "hadoop-common-project/hadoop-common/src/test/java/org/apache/hadoop/fs/TestBlockLocation.java",
+      "hadoop-hdfs-project/hadoop-hdfs-client/src/main/java/org/apache/hadoop/hdfs/DataStreamer.java",
+      "hadoop-hdfs-project/hadoop-hdfs-client/src/main/java/org/apache/hadoop/hdfs/protocol/LocatedBlocks.java",
+      "hadoop-hdfs-project/hadoop-hdfs-rbf/src/test/java/org/apache/hadoop/hdfs/server/federation/MockNamenode.java",
+      "hadoop-hdfs-project/hadoop-hdfs-rbf/src/test/java/org/apache/hadoop/hdfs/server/federation/router/TestRouterRpc.java",
+      "hadoop-hdfs-project/hadoop-hdfs-rbf/src/test/java/org/apache/hadoop/hdfs/server/federation/router/TestRouterRpcMultiDestination.java",
+      "hadoop-hdfs-project/hadoop-hdfs/src/main/java/org/apache/hadoop/hdfs/server/namenode/FSDirAppendOp.java",
+      "hadoop-hdfs-project/hadoop-hdfs/src/test/java/org/apache/hadoop/hdfs/TestDFSClientRetries.java",
+      "hadoop-hdfs-project/hadoop-hdfs/src/test/java/org/apache/hadoop/hdfs/TestDFSInputStream.java",
+      "hadoop-hdfs-project/hadoop-hdfs/src/test/java/org/apache/hadoop/hdfs/TestLeaseRecovery.java",
+      "hadoop-hdfs-project/hadoop-hdfs/src/test/java/org/apache/hadoop/hdfs/TestReplaceDatanodeOnFailure.java",
+      "hadoop-hdfs-project/hadoop-hdfs/src/test/java/org/apache/hadoop/hdfs/protocol/TestLocatedBlock.java",
+      "hadoop-hdfs-project/hadoop-hdfs/src/test/java/org/apache/hadoop/hdfs/security/token/block/TestBlockToken.java",
+      "hadoop-hdfs-project/hadoop-hdfs/src/test/java/org/apache/hadoop/hdfs/server/blockmanagement/TestDatanodeManager.java",
+      "hadoop-hdfs-project/hadoop-hdfs/src/test/java/org/apache/hadoop/hdfs/server/datanode/TestDataXceiverLazyPersistHint.java",
+      "hadoop-hdfs-project/hadoop-hdfs/src/test/java/org/apache/hadoop/hdfs/server/datanode/TestDiskError.java",
+      "hadoop-hdfs-project/hadoop-hdfs/src/test/java/org/apache/hadoop/hdfs/server/namenode/TestBlockPlacementPolicyRackFaultTolerant.java",
+      "hadoop-hdfs-project/hadoop-hdfs/src/test/java/org/apache/hadoop/hdfs/server/namenode/ha/TestHASafeMode.java"
+    ]
+  },
+  {
+    "task_id": "apache_pinot_05ba487",
+    "num_files": 11,
+    "language": "Java",
+    "files": [
+      "thirdeye/thirdeye-bootstrap/src/main/java/com/linkedin/thirdeye/bootstrap/ThirdEyeJob.java",
+      "thirdeye/thirdeye-bootstrap/src/main/java/com/linkedin/thirdeye/bootstrap/aggregation/AggregatePhaseJob.java",
+      "thirdeye/thirdeye-bootstrap/src/main/java/com/linkedin/thirdeye/bootstrap/analysis/AnalysisPhaseJob.java",
+      "thirdeye/thirdeye-bootstrap/src/main/java/com/linkedin/thirdeye/bootstrap/join/JoinPhaseJob.java",
+      "thirdeye/thirdeye-bootstrap/src/main/java/com/linkedin/thirdeye/bootstrap/rollup/phase1/RollupPhaseOneJob.java",
+      "thirdeye/thirdeye-bootstrap/src/main/java/com/linkedin/thirdeye/bootstrap/rollup/phase2/RollupPhaseTwoJob.java",
+      "thirdeye/thirdeye-bootstrap/src/main/java/com/linkedin/thirdeye/bootstrap/rollup/phase3/RollupPhaseThreeJob.java",
+      "thirdeye/thirdeye-bootstrap/src/main/java/com/linkedin/thirdeye/bootstrap/rollup/phase4/RollupPhaseFourJob.java",
+      "thirdeye/thirdeye-bootstrap/src/main/java/com/linkedin/thirdeye/bootstrap/startree/bootstrap/phase1/StarTreeBootstrapPhaseOneJob.java",
+      "thirdeye/thirdeye-bootstrap/src/main/java/com/linkedin/thirdeye/bootstrap/startree/bootstrap/phase2/StarTreeBootstrapPhaseTwoJob.java",
+      "thirdeye/thirdeye-bootstrap/src/main/java/com/linkedin/thirdeye/bootstrap/startree/generation/StarTreeGenerationJob.java"
+    ]
+  },
+  {
+    "task_id": "apache_camel_e22d2eb",
+    "num_files": 11,
+    "language": "Java",
+    "files": [
+      "components/camel-cassandraql/src/test/java/org/apache/camel/component/cassandra/CassandraComponentBeanRefTest.java",
+      "components/camel-cassandraql/src/test/java/org/apache/camel/component/cassandra/CassandraComponentConsumerTest.java",
+      "components/camel-cassandraql/src/test/java/org/apache/camel/component/cassandra/CassandraComponentProducerTest.java",
+      "components/camel-cassandraql/src/test/java/org/apache/camel/component/cassandra/CassandraComponentProducerUnpreparedTest.java",
+      "components/camel-cassandraql/src/test/java/org/apache/camel/processor/aggregate/cassandra/CassandraAggregationRepositoryTest.java",
+      "components/camel-cassandraql/src/test/java/org/apache/camel/processor/aggregate/cassandra/CassandraAggregationSerializedHeadersTest.java",
+      "components/camel-cassandraql/src/test/java/org/apache/camel/processor/aggregate/cassandra/CassandraAggregationTest.java",
+      "components/camel-cassandraql/src/test/java/org/apache/camel/processor/aggregate/cassandra/NamedCassandraAggregationRepositoryTest.java",
+      "components/camel-cassandraql/src/test/java/org/apache/camel/processor/idempotent/cassandra/CassandraIdempotentRepositoryTest.java",
+      "components/camel-cassandraql/src/test/java/org/apache/camel/processor/idempotent/cassandra/CassandraIdempotentTest.java",
+      "components/camel-cassandraql/src/test/java/org/apache/camel/processor/idempotent/cassandra/NamedCassandraIdempotentRepositoryTest.java"
+    ]
+  },
+  {
+    "task_id": "apache_flink_d981c94",
+    "num_files": 11,
+    "language": "Java",
+    "files": [
+      "flink-kubernetes/src/main/java/org/apache/flink/kubernetes/KubernetesResourceManager.java",
+      "flink-kubernetes/src/test/java/org/apache/flink/kubernetes/kubeclient/KubernetesTaskManagerTestBase.java",
+      "flink-kubernetes/src/test/java/org/apache/flink/kubernetes/kubeclient/parameters/KubernetesTaskManagerParametersTest.java",
+      "flink-mesos/src/main/java/org/apache/flink/mesos/runtime/clusterframework/MesosTaskManagerParameters.java",
+      "flink-mesos/src/main/java/org/apache/flink/mesos/util/MesosUtils.java",
+      "flink-mesos/src/test/java/org/apache/flink/mesos/runtime/clusterframework/MesosResourceManagerTest.java",
+      "flink-runtime/src/main/java/org/apache/flink/runtime/clusterframework/ContaineredTaskManagerParameters.java",
+      "flink-runtime/src/main/java/org/apache/flink/runtime/resourcemanager/ActiveResourceManager.java",
+      "flink-runtime/src/test/java/org/apache/flink/runtime/clusterframework/BootstrapToolsTest.java",
+      "flink-yarn-tests/src/test/java/org/apache/flink/yarn/UtilsTest.java",
+      "flink-yarn/src/main/java/org/apache/flink/yarn/YarnResourceManager.java"
+    ]
+  },
+  {
+    "task_id": "apache_doris_c3253b4",
+    "num_files": 17,
+    "language": "C++",
+    "files": [
+      "be/src/exprs/runtime_filter.cpp",
+      "be/src/olap/delta_writer.cpp",
+      "be/src/olap/delta_writer_v2.cpp",
+      "be/src/olap/rowset_builder.cpp",
+      "be/src/pipeline/exec/exchange_sink_buffer.h",
+      "be/src/pipeline/pipeline_fragment_context.cpp",
+      "be/src/pipeline/pipeline_fragment_context.h",
+      "be/src/runtime/load_stream_writer.cpp",
+      "be/src/runtime/runtime_filter_mgr.cpp",
+      "be/src/service/arrow_flight/arrow_flight_batch_reader.cpp",
+      "be/src/service/internal_service.cpp",
+      "be/src/util/brpc_closure.h",
+      "be/src/util/runtime_profile.cpp",
+      "be/src/util/runtime_profile.h",
+      "be/src/vec/sink/vdata_stream_sender.h",
+      "be/src/vec/sink/writer/vtablet_writer.cpp",
+      "be/src/vec/sink/writer/vtablet_writer.h"
+    ]
+  },
+  {
+    "task_id": "apache_superset_55199e4",
+    "num_files": 10,
+    "language": "TypeScript",
+    "files": [
+      "superset-frontend/temporary_superset_ui/superset-ui/plugins/legacy-plugin-chart-world-map/src/index.js",
+      "superset-frontend/temporary_superset_ui/superset-ui/plugins/legacy-preset-chart-big-number/src/BigNumber/index.ts",
+      "superset-frontend/temporary_superset_ui/superset-ui/plugins/legacy-preset-chart-big-number/src/BigNumberTotal/index.ts",
+      "superset-frontend/temporary_superset_ui/superset-ui/plugins/legacy-preset-chart-nvd3/src/DistBar/index.js",
+      "superset-frontend/temporary_superset_ui/superset-ui/plugins/plugin-chart-echarts/src/Pie/index.ts",
+      "superset-frontend/temporary_superset_ui/superset-ui/plugins/plugin-chart-echarts/src/Timeseries/Area/index.ts",
+      "superset-frontend/temporary_superset_ui/superset-ui/plugins/plugin-chart-echarts/src/Timeseries/Regular/Bar/index.ts",
+      "superset-frontend/temporary_superset_ui/superset-ui/plugins/plugin-chart-echarts/src/Timeseries/Regular/Line/index.ts",
+      "superset-frontend/temporary_superset_ui/superset-ui/plugins/plugin-chart-echarts/src/Timeseries/Regular/Scatter/index.ts",
+      "superset-frontend/temporary_superset_ui/superset-ui/plugins/plugin-chart-pivot-table/src/plugin/index.ts"
+    ]
+  },
+  {
+    "task_id": "apache_flink_4656350",
+    "num_files": 10,
+    "language": "Java",
+    "files": [
+      "flink-runtime/src/main/java/org/apache/flink/runtime/state/ManagedInitializationContext.java",
+      "flink-runtime/src/main/java/org/apache/flink/runtime/state/StateInitializationContextImpl.java",
+      "flink-streaming-connectors/flink-connector-filesystem/src/main/java/org/apache/flink/streaming/connectors/fs/bucketing/BucketingSink.java",
+      "flink-streaming-connectors/flink-connector-kafka-base/src/main/java/org/apache/flink/streaming/connectors/kafka/FlinkKafkaConsumerBase.java",
+      "flink-streaming-connectors/flink-connector-kafka-base/src/main/java/org/apache/flink/streaming/connectors/kafka/FlinkKafkaProducerBase.java",
+      "flink-streaming-connectors/flink-connector-kafka-base/src/test/java/org/apache/flink/streaming/connectors/kafka/FlinkKafkaConsumerBaseTest.java",
+      "flink-streaming-java/src/main/java/org/apache/flink/streaming/api/functions/source/ContinuousFileReaderOperator.java",
+      "flink-streaming-java/src/main/java/org/apache/flink/streaming/api/operators/AbstractUdfStreamOperator.java",
+      "flink-streaming-java/src/test/java/org/apache/flink/streaming/api/operators/StreamOperatorSnapshotRestoreTest.java",
+      "flink-tests/src/test/java/org/apache/flink/test/checkpointing/RescalingITCase.java"
+    ]
+  },
+  {
+    "task_id": "apache_dolphinscheduler_120d8f6",
+    "num_files": 18,
+    "language": "TypeScript",
+    "files": [
+      "dolphinscheduler-ui/src/views/projects/task/components/node/tasks/use-chunjun.ts",
+      "dolphinscheduler-ui/src/views/projects/task/components/node/tasks/use-datax.ts",
+      "dolphinscheduler-ui/src/views/projects/task/components/node/tasks/use-dinky.ts",
+      "dolphinscheduler-ui/src/views/projects/task/components/node/tasks/use-dvc.ts",
+      "dolphinscheduler-ui/src/views/projects/task/components/node/tasks/use-emr.ts",
+      "dolphinscheduler-ui/src/views/projects/task/components/node/tasks/use-hive-cli.ts",
+      "dolphinscheduler-ui/src/views/projects/task/components/node/tasks/use-java.ts",
+      "dolphinscheduler-ui/src/views/projects/task/components/node/tasks/use-jupyter.ts",
+      "dolphinscheduler-ui/src/views/projects/task/components/node/tasks/use-k8s.ts",
+      "dolphinscheduler-ui/src/views/projects/task/components/node/tasks/use-mlflow.ts",
+      "dolphinscheduler-ui/src/views/projects/task/components/node/tasks/use-openmldb.ts",
+      "dolphinscheduler-ui/src/views/projects/task/components/node/tasks/use-procedure.ts",
+      "dolphinscheduler-ui/src/views/projects/task/components/node/tasks/use-python.ts",
+      "dolphinscheduler-ui/src/views/projects/task/components/node/tasks/use-pytorch.ts",
+      "dolphinscheduler-ui/src/views/projects/task/components/node/tasks/use-sagemaker.ts",
+      "dolphinscheduler-ui/src/views/projects/task/components/node/tasks/use-sea-tunnel.ts",
+      "dolphinscheduler-ui/src/views/projects/task/components/node/tasks/use-sql.ts",
+      "dolphinscheduler-ui/src/views/projects/task/components/node/tasks/use-zeppelin.ts"
+    ]
+  },
+  {
+    "task_id": "apache_jmeter_ac19a29",
+    "num_files": 10,
+    "language": "Java",
+    "files": [
+      "src/core/src/main/java/org/apache/jmeter/report/config/ConfigurationUtils.java",
+      "src/core/src/main/java/org/apache/jmeter/report/core/SampleMetadata.java",
+      "src/core/src/main/java/org/apache/jmeter/report/dashboard/AbstractDataExporter.java",
+      "src/core/src/main/java/org/apache/jmeter/report/dashboard/HtmlTemplateExporter.java",
+      "src/core/src/main/java/org/apache/jmeter/report/dashboard/ReportGenerator.java",
+      "src/core/src/main/java/org/apache/jmeter/report/processor/NormalizerSampleConsumer.java",
+      "src/core/src/main/java/org/apache/jmeter/report/processor/graph/impl/ResponseTimePerSampleGraphConsumer.java",
+      "src/core/src/main/java/org/apache/jmeter/report/processor/graph/impl/ResponseTimePercentilesOverTimeGraphConsumer.java",
+      "src/protocol/http/src/main/java/org/apache/jmeter/protocol/http/util/DirectAccessByteArrayOutputStream.java",
+      "src/protocol/mail/src/main/java/org/apache/jmeter/protocol/mail/sampler/MailFileFolder.java"
+    ]
+  },
+  {
+    "task_id": "apache_flink_53f2c1c",
+    "num_files": 13,
+    "language": "Java",
+    "files": [
+      "flink-optimizer/src/main/java/org/apache/flink/optimizer/dag/SolutionSetNode.java",
+      "flink-optimizer/src/main/java/org/apache/flink/optimizer/operators/AbstractSortMergeJoinDescriptor.java",
+      "flink-optimizer/src/main/java/org/apache/flink/optimizer/operators/CartesianProductDescriptor.java",
+      "flink-optimizer/src/main/java/org/apache/flink/optimizer/operators/GroupReduceWithCombineProperties.java",
+      "flink-optimizer/src/main/java/org/apache/flink/optimizer/operators/HashFullOuterJoinBuildFirstDescriptor.java",
+      "flink-optimizer/src/main/java/org/apache/flink/optimizer/operators/HashFullOuterJoinBuildSecondDescriptor.java",
+      "flink-optimizer/src/main/java/org/apache/flink/optimizer/operators/HashJoinBuildFirstProperties.java",
+      "flink-optimizer/src/main/java/org/apache/flink/optimizer/operators/HashLeftOuterJoinBuildFirstDescriptor.java",
+      "flink-optimizer/src/main/java/org/apache/flink/optimizer/operators/HashLeftOuterJoinBuildSecondDescriptor.java",
+      "flink-optimizer/src/main/java/org/apache/flink/optimizer/operators/HashRightOuterJoinBuildFirstDescriptor.java",
+      "flink-optimizer/src/main/java/org/apache/flink/optimizer/operators/HashRightOuterJoinBuildSecondDescriptor.java",
+      "flink-optimizer/src/main/java/org/apache/flink/optimizer/operators/PartialGroupProperties.java",
+      "flink-optimizer/src/main/java/org/apache/flink/optimizer/plantranslate/JobGraphGenerator.java"
+    ]
+  },
+  {
+    "task_id": "apache_dolphinscheduler_806e8d9",
+    "num_files": 16,
+    "language": "vue",
+    "files": [
+      "dolphinscheduler-ui/src/js/conf/home/pages/dag/_source/config.js",
+      "dolphinscheduler-ui/src/js/conf/home/pages/dag/_source/dag.scss",
+      "dolphinscheduler-ui/src/js/conf/home/pages/dag/_source/dag.vue",
+      "dolphinscheduler-ui/src/js/conf/home/pages/dag/_source/formModel/log.vue",
+      "dolphinscheduler-ui/src/js/conf/home/pages/dag/_source/formModel/tasks/_source/scriptBox.vue",
+      "dolphinscheduler-ui/src/js/conf/home/pages/dag/_source/formModel/tasks/datax.vue",
+      "dolphinscheduler-ui/src/js/conf/home/pages/dag/_source/formModel/tasks/python.vue",
+      "dolphinscheduler-ui/src/js/conf/home/pages/dag/_source/formModel/tasks/shell.vue",
+      "dolphinscheduler-ui/src/js/conf/home/pages/dag/_source/formModel/tasks/sql.vue",
+      "dolphinscheduler-ui/src/js/conf/home/pages/dag/_source/formModel/tasks/sqoop.vue",
+      "dolphinscheduler-ui/src/js/conf/home/pages/dag/_source/plugIn/jsPlumbHandle.js",
+      "dolphinscheduler-ui/src/js/conf/home/pages/projects/pages/definition/pages/list/_source/list.vue",
+      "dolphinscheduler-ui/src/js/conf/home/pages/projects/pages/taskInstance/_source/list.vue",
+      "dolphinscheduler-ui/src/js/conf/home/pages/projects/pages/taskInstance/index.vue",
+      "dolphinscheduler-ui/src/js/module/i18n/locale/en_US.js",
+      "dolphinscheduler-ui/src/js/module/i18n/locale/zh_CN.js"
+    ]
+  },
+  {
+    "task_id": "apache_doris_ba28c94",
+    "num_files": 11,
+    "language": "groovy",
+    "files": [
+      "fe/fe-core/src/main/java/org/apache/doris/datasource/ExternalCatalog.java",
+      "fe/fe-core/src/main/java/org/apache/doris/datasource/ExternalDatabase.java",
+      "regression-test/suites/external_table_p0/lower_case/test_conflict_name.groovy",
+      "regression-test/suites/external_table_p0/lower_case/test_lower_case_meta_include.groovy",
+      "regression-test/suites/external_table_p0/lower_case/test_lower_case_meta_show_and_select.groovy",
+      "regression-test/suites/external_table_p0/lower_case/test_lower_case_meta_with_lower_table_conf_show_and_select.groovy",
+      "regression-test/suites/external_table_p0/lower_case/test_lower_case_mtmv.groovy",
+      "regression-test/suites/external_table_p0/lower_case/test_meta_cache_select_without_refresh.groovy",
+      "regression-test/suites/external_table_p0/lower_case/test_meta_names_mapping.groovy",
+      "regression-test/suites/external_table_p0/lower_case/test_timing_refresh_catalog.groovy",
+      "regression-test/suites/external_table_p0/lower_case/upgrade/load.groovy"
+    ]
+  },
+  {
+    "task_id": "apache_echarts_444bc08",
+    "num_files": 21,
+    "language": "TypeScript",
+    "files": [
+      "test/ut/core/extendExpect.ts",
+      "test/ut/core/setup.ts",
+      "test/ut/core/utHelper.ts",
+      "test/ut/spec/api/containPixel.test.ts",
+      "test/ut/spec/api/converter.test.ts",
+      "test/ut/spec/api/getVisual.test.ts",
+      "test/ut/spec/component/dataZoom/helper.test.ts",
+      "test/ut/spec/component/graphic/setOption.test.ts",
+      "test/ut/spec/component/helper/sliderMove.test.ts",
+      "test/ut/spec/component/visualMap/setOption.test.ts",
+      "test/ut/spec/data/List.test.ts",
+      "test/ut/spec/data/completeDimensions.test.ts",
+      "test/ut/spec/data/dataValueHelper.test.ts",
+      "test/ut/spec/model/Component.test.ts",
+      "test/ut/spec/model/Global.test.ts",
+      "test/ut/spec/model/timelineMediaOptions.test.ts",
+      "test/ut/spec/scale/interval.test.ts",
+      "test/ut/spec/util/graphic.test.ts",
+      "test/ut/spec/util/layout.test.ts",
+      "test/ut/spec/util/model.test.ts",
+      "test/ut/spec/util/number.test.ts"
+    ]
+  },
+  {
+    "task_id": "apache_shardingsphere_2aab611",
+    "num_files": 16,
+    "language": "Java",
+    "files": [
+      "shardingsphere-features/shardingsphere-sharding/shardingsphere-sharding-route/src/main/java/org/apache/shardingsphere/sharding/route/engine/type/broadcast/ShardingInstanceBroadcastRoutingEngine.java",
+      "shardingsphere-features/shardingsphere-sharding/shardingsphere-sharding-route/src/test/java/org/apache/shardingsphere/sharding/route/engine/type/broadcast/ShardingInstanceBroadcastRoutingEngineTest.java",
+      "shardingsphere-infra/shardingsphere-infra-common/src/main/java/org/apache/shardingsphere/infra/metadata/resource/CachedDatabaseMetaData.java",
+      "shardingsphere-infra/shardingsphere-infra-common/src/main/java/org/apache/shardingsphere/infra/metadata/resource/DataSourcesMetaData.java",
+      "shardingsphere-infra/shardingsphere-infra-common/src/main/java/org/apache/shardingsphere/infra/metadata/resource/ShardingSphereResource.java",
+      "shardingsphere-infra/shardingsphere-infra-common/src/test/java/org/apache/shardingsphere/infra/metadata/ShardingSphereMetaDataTest.java",
+      "shardingsphere-infra/shardingsphere-infra-common/src/test/java/org/apache/shardingsphere/infra/metadata/resource/CachedDatabaseMetaDataTest.java",
+      "shardingsphere-infra/shardingsphere-infra-common/src/test/java/org/apache/shardingsphere/infra/metadata/resource/DataSourcesMetaDataTest.java",
+      "shardingsphere-infra/shardingsphere-infra-common/src/test/java/org/apache/shardingsphere/infra/metadata/resource/ShardingSphereResourceTest.java",
+      "shardingsphere-infra/shardingsphere-infra-context/src/main/java/org/apache/shardingsphere/infra/context/schema/SchemaContextsBuilder.java",
+      "shardingsphere-infra/shardingsphere-infra-executor/src/test/java/org/apache/shardingsphere/infra/executor/sql/context/ExecutionContextBuilderTest.java",
+      "shardingsphere-jdbc/shardingsphere-jdbc-core/src/main/java/org/apache/shardingsphere/driver/jdbc/adapter/AdaptedDatabaseMetaData.java",
+      "shardingsphere-jdbc/shardingsphere-jdbc-core/src/main/java/org/apache/shardingsphere/driver/jdbc/core/datasource/metadata/ShardingSphereDatabaseMetaData.java",
+      "shardingsphere-jdbc/shardingsphere-jdbc-core/src/test/java/org/apache/shardingsphere/driver/jdbc/core/datasource/metadata/ShardingSphereDatabaseMetaDataTest.java",
+      "shardingsphere-proxy/shardingsphere-proxy-backend/src/test/java/org/apache/shardingsphere/proxy/backend/response/query/QueryHeaderBuilderTest.java",
+      "shardingsphere-proxy/shardingsphere-proxy-backend/src/test/java/org/apache/shardingsphere/proxy/backend/text/sctl/explain/ShardingCTLExplainBackendHandlerTest.java"
+    ]
+  },
+  {
+    "task_id": "apache_beam_06f5a49",
+    "num_files": 30,
+    "language": "Java",
+    "files": [
+      "sdks/java/extensions/google-cloud-platform-core/src/main/java/org/apache/beam/sdk/extensions/gcp/auth/CredentialFactory.java",
+      "sdks/java/extensions/google-cloud-platform-core/src/main/java/org/apache/beam/sdk/extensions/gcp/auth/GcpCredentialFactory.java",
+      "sdks/java/extensions/google-cloud-platform-core/src/main/java/org/apache/beam/sdk/extensions/gcp/auth/NoopCredentialFactory.java",
+      "sdks/java/extensions/google-cloud-platform-core/src/main/java/org/apache/beam/sdk/extensions/gcp/auth/NullCredentialInitializer.java",
+      "sdks/java/extensions/google-cloud-platform-core/src/main/java/org/apache/beam/sdk/extensions/gcp/auth/package-info.java",
+      "sdks/java/extensions/google-cloud-platform-core/src/main/java/org/apache/beam/sdk/extensions/gcp/options/CloudResourceManagerOptions.java",
+      "sdks/java/extensions/google-cloud-platform-core/src/main/java/org/apache/beam/sdk/extensions/gcp/options/GcpOptions.java",
+      "sdks/java/extensions/google-cloud-platform-core/src/main/java/org/apache/beam/sdk/extensions/gcp/options/GcpPipelineOptionsRegistrar.java",
+      "sdks/java/extensions/google-cloud-platform-core/src/main/java/org/apache/beam/sdk/extensions/gcp/options/GcsOptions.java",
+      "sdks/java/extensions/google-cloud-platform-core/src/main/java/org/apache/beam/sdk/extensions/gcp/options/GoogleApiDebugOptions.java",
+      "sdks/java/extensions/google-cloud-platform-core/src/main/java/org/apache/beam/sdk/extensions/gcp/options/package-info.java",
+      "sdks/java/extensions/google-cloud-platform-core/src/main/java/org/apache/beam/sdk/util/GcsIOChannelFactory.java",
+      "sdks/java/extensions/google-cloud-platform-core/src/main/java/org/apache/beam/sdk/util/GcsIOChannelFactoryRegistrar.java",
+      "sdks/java/extensions/google-cloud-platform-core/src/main/java/org/apache/beam/sdk/util/GcsPathValidator.java",
+      "sdks/java/extensions/google-cloud-platform-core/src/main/java/org/apache/beam/sdk/util/GcsUtil.java",
+      "sdks/java/extensions/google-cloud-platform-core/src/main/java/org/apache/beam/sdk/util/RetryHttpRequestInitializer.java",
+      "sdks/java/extensions/google-cloud-platform-core/src/main/java/org/apache/beam/sdk/util/Transport.java",
+      "sdks/java/extensions/google-cloud-platform-core/src/main/java/org/apache/beam/sdk/util/gcsfs/GcsPath.java",
+      "sdks/java/extensions/google-cloud-platform-core/src/main/java/org/apache/beam/sdk/util/gcsfs/package-info.java",
+      "sdks/java/extensions/google-cloud-platform-core/src/main/java/org/apache/beam/sdk/util/package-info.java",
+      "sdks/java/extensions/google-cloud-platform-core/src/test/java/org/apache/beam/sdk/extensions/gcp/GcpCoreApiSurfaceTest.java",
+      "sdks/java/extensions/google-cloud-platform-core/src/test/java/org/apache/beam/sdk/extensions/gcp/auth/TestCredential.java",
+      "sdks/java/extensions/google-cloud-platform-core/src/test/java/org/apache/beam/sdk/extensions/gcp/options/GcpOptionsTest.java",
+      "sdks/java/extensions/google-cloud-platform-core/src/test/java/org/apache/beam/sdk/extensions/gcp/options/GoogleApiDebugOptionsTest.java",
+      "sdks/java/extensions/google-cloud-platform-core/src/test/java/org/apache/beam/sdk/util/GcsIOChannelFactoryRegistrarTest.java",
+      "sdks/java/extensions/google-cloud-platform-core/src/test/java/org/apache/beam/sdk/util/GcsIOChannelFactoryTest.java",
+      "sdks/java/extensions/google-cloud-platform-core/src/test/java/org/apache/beam/sdk/util/GcsPathValidatorTest.java",
+      "sdks/java/extensions/google-cloud-platform-core/src/test/java/org/apache/beam/sdk/util/GcsUtilTest.java",
+      "sdks/java/extensions/google-cloud-platform-core/src/test/java/org/apache/beam/sdk/util/RetryHttpRequestInitializerTest.java",
+      "sdks/java/extensions/google-cloud-platform-core/src/test/java/org/apache/beam/sdk/util/gcsfs/GcsPathTest.java"
+    ]
+  },
+  {
+    "task_id": "apache_shardingsphere_bfad584",
+    "num_files": 13,
+    "language": "Java",
+    "files": [
+      "proxy/backend/core/src/test/java/org/apache/shardingsphere/proxy/backend/connector/DatabaseConnectorTest.java",
+      "proxy/backend/core/src/test/java/org/apache/shardingsphere/proxy/backend/handler/distsql/ral/common/checker/DatabaseDiscoveryRuleConfigurationImportCheckerTest.java",
+      "proxy/backend/core/src/test/java/org/apache/shardingsphere/proxy/backend/handler/distsql/rdl/rule/RuleDefinitionBackendHandlerTest.java",
+      "proxy/backend/core/src/test/java/org/apache/shardingsphere/proxy/backend/handler/distsql/rdl/rule/SetDefaultSingleTableStorageUnitStatementUpdaterTest.java",
+      "proxy/backend/core/src/test/java/org/apache/shardingsphere/proxy/backend/handler/distsql/rql/rule/CountSingleTableExecutorTest.java",
+      "proxy/backend/core/src/test/java/org/apache/shardingsphere/proxy/backend/handler/distsql/rql/rule/ShowDefaultSingleTableStorageUnitExecutorTest.java",
+      "proxy/backend/core/src/test/java/org/apache/shardingsphere/proxy/backend/handler/distsql/rql/rule/ShowLogicalTableExecutorTest.java",
+      "proxy/backend/core/src/test/java/org/apache/shardingsphere/proxy/backend/handler/distsql/rql/rule/ShowRulesUsedStorageUnitExecutorTest.java",
+      "proxy/backend/core/src/test/java/org/apache/shardingsphere/proxy/backend/handler/distsql/rql/rule/ShowSingleTableExecutorTest.java",
+      "proxy/backend/core/src/test/java/org/apache/shardingsphere/proxy/backend/handler/distsql/rql/storage/unit/ShowStorageUnitExecutorTest.java",
+      "proxy/backend/core/src/test/java/org/apache/shardingsphere/proxy/backend/handler/distsql/rul/sql/ParseDistSQLHandlerTest.java",
+      "proxy/backend/core/src/test/java/org/apache/shardingsphere/proxy/backend/session/ServerPreparedStatementRegistryTest.java",
+      "proxy/backend/core/src/test/java/org/apache/shardingsphere/proxy/backend/session/transaction/TransactionStatusTest.java"
+    ]
+  },
+  {
+    "task_id": "apache_shardingsphere_64f8cbf",
+    "num_files": 11,
+    "language": "Java",
+    "files": [
+      "shardingsphere-test/shardingsphere-integration-test/shardingsphere-integration-test-fixture/src/test/java/org/apache/shardingsphere/test/integration/junit/annotation/ShardingSphereITStorageType.java",
+      "shardingsphere-test/shardingsphere-integration-test/shardingsphere-integration-test-fixture/src/test/java/org/apache/shardingsphere/test/integration/junit/compose/ContainerCompose.java",
+      "shardingsphere-test/shardingsphere-integration-test/shardingsphere-integration-test-fixture/src/test/java/org/apache/shardingsphere/test/integration/junit/container/adapter/ShardingSphereAdapterContainer.java",
+      "shardingsphere-test/shardingsphere-integration-test/shardingsphere-integration-test-fixture/src/test/java/org/apache/shardingsphere/test/integration/junit/container/adapter/impl/ShardingSphereJDBCContainer.java",
+      "shardingsphere-test/shardingsphere-integration-test/shardingsphere-integration-test-fixture/src/test/java/org/apache/shardingsphere/test/integration/junit/container/adapter/impl/ShardingSphereProxyContainer.java",
+      "shardingsphere-test/shardingsphere-integration-test/shardingsphere-integration-test-fixture/src/test/java/org/apache/shardingsphere/test/integration/junit/container/storage/ShardingSphereStorageContainer.java",
+      "shardingsphere-test/shardingsphere-integration-test/shardingsphere-integration-test-fixture/src/test/java/org/apache/shardingsphere/test/integration/junit/container/storage/impl/H2Container.java",
+      "shardingsphere-test/shardingsphere-integration-test/shardingsphere-integration-test-fixture/src/test/java/org/apache/shardingsphere/test/integration/junit/container/storage/impl/MySQLContainer.java",
+      "shardingsphere-test/shardingsphere-integration-test/shardingsphere-integration-test-fixture/src/test/java/org/apache/shardingsphere/test/integration/junit/container/storage/impl/NativeStorageContainer.java",
+      "shardingsphere-test/shardingsphere-integration-test/shardingsphere-integration-test-fixture/src/test/java/org/apache/shardingsphere/test/integration/junit/container/storage/impl/PostgreSQLContainer.java",
+      "shardingsphere-test/shardingsphere-integration-test/shardingsphere-integration-test-suite/src/test/java/org/apache/shardingsphere/test/integration/engine/it/BaseITCase.java"
+    ]
+  },
+  {
+    "task_id": "apache_druid_8263f0d",
+    "num_files": 11,
+    "language": "Java",
+    "files": [
+      "server/src/main/java/org/apache/druid/server/coordinator/DruidCoordinatorRuntimeParams.java",
+      "server/src/main/java/org/apache/druid/server/coordinator/duty/PrepareBalancerAndLoadQueues.java",
+      "server/src/main/java/org/apache/druid/server/coordinator/stats/Stats.java",
+      "server/src/test/java/org/apache/druid/server/coordinator/BalanceSegmentsProfiler.java",
+      "server/src/test/java/org/apache/druid/server/coordinator/DruidCoordinatorTest.java",
+      "server/src/test/java/org/apache/druid/server/coordinator/duty/BalanceSegmentsTest.java",
+      "server/src/test/java/org/apache/druid/server/coordinator/duty/CollectSegmentAndServerStatsTest.java",
+      "server/src/test/java/org/apache/druid/server/coordinator/duty/RunRulesTest.java",
+      "server/src/test/java/org/apache/druid/server/coordinator/duty/UnloadUnusedSegmentsTest.java",
+      "server/src/test/java/org/apache/druid/server/coordinator/rules/BroadcastDistributionRuleTest.java",
+      "server/src/test/java/org/apache/druid/server/coordinator/rules/LoadRuleTest.java"
+    ]
+  },
+  {
+    "task_id": "apache_kafka_d44627d",
+    "num_files": 11,
+    "language": "Java",
+    "files": [
+      "streams/src/main/java/org/apache/kafka/streams/kstream/internals/KStreamAggregate.java",
+      "streams/src/main/java/org/apache/kafka/streams/kstream/internals/KStreamReduce.java",
+      "streams/src/main/java/org/apache/kafka/streams/kstream/internals/KTableAggregate.java",
+      "streams/src/main/java/org/apache/kafka/streams/kstream/internals/KTableFilter.java",
+      "streams/src/main/java/org/apache/kafka/streams/kstream/internals/KTableKTableJoinMerger.java",
+      "streams/src/main/java/org/apache/kafka/streams/kstream/internals/KTableMapValues.java",
+      "streams/src/main/java/org/apache/kafka/streams/kstream/internals/KTableReduce.java",
+      "streams/src/main/java/org/apache/kafka/streams/kstream/internals/KTableSource.java",
+      "streams/src/main/java/org/apache/kafka/streams/kstream/internals/KTableTransformValues.java",
+      "streams/src/main/java/org/apache/kafka/streams/state/internals/KeyValueStoreWrapper.java",
+      "streams/src/test/java/org/apache/kafka/streams/state/internals/KeyValueStoreWrapperTest.java"
+    ]
+  },
+  {
+    "task_id": "apache_hbase_e6d613d",
+    "num_files": 16,
+    "language": "Java",
+    "files": [
+      "hbase-server/src/test/java/org/apache/hadoop/hbase/HBaseTestingUtility.java",
+      "hbase-server/src/test/java/org/apache/hadoop/hbase/TestHBaseTestingUtility.java",
+      "hbase-server/src/test/java/org/apache/hadoop/hbase/client/TestSnapshotCloneIndependence.java",
+      "hbase-server/src/test/java/org/apache/hadoop/hbase/mob/TestDefaultMobStoreFlusher.java",
+      "hbase-server/src/test/java/org/apache/hadoop/hbase/mob/TestExpiredMobFileCleaner.java",
+      "hbase-server/src/test/java/org/apache/hadoop/hbase/mob/TestMobDataBlockEncoding.java",
+      "hbase-server/src/test/java/org/apache/hadoop/hbase/mob/compactions/TestMobCompactor.java",
+      "hbase-server/src/test/java/org/apache/hadoop/hbase/mob/compactions/TestPartitionedMobCompactor.java",
+      "hbase-server/src/test/java/org/apache/hadoop/hbase/mob/mapreduce/TestMobSweepJob.java",
+      "hbase-server/src/test/java/org/apache/hadoop/hbase/mob/mapreduce/TestMobSweepMapper.java",
+      "hbase-server/src/test/java/org/apache/hadoop/hbase/mob/mapreduce/TestMobSweepReducer.java",
+      "hbase-server/src/test/java/org/apache/hadoop/hbase/regionserver/TestDeleteMobTable.java",
+      "hbase-server/src/test/java/org/apache/hadoop/hbase/regionserver/TestMobStoreCompaction.java",
+      "hbase-server/src/test/java/org/apache/hadoop/hbase/regionserver/TestMobStoreScanner.java",
+      "hbase-shell/src/test/java/org/apache/hadoop/hbase/client/AbstractTestShell.java",
+      "hbase-shell/src/test/rsgroup/org/apache/hadoop/hbase/client/rsgroup/TestShellRSGroups.java"
+    ]
+  },
+  {
+    "task_id": "apache_dolphinscheduler_444c7e6",
+    "num_files": 11,
+    "language": "Java",
+    "files": [
+      "dolphinscheduler-api/src/main/java/org/apache/dolphinscheduler/api/service/impl/ClusterServiceImpl.java",
+      "dolphinscheduler-api/src/main/java/org/apache/dolphinscheduler/api/service/impl/K8SNamespaceServiceImpl.java",
+      "dolphinscheduler-api/src/main/java/org/apache/dolphinscheduler/api/service/impl/ProcessDefinitionServiceImpl.java",
+      "dolphinscheduler-api/src/main/java/org/apache/dolphinscheduler/api/service/impl/ProcessTaskRelationServiceImpl.java",
+      "dolphinscheduler-common/src/main/java/org/apache/dolphinscheduler/common/utils/OSUtils.java",
+      "dolphinscheduler-common/src/test/java/org/apache/dolphinscheduler/common/ConstantsTest.java",
+      "dolphinscheduler-common/src/test/java/org/apache/dolphinscheduler/common/os/OSUtilsTest.java",
+      "dolphinscheduler-datasource-plugin/dolphinscheduler-datasource-api/src/main/java/org/apache/dolphinscheduler/plugin/datasource/api/utils/CommonUtils.java",
+      "dolphinscheduler-master/src/main/java/org/apache/dolphinscheduler/server/master/registry/ServerNodeManager.java",
+      "dolphinscheduler-task-plugin/dolphinscheduler-task-chunjun/src/main/java/org/apache/dolphinscheduler/plugin/task/chunjun/ChunJunTask.java",
+      "dolphinscheduler-worker/src/main/java/org/apache/dolphinscheduler/server/worker/utils/TaskExecutionCheckerUtils.java"
+    ]
+  },
+  {
+    "task_id": "apache_flink_cf88407",
+    "num_files": 13,
+    "language": "Java",
+    "files": [
+      "flink-staging/flink-gelly-scala/src/main/scala/org/apache/flink/graph/scala/Graph.scala",
+      "flink-staging/flink-gelly/src/main/java/org/apache/flink/graph/Graph.java",
+      "flink-staging/flink-gelly/src/main/java/org/apache/flink/graph/GraphAlgorithm.java",
+      "flink-staging/flink-gelly/src/main/java/org/apache/flink/graph/example/ConnectedComponents.java",
+      "flink-staging/flink-gelly/src/main/java/org/apache/flink/graph/library/CommunityDetection.java",
+      "flink-staging/flink-gelly/src/main/java/org/apache/flink/graph/library/ConnectedComponents.java",
+      "flink-staging/flink-gelly/src/main/java/org/apache/flink/graph/library/GSAConnectedComponents.java",
+      "flink-staging/flink-gelly/src/main/java/org/apache/flink/graph/library/GSAPageRank.java",
+      "flink-staging/flink-gelly/src/main/java/org/apache/flink/graph/library/GSASingleSourceShortestPaths.java",
+      "flink-staging/flink-gelly/src/main/java/org/apache/flink/graph/library/LabelPropagation.java",
+      "flink-staging/flink-gelly/src/main/java/org/apache/flink/graph/library/PageRank.java",
+      "flink-staging/flink-gelly/src/main/java/org/apache/flink/graph/library/SingleSourceShortestPaths.java",
+      "flink-staging/flink-gelly/src/test/java/org/apache/flink/graph/test/GatherSumApplyConfigurationITCase.java"
+    ]
+  },
+  {
+    "task_id": "apache_beam_565a4da",
+    "num_files": 10,
+    "language": "Java",
+    "files": [
+      "sdk/src/main/java/com/google/cloud/dataflow/sdk/transforms/DoFn.java",
+      "sdk/src/main/java/com/google/cloud/dataflow/sdk/transforms/IntraBundleParallelization.java",
+      "sdk/src/main/java/com/google/cloud/dataflow/sdk/util/AbstractWindowSet.java",
+      "sdk/src/main/java/com/google/cloud/dataflow/sdk/util/BufferingWindowSet.java",
+      "sdk/src/main/java/com/google/cloud/dataflow/sdk/util/CombiningWindowSet.java",
+      "sdk/src/main/java/com/google/cloud/dataflow/sdk/util/DoFnRunner.java",
+      "sdk/src/main/java/com/google/cloud/dataflow/sdk/util/PartitionBufferingWindowSet.java",
+      "sdk/src/main/java/com/google/cloud/dataflow/sdk/util/TriggerExecutor.java",
+      "sdk/src/main/java/com/google/cloud/dataflow/sdk/util/WindowingInternals.java",
+      "sdk/src/test/java/com/google/cloud/dataflow/sdk/util/TriggerTester.java"
+    ]
+  },
+  {
+    "task_id": "apache_flink_75adb32",
+    "num_files": 11,
+    "language": "Java",
+    "files": [
+      "flink-runtime/src/main/java/org/apache/flink/runtime/io/network/buffer/BufferPool.java",
+      "flink-runtime/src/main/java/org/apache/flink/runtime/io/network/buffer/LocalBufferPool.java",
+      "flink-runtime/src/main/java/org/apache/flink/runtime/io/network/buffer/NetworkBufferPool.java",
+      "flink-runtime/src/main/java/org/apache/flink/runtime/io/network/partition/consumer/SingleInputGate.java",
+      "flink-runtime/src/test/java/org/apache/flink/runtime/io/network/buffer/LocalBufferPoolTest.java",
+      "flink-runtime/src/test/java/org/apache/flink/runtime/io/network/buffer/NoOpBufferPool.java",
+      "flink-runtime/src/test/java/org/apache/flink/runtime/io/network/buffer/UnpooledBufferPool.java",
+      "flink-runtime/src/test/java/org/apache/flink/runtime/io/network/netty/CreditBasedPartitionRequestClientHandlerTest.java",
+      "flink-runtime/src/test/java/org/apache/flink/runtime/io/network/netty/NettyMessageClientDecoderDelegateTest.java",
+      "flink-runtime/src/test/java/org/apache/flink/runtime/io/network/netty/NettyMessageClientSideSerializationTest.java",
+      "flink-runtime/src/test/java/org/apache/flink/runtime/io/network/partition/consumer/SingleInputGateBuilder.java"
+    ]
+  },
+  {
+    "task_id": "apache_camel_d3cc93f",
+    "num_files": 12,
+    "language": "Java",
+    "files": [
+      "components/camel-kafka/src/main/java/org/apache/camel/component/kafka/KafkaConsumer.java",
+      "components/camel-kafka/src/main/java/org/apache/camel/component/kafka/KafkaEndpoint.java",
+      "components/camel-nats/src/main/java/org/apache/camel/component/nats/NatsConsumer.java",
+      "components/camel-netty/src/main/java/org/apache/camel/component/netty/NettyConsumerExceptionHandler.java",
+      "components/camel-netty/src/main/java/org/apache/camel/component/netty/NettyProducer.java",
+      "components/camel-stomp/src/main/java/org/apache/camel/component/stomp/StompConsumer.java",
+      "components/camel-timer/src/main/java/org/apache/camel/component/timer/TimerConsumer.java",
+      "components/camel-tracing/src/main/java/org/apache/camel/tracing/Tracer.java",
+      "components/camel-xmlsecurity/src/main/java/org/apache/camel/component/xmlsecurity/processor/SantuarioUtil.java",
+      "components/camel-xmlsecurity/src/main/java/org/apache/camel/component/xmlsecurity/processor/XmlSignatureProcessor.java",
+      "components/camel-xmlsecurity/src/main/java/org/apache/camel/dataformat/xmlsecurity/XMLSecurityDataFormat.java",
+      "components/camel-zookeeper-master/src/main/java/org/apache/camel/component/zookeepermaster/group/internal/ManagedGroupFactoryBuilder.java"
+    ]
+  },
+  {
+    "task_id": "apache_flink_265612c",
+    "num_files": 10,
+    "language": "Java",
+    "files": [
+      "flink-runtime/src/main/java/org/apache/flink/runtime/jobmaster/slotpool/DeclarativeSlotPoolBridge.java",
+      "flink-runtime/src/main/java/org/apache/flink/runtime/jobmaster/slotpool/PhysicalSlotProvider.java",
+      "flink-runtime/src/main/java/org/apache/flink/runtime/jobmaster/slotpool/PhysicalSlotProviderImpl.java",
+      "flink-runtime/src/main/java/org/apache/flink/runtime/scheduler/SlotSharingExecutionSlotAllocator.java",
+      "flink-runtime/src/test/java/org/apache/flink/runtime/jobmaster/slotpool/PhysicalSlotProviderImplWithDefaultSlotSelectionStrategyTest.java",
+      "flink-runtime/src/test/java/org/apache/flink/runtime/jobmaster/slotpool/PhysicalSlotProviderImplWithSpreadOutStrategyTest.java",
+      "flink-runtime/src/test/java/org/apache/flink/runtime/jobmaster/slotpool/SlotPoolBatchSlotRequestTest.java",
+      "flink-runtime/src/test/java/org/apache/flink/runtime/scheduler/SimpleExecutionSlotAllocatorTest.java",
+      "flink-runtime/src/test/java/org/apache/flink/runtime/scheduler/SlotSharingExecutionSlotAllocatorTest.java",
+      "flink-runtime/src/test/java/org/apache/flink/runtime/scheduler/TestingPhysicalSlotProvider.java"
+    ]
+  },
+  {
+    "task_id": "apache_camel_2a49b45",
+    "num_files": 11,
+    "language": "Java",
+    "files": [
+      "core/camel-base/src/main/java/org/apache/camel/impl/event/AbstractContextEvent.java",
+      "core/camel-base/src/main/java/org/apache/camel/impl/event/AbstractRouteEvent.java",
+      "core/camel-base/src/main/java/org/apache/camel/impl/event/CamelContextResumeFailureEvent.java",
+      "core/camel-base/src/main/java/org/apache/camel/impl/event/CamelContextStartupFailureEvent.java",
+      "core/camel-base/src/main/java/org/apache/camel/impl/event/CamelContextStopFailureEvent.java",
+      "core/camel-base/src/main/java/org/apache/camel/impl/event/ServiceStartupFailureEvent.java",
+      "core/camel-base/src/main/java/org/apache/camel/impl/event/ServiceStopFailureEvent.java",
+      "core/camel-base/src/main/java/org/apache/camel/impl/scan/AnnotatedWithAnyPackageScanFilter.java",
+      "core/camel-base/src/main/java/org/apache/camel/impl/scan/AnnotatedWithPackageScanFilter.java",
+      "core/camel-base/src/main/java/org/apache/camel/impl/scan/CompositePackageScanFilter.java",
+      "core/camel-base/src/main/java/org/apache/camel/impl/scan/InvertingPackageScanFilter.java"
+    ]
+  },
+  {
+    "task_id": "apache_flink_972aac1",
+    "num_files": 10,
+    "language": "Java",
+    "files": [
+      "flink-clients/src/main/java/org/apache/flink/client/cli/ExecutorCLI.java",
+      "flink-clients/src/main/java/org/apache/flink/client/deployment/executors/LocalExecutor.java",
+      "flink-clients/src/main/java/org/apache/flink/client/deployment/executors/RemoteExecutor.java",
+      "flink-java/src/main/java/org/apache/flink/api/java/LocalEnvironment.java",
+      "flink-java/src/main/java/org/apache/flink/api/java/RemoteEnvironment.java",
+      "flink-kubernetes/src/main/java/org/apache/flink/kubernetes/executors/KubernetesSessionClusterExecutor.java",
+      "flink-streaming-java/src/main/java/org/apache/flink/streaming/api/environment/LocalStreamEnvironment.java",
+      "flink-streaming-java/src/main/java/org/apache/flink/streaming/api/environment/RemoteStreamEnvironment.java",
+      "flink-yarn/src/main/java/org/apache/flink/yarn/executors/YarnJobClusterExecutor.java",
+      "flink-yarn/src/main/java/org/apache/flink/yarn/executors/YarnSessionClusterExecutor.java"
+    ]
+  },
+  {
+    "task_id": "apache_beam_d856f28",
+    "num_files": 21,
+    "language": "groovy",
+    "files": [
+      ".test-infra/jenkins/CommonJobProperties.groovy",
+      ".test-infra/jenkins/CronJobBuilder.groovy",
+      ".test-infra/jenkins/PostcommitJobBuilder.groovy",
+      ".test-infra/jenkins/job_00_seed.groovy",
+      ".test-infra/jenkins/job_Dependency_Check.groovy",
+      ".test-infra/jenkins/job_LoadTests_FnApiRunner_Python.groovy",
+      ".test-infra/jenkins/job_Metrics_Report.groovy",
+      ".test-infra/jenkins/job_PerformanceTests_BigQueryIO_Java.groovy",
+      ".test-infra/jenkins/job_PerformanceTests_FileBasedIO_IT.groovy",
+      ".test-infra/jenkins/job_PerformanceTests_HadoopFormat.groovy",
+      ".test-infra/jenkins/job_PerformanceTests_InfluxDBIO_IT.groovy",
+      ".test-infra/jenkins/job_PerformanceTests_JDBC.groovy",
+      ".test-infra/jenkins/job_PerformanceTests_KafkaIO_IT.groovy",
+      ".test-infra/jenkins/job_PerformanceTests_MongoDBIO_IT.groovy",
+      ".test-infra/jenkins/job_PerformanceTests_Python.groovy",
+      ".test-infra/jenkins/job_PerformanceTests_SQLIO_Java.groovy",
+      ".test-infra/jenkins/job_PostCommit_Python_MongoDBIO_Load_Test.groovy",
+      ".test-infra/jenkins/job_PostRelease_NightlySnapshot.groovy",
+      ".test-infra/jenkins/job_Publish_Docker_Snapshots.groovy",
+      ".test-infra/jenkins/job_Release_NightlySnapshot.groovy",
+      ".test-infra/jenkins/job_Release_Python_NightlySnapshot.groovy"
+    ]
+  },
+  {
+    "task_id": "apache_hertzbeat_39a587f",
+    "num_files": 12,
+    "language": "Java",
+    "files": [
+      "alerter/src/main/java/org/apache/hertzbeat/alert/AlerterProperties.java",
+      "alerter/src/main/java/org/apache/hertzbeat/alert/service/AlertDefineImExportService.java",
+      "alerter/src/main/java/org/apache/hertzbeat/alert/service/impl/AlertDefineAbstractImExportServiceImpl.java",
+      "alerter/src/main/java/org/apache/hertzbeat/alert/service/impl/AlertDefineExcelImExportServiceImpl.java",
+      "alerter/src/main/java/org/apache/hertzbeat/alert/service/impl/AlertDefineJsonImExportServiceImpl.java",
+      "alerter/src/main/java/org/apache/hertzbeat/alert/service/impl/AlertDefineYamlImExportServiceImpl.java",
+      "alerter/src/main/java/org/apache/hertzbeat/alert/service/impl/AlertServiceImpl.java",
+      "alerter/src/main/java/org/apache/hertzbeat/alert/util/AlertTemplateUtil.java",
+      "alerter/src/main/java/org/apache/hertzbeat/alert/util/DateUtil.java",
+      "alerter/src/test/java/org/apache/hertzbeat/alert/AlerterWorkerPoolTest.java",
+      "alerter/src/test/java/org/apache/hertzbeat/alert/service/AlertDefineServiceTest.java",
+      "alerter/src/test/java/org/apache/hertzbeat/alert/service/AlertServiceTest.java"
+    ]
+  },
+  {
+    "task_id": "apache_dolphinscheduler_95c1192",
+    "num_files": 13,
+    "language": "Java",
+    "files": [
+      "dolphinscheduler-api/src/main/java/org/apache/dolphinscheduler/api/controller/UsersController.java",
+      "dolphinscheduler-api/src/main/java/org/apache/dolphinscheduler/api/enums/Status.java",
+      "dolphinscheduler-api/src/main/java/org/apache/dolphinscheduler/api/service/UsersService.java",
+      "dolphinscheduler-api/src/main/java/org/apache/dolphinscheduler/api/service/impl/UsersServiceImpl.java",
+      "dolphinscheduler-api/src/main/java/org/apache/dolphinscheduler/api/utils/CheckUtils.java",
+      "dolphinscheduler-api/src/test/java/org/apache/dolphinscheduler/api/service/UsersServiceTest.java",
+      "dolphinscheduler-dao/src/main/java/org/apache/dolphinscheduler/dao/entity/User.java",
+      "dolphinscheduler-dao/src/main/resources/sql/dolphinscheduler_h2.sql",
+      "dolphinscheduler-dao/src/main/resources/sql/dolphinscheduler_mysql.sql",
+      "dolphinscheduler-dao/src/main/resources/sql/dolphinscheduler_postgresql.sql",
+      "dolphinscheduler-dao/src/main/resources/sql/upgrade/2.0.4_schema/mysql/dolphinscheduler_ddl.sql",
+      "dolphinscheduler-dao/src/main/resources/sql/upgrade/2.1.0_schema/mysql/dolphinscheduler_ddl.sql",
+      "dolphinscheduler-dao/src/main/resources/sql/upgrade/2.1.0_schema/postgresql/dolphinscheduler_ddl.sql"
+    ]
+  },
+  {
+    "task_id": "apache_druid_01881e3",
+    "num_files": 10,
+    "language": "Java",
+    "files": [
+      "core/src/main/java/org/apache/druid/common/config/Log4jShutdown.java",
+      "core/src/main/java/org/apache/druid/java/util/common/concurrent/DirectExecutorService.java",
+      "core/src/main/java/org/apache/druid/java/util/emitter/core/ParametrizedUriEmitter.java",
+      "extensions-contrib/tdigestsketch/src/main/java/org/apache/druid/query/aggregation/tdigestsketch/TDigestBuildSketchAggregator.java",
+      "extensions-contrib/tdigestsketch/src/main/java/org/apache/druid/query/aggregation/tdigestsketch/TDigestMergeSketchAggregator.java",
+      "indexing-service/src/main/java/org/apache/druid/indexing/overlord/ForkingTaskRunner.java",
+      "processing/src/main/java/org/apache/druid/segment/incremental/IncrementalIndex.java",
+      "server/src/main/java/org/apache/druid/curator/discovery/CuratorDruidNodeDiscoveryProvider.java",
+      "sql/src/main/java/org/apache/druid/sql/avatica/DruidConnection.java",
+      "sql/src/main/java/org/apache/druid/sql/avatica/DruidStatement.java"
+    ]
+  },
+  {
+    "task_id": "apache_spark_c096757",
+    "num_files": 11,
+    "language": "Scala",
+    "files": [
+      "common/sketch/src/main/java/org/apache/spark/util/sketch/CountMinSketchImpl.java",
+      "mllib/src/main/scala/org/apache/spark/ml/classification/NaiveBayes.scala",
+      "mllib/src/main/scala/org/apache/spark/ml/regression/AFTSurvivalRegression.scala",
+      "mllib/src/main/scala/org/apache/spark/ml/regression/GeneralizedLinearRegression.scala",
+      "mllib/src/main/scala/org/apache/spark/mllib/classification/NaiveBayes.scala",
+      "mllib/src/test/scala/org/apache/spark/ml/classification/LogisticRegressionSuite.scala",
+      "mllib/src/test/scala/org/apache/spark/ml/classification/NaiveBayesSuite.scala",
+      "mllib/src/test/scala/org/apache/spark/ml/optim/aggregator/LogisticAggregatorSuite.scala",
+      "mllib/src/test/scala/org/apache/spark/mllib/classification/NaiveBayesSuite.scala",
+      "mllib/src/test/scala/org/apache/spark/mllib/optimization/GradientDescentSuite.scala",
+      "mllib/src/test/scala/org/apache/spark/mllib/random/RandomDataGeneratorSuite.scala"
+    ]
+  },
+  {
+    "task_id": "apache_doris_b6d1f7b",
+    "num_files": 10,
+    "language": "C++",
+    "files": [
+      "be/src/pipeline/exec/aggregation_sink_operator.h",
+      "be/src/pipeline/exec/operator.h",
+      "be/src/pipeline/exec/partitioned_aggregation_sink_operator.cpp",
+      "be/src/pipeline/exec/partitioned_hash_join_probe_operator.cpp",
+      "be/src/pipeline/exec/partitioned_hash_join_sink_operator.cpp",
+      "be/src/pipeline/exec/scan_operator.h",
+      "be/src/pipeline/exec/spill_sort_sink_operator.cpp",
+      "be/src/pipeline/exec/spill_sort_sink_operator.h",
+      "be/src/pipeline/exec/spill_sort_source_operator.cpp",
+      "be/src/pipeline/pipeline_fragment_context.cpp"
+    ]
+  },
+  {
+    "task_id": "apache_beam_5566098",
+    "num_files": 10,
+    "language": "Gradle",
+    "files": [
+      "buildSrc/src/main/groovy/org/apache/beam/gradle/BeamModulePlugin.groovy",
+      "sdks/java/extensions/sql/build.gradle",
+      "sdks/java/extensions/sql/datacatalog/build.gradle",
+      "sdks/java/extensions/sql/expansion-service/build.gradle",
+      "sdks/java/extensions/sql/hcatalog/build.gradle",
+      "sdks/java/extensions/sql/jdbc/build.gradle",
+      "sdks/java/extensions/sql/perf-tests/build.gradle",
+      "sdks/java/extensions/sql/udf-test-provider/build.gradle",
+      "sdks/java/extensions/sql/udf/build.gradle",
+      "sdks/java/extensions/sql/zetasql/build.gradle"
+    ]
+  },
+  {
+    "task_id": "apache_dolphinscheduler_feffd97",
+    "num_files": 10,
+    "language": "Java",
+    "files": [
+      "dolphinscheduler-common/src/main/java/org/apache/dolphinscheduler/common/utils/LoggerUtils.java",
+      "dolphinscheduler-common/src/test/java/org/apache/dolphinscheduler/common/utils/LoggerUtilsTest.java",
+      "dolphinscheduler-server/src/main/java/org/apache/dolphinscheduler/server/master/runner/ConditionsTaskExecThread.java",
+      "dolphinscheduler-server/src/main/java/org/apache/dolphinscheduler/server/master/runner/DependentTaskExecThread.java",
+      "dolphinscheduler-server/src/main/java/org/apache/dolphinscheduler/server/worker/processor/TaskExecuteProcessor.java",
+      "dolphinscheduler-server/src/test/java/org/apache/dolphinscheduler/server/worker/processor/TaskExecuteProcessorTest.java",
+      "dolphinscheduler-server/src/test/java/org/apache/dolphinscheduler/server/worker/runner/TaskExecuteThreadTest.java",
+      "dolphinscheduler-server/src/test/java/org/apache/dolphinscheduler/server/worker/runner/WorkerManagerThreadTest.java",
+      "dolphinscheduler-server/src/test/java/org/apache/dolphinscheduler/server/worker/sql/SqlExecutorTest.java",
+      "dolphinscheduler-server/src/test/java/org/apache/dolphinscheduler/server/worker/task/TaskManagerTest.java"
+    ]
+  },
+  {
+    "task_id": "apache_hudi_0938f55",
+    "num_files": 10,
+    "language": "Java",
+    "files": [
+      "hudi-client/hudi-client-common/src/main/java/org/apache/hudi/table/action/commit/BaseBulkInsertHelper.java",
+      "hudi-client/hudi-java-client/src/main/java/org/apache/hudi/client/clustering/run/strategy/JavaExecutionStrategy.java",
+      "hudi-client/hudi-java-client/src/main/java/org/apache/hudi/table/action/commit/JavaBulkInsertHelper.java",
+      "hudi-client/hudi-java-client/src/main/java/org/apache/hudi/table/action/commit/JavaBulkInsertPreppedCommitActionExecutor.java",
+      "hudi-client/hudi-spark-client/src/main/java/org/apache/hudi/client/clustering/run/strategy/MultipleSparkJobExecutionStrategy.java",
+      "hudi-client/hudi-spark-client/src/main/java/org/apache/hudi/table/action/commit/SparkBulkInsertCommitActionExecutor.java",
+      "hudi-client/hudi-spark-client/src/main/java/org/apache/hudi/table/action/commit/SparkBulkInsertHelper.java",
+      "hudi-client/hudi-spark-client/src/main/java/org/apache/hudi/table/action/commit/SparkBulkInsertPreppedCommitActionExecutor.java",
+      "hudi-client/hudi-spark-client/src/main/java/org/apache/hudi/table/action/deltacommit/SparkBulkInsertDeltaCommitActionExecutor.java",
+      "hudi-client/hudi-spark-client/src/main/java/org/apache/hudi/table/action/deltacommit/SparkBulkInsertPreppedDeltaCommitActionExecutor.java"
+    ]
+  },
+  {
+    "task_id": "apache_shardingsphere_29bffb5",
+    "num_files": 12,
+    "language": "Java",
+    "files": [
+      "features/broadcast/core/src/main/java/org/apache/shardingsphere/broadcast/route/BroadcastSQLRouter.java",
+      "features/broadcast/core/src/main/java/org/apache/shardingsphere/broadcast/route/engine/type/broadcast/BroadcastDatabaseBroadcastRoutingEngine.java",
+      "features/broadcast/core/src/main/java/org/apache/shardingsphere/broadcast/route/engine/type/broadcast/BroadcastInstanceBroadcastRoutingEngine.java",
+      "features/broadcast/core/src/main/java/org/apache/shardingsphere/broadcast/route/engine/type/broadcast/BroadcastTableBroadcastRoutingEngine.java",
+      "features/broadcast/core/src/main/java/org/apache/shardingsphere/broadcast/route/engine/type/unicast/BroadcastUnicastRoutingEngine.java",
+      "features/broadcast/core/src/main/java/org/apache/shardingsphere/broadcast/rule/BroadcastRule.java",
+      "features/broadcast/core/src/main/java/org/apache/shardingsphere/broadcast/rule/builder/BroadcastRuleBuilder.java",
+      "features/broadcast/core/src/test/java/org/apache/shardingsphere/broadcast/route/engine/type/broadcast/BroadcastDatabaseBroadcastRoutingEngineTest.java",
+      "features/broadcast/core/src/test/java/org/apache/shardingsphere/broadcast/route/engine/type/broadcast/BroadcastInstanceBroadcastRoutingEngineTest.java",
+      "features/broadcast/core/src/test/java/org/apache/shardingsphere/broadcast/route/engine/type/broadcast/BroadcastTableBroadcastRoutingEngineTest.java",
+      "features/broadcast/core/src/test/java/org/apache/shardingsphere/broadcast/route/engine/type/unicast/BroadcastUnicastRoutingEngineTest.java",
+      "proxy/backend/core/src/main/java/org/apache/shardingsphere/proxy/backend/util/YamlDatabaseConfigurationImportExecutor.java"
+    ]
+  },
+  {
+    "task_id": "apache_spark_b67d369",
+    "num_files": 14,
+    "language": "Scala",
+    "files": [
+      "R/pkg/NAMESPACE",
+      "R/pkg/R/functions.R",
+      "R/pkg/R/generics.R",
+      "R/pkg/tests/fulltests/test_sparkSQL.R",
+      "python/pyspark/sql/functions.py",
+      "sql/catalyst/src/main/scala/org/apache/spark/sql/catalyst/analysis/Analyzer.scala",
+      "sql/catalyst/src/main/scala/org/apache/spark/sql/catalyst/analysis/FunctionRegistry.scala",
+      "sql/catalyst/src/main/scala/org/apache/spark/sql/catalyst/expressions/hash.scala",
+      "sql/catalyst/src/test/scala/org/apache/spark/sql/catalyst/analysis/ExpressionTypeCheckingSuite.scala",
+      "sql/catalyst/src/test/scala/org/apache/spark/sql/catalyst/expressions/HashExpressionsSuite.scala",
+      "sql/core/src/main/scala/org/apache/spark/sql/functions.scala",
+      "sql/core/src/test/scala/org/apache/spark/sql/DataFrameFunctionsSuite.scala",
+      "sql/core/src/test/scala/org/apache/spark/sql/DataFrameSuite.scala",
+      "sql/core/src/test/scala/org/apache/spark/sql/SQLQuerySuite.scala"
+    ]
+  },
+  {
+    "task_id": "apache_kafka_40fd456",
+    "num_files": 11,
+    "language": "Java",
+    "files": [
+      "streams/src/main/java/org/apache/kafka/streams/kstream/Transformer.java",
+      "streams/src/main/java/org/apache/kafka/streams/kstream/ValueTransformer.java",
+      "streams/src/main/java/org/apache/kafka/streams/kstream/internals/KStreamImpl.java",
+      "streams/src/main/java/org/apache/kafka/streams/kstream/internals/KStreamTransform.java",
+      "streams/src/main/java/org/apache/kafka/streams/kstream/internals/KStreamTransformValues.java",
+      "streams/src/main/java/org/apache/kafka/streams/kstream/internals/KTableImpl.java",
+      "streams/src/test/java/org/apache/kafka/streams/kstream/internals/KStreamTransformTest.java",
+      "streams/src/test/java/org/apache/kafka/streams/kstream/internals/KStreamTransformValuesTest.java",
+      "streams/src/test/java/org/apache/kafka/test/KStreamTestDriver.java",
+      "streams/src/test/java/org/apache/kafka/test/MockProcessorContext.java",
+      "streams/src/test/java/org/apache/kafka/test/MockProcessorSupplier.java"
+    ]
+  },
+  {
+    "task_id": "apache_openwhisk_cd2d9e2",
+    "num_files": 18,
+    "language": "Scala",
+    "files": [
+      "settings.gradle",
+      "tests/performance/gatling_tests/build.gradle",
+      "tests/performance/gatling_tests/src/gatling/resources/data/javaAction.java",
+      "tests/performance/gatling_tests/src/gatling/resources/data/nodeJSAction.js",
+      "tests/performance/gatling_tests/src/gatling/resources/data/pythonAction.py",
+      "tests/performance/gatling_tests/src/gatling/resources/data/swiftAction.swift",
+      "tests/performance/gatling_tests/src/gatling/scala/ApiV1Simulation.scala",
+      "tests/performance/gatling_tests/src/gatling/scala/BlockingInvokeOneActionSimulation.scala",
+      "tests/performance/gatling_tests/src/gatling/scala/LatencySimulation.scala",
+      "tests/performance/gatling_tests/src/gatling/scala/extension/whisk/OpenWhiskActionBuilder.scala",
+      "tests/performance/gatling_tests/src/gatling/scala/extension/whisk/OpenWhiskDsl.scala",
+      "tests/performance/gatling_tests/src/gatling/scala/extension/whisk/OpenWhiskProtocolBuilder.scala",
+      "tests/performance/gatling_tests/src/gatling/scala/extension/whisk/Predef.scala",
+      "tests/performance/preparation/create.sh",
+      "tests/performance/preparation/deploy.sh",
+      "tests/performance/wrk_tests/latency.sh",
+      "tests/performance/wrk_tests/post.lua",
+      "tests/performance/wrk_tests/throughput.sh"
+    ]
+  },
+  {
+    "task_id": "apache_thrift_1c19027",
+    "num_files": 12,
+    "language": "C",
+    "files": [
+      "lib/c_glib/test/testapplicationexception.c",
+      "lib/c_glib/test/testbinaryprotocol.c",
+      "lib/c_glib/test/testbufferedtransport.c",
+      "lib/c_glib/test/testdebugproto.c",
+      "lib/c_glib/test/testframedtransport.c",
+      "lib/c_glib/test/testmemorybuffer.c",
+      "lib/c_glib/test/testoptionalrequired.c",
+      "lib/c_glib/test/testsimpleserver.c",
+      "lib/c_glib/test/teststruct.c",
+      "lib/c_glib/test/testthrifttest.c",
+      "lib/c_glib/test/testthrifttestclient.cpp",
+      "lib/c_glib/test/testtransportsocket.c"
+    ]
+  },
+  {
+    "task_id": "apache_doris_746a7f4",
+    "num_files": 17,
+    "language": "SQL",
+    "files": [
+      "regression-test/suites/load_p2/tvf/ddl/agg_tbl_basic_tvf.sql",
+      "regression-test/suites/load_p2/tvf/ddl/agg_tbl_basic_tvf_drop.sql",
+      "regression-test/suites/load_p2/tvf/ddl/dup_tbl_array_tvf.sql",
+      "regression-test/suites/load_p2/tvf/ddl/dup_tbl_array_tvf_drop.sql",
+      "regression-test/suites/load_p2/tvf/ddl/dup_tbl_basic_tvf.sql",
+      "regression-test/suites/load_p2/tvf/ddl/dup_tbl_basic_tvf_drop.sql",
+      "regression-test/suites/load_p2/tvf/ddl/mow_tbl_array_tvf.sql",
+      "regression-test/suites/load_p2/tvf/ddl/mow_tbl_array_tvf_drop.sql",
+      "regression-test/suites/load_p2/tvf/ddl/mow_tbl_basic_tvf.sql",
+      "regression-test/suites/load_p2/tvf/ddl/mow_tbl_basic_tvf_drop.sql",
+      "regression-test/suites/load_p2/tvf/ddl/nest_tbl_basic_tvf.sql",
+      "regression-test/suites/load_p2/tvf/ddl/nest_tbl_basic_tvf_drop.sql",
+      "regression-test/suites/load_p2/tvf/ddl/uniq_tbl_array_tvf.sql",
+      "regression-test/suites/load_p2/tvf/ddl/uniq_tbl_array_tvf_drop.sql",
+      "regression-test/suites/load_p2/tvf/ddl/uniq_tbl_basic_tvf.sql",
+      "regression-test/suites/load_p2/tvf/ddl/uniq_tbl_basic_tvf_drop.sql",
+      "regression-test/suites/load_p2/tvf/test_s3_tvf.groovy"
+    ]
+  },
+  {
+    "task_id": "apache_beam_d39cec4",
+    "num_files": 16,
+    "language": "Java",
+    "files": [
+      "runners/core-java/src/main/java/org/apache/beam/runners/core/MergingStateAccessor.java",
+      "runners/core-java/src/main/java/org/apache/beam/runners/core/NonEmptyPanes.java",
+      "runners/core-java/src/main/java/org/apache/beam/runners/core/PaneInfoTracker.java",
+      "runners/core-java/src/main/java/org/apache/beam/runners/core/ReduceFn.java",
+      "runners/core-java/src/main/java/org/apache/beam/runners/core/ReduceFnContextFactory.java",
+      "runners/core-java/src/main/java/org/apache/beam/runners/core/StateAccessor.java",
+      "runners/core-java/src/main/java/org/apache/beam/runners/core/StateMerging.java",
+      "runners/core-java/src/main/java/org/apache/beam/runners/core/SystemReduceFn.java",
+      "runners/core-java/src/main/java/org/apache/beam/runners/core/WatermarkHold.java",
+      "runners/core-java/src/main/java/org/apache/beam/runners/core/triggers/AfterDelayFromFirstElementStateMachine.java",
+      "runners/core-java/src/main/java/org/apache/beam/runners/core/triggers/AfterPaneStateMachine.java",
+      "runners/core-java/src/main/java/org/apache/beam/runners/core/triggers/TriggerStateMachine.java",
+      "runners/core-java/src/main/java/org/apache/beam/runners/core/triggers/TriggerStateMachineContextFactory.java",
+      "runners/core-java/src/main/java/org/apache/beam/runners/core/triggers/TriggerStateMachineRunner.java",
+      "sdks/java/core/src/main/java/org/apache/beam/sdk/util/state/StateSpecs.java",
+      "sdks/java/core/src/main/java/org/apache/beam/sdk/util/state/StateTags.java"
+    ]
+  },
+  {
+    "task_id": "apache_druid_9a16d4e",
+    "num_files": 10,
+    "language": "Java",
+    "files": [
+      "extensions-core/multi-stage-query/src/main/java/org/apache/druid/msq/indexing/error/TaskStartTimeoutFault.java",
+      "extensions-core/multi-stage-query/src/main/java/org/apache/druid/msq/sql/resources/SqlTaskResource.java",
+      "integration-tests-ex/cases/src/test/java/org/apache/druid/testsEx/catalog/ITCatalogIngestAndQueryTest.java",
+      "integration-tests-ex/cases/src/test/java/org/apache/druid/testsEx/catalog/ITCatalogIngestErrorTest.java",
+      "integration-tests-ex/cases/src/test/java/org/apache/druid/testsEx/msq/ITKeyStatisticsSketchMergeMode.java",
+      "integration-tests-ex/cases/src/test/java/org/apache/druid/testsEx/msq/ITMultiStageQueryWorkerFaultTolerance.java",
+      "integration-tests-ex/cases/src/test/java/org/apache/druid/testsEx/msq/MultiStageQuery.java",
+      "integration-tests/src/main/java/org/apache/druid/testing/utils/MsqTestQueryHelper.java",
+      "sql/src/main/java/org/apache/druid/sql/http/SqlTaskStatus.java",
+      "sql/src/test/java/org/apache/druid/sql/http/SqlTaskStatusTest.java"
+    ]
+  },
+  {
+    "task_id": "apache_jmeter_443b2fc",
+    "num_files": 10,
+    "language": "Java",
+    "files": [
+      "src/components/org/apache/jmeter/extractor/BoundaryExtractor.java",
+      "src/components/org/apache/jmeter/extractor/RegexExtractor.java",
+      "src/core/org/apache/jmeter/report/dashboard/HtmlTemplateExporter.java",
+      "src/core/org/apache/jmeter/report/processor/ErrorsSummaryConsumer.java",
+      "src/functions/org/apache/jmeter/functions/EscapeHtml.java",
+      "src/functions/org/apache/jmeter/functions/EscapeXml.java",
+      "src/functions/org/apache/jmeter/functions/UnEscape.java",
+      "src/functions/org/apache/jmeter/functions/UnEscapeHtml.java",
+      "src/protocol/http/org/apache/jmeter/protocol/http/parser/URLCollection.java",
+      "src/protocol/ldap/org/apache/jmeter/protocol/ldap/sampler/LDAPExtSampler.java"
+    ]
+  },
+  {
+    "task_id": "apache_doris_3de4d64",
+    "num_files": 11,
+    "language": "C/C++ header",
+    "files": [
+      "be/src/exprs/hybrid_set.h",
+      "be/src/olap/hll.cpp",
+      "be/src/olap/hll.h",
+      "be/src/olap/in_list_predicate.h",
+      "be/src/olap/reader.cpp",
+      "be/src/olap/rowset/segment_v2/binary_dict_page.h",
+      "be/src/vec/aggregate_functions/aggregate_function.h",
+      "be/src/vec/aggregate_functions/aggregate_function_topn.h",
+      "be/src/vec/aggregate_functions/aggregate_function_uniq.h",
+      "be/src/vec/common/hash_table/ph_hash_map.h",
+      "be/src/vec/common/hash_table/phmap_fwd_decl.h"
+    ]
+  },
+  {
+    "task_id": "apache_shardingsphere_b1f3c9c",
+    "num_files": 10,
+    "language": "Java",
+    "files": [
+      "shardingsphere-control-panel/shardingsphere-cluster/shardingsphere-cluster-configuration/src/main/java/org/apache/shardingsphere/cluster/configuration/config/HeartBeatConfiguration.java",
+      "shardingsphere-control-panel/shardingsphere-cluster/shardingsphere-cluster-configuration/src/main/java/org/apache/shardingsphere/cluster/configuration/swapper/ClusterConfigurationYamlSwapper.java",
+      "shardingsphere-control-panel/shardingsphere-cluster/shardingsphere-cluster-configuration/src/main/java/org/apache/shardingsphere/cluster/configuration/yaml/YamlHeartBeatConfiguration.java",
+      "shardingsphere-control-panel/shardingsphere-cluster/shardingsphere-cluster-heartbeat/src/main/org/apache/shardingsphere/cluster/heartbeat/ClusterHeartBeatInstance.java",
+      "shardingsphere-control-panel/shardingsphere-cluster/shardingsphere-cluster-heartbeat/src/main/org/apache/shardingsphere/cluster/heartbeat/event/AbstractHeartBeatEvent.java",
+      "shardingsphere-control-panel/shardingsphere-cluster/shardingsphere-cluster-heartbeat/src/main/org/apache/shardingsphere/cluster/heartbeat/event/HeartBeatDetectNoticeEvent.java",
+      "shardingsphere-control-panel/shardingsphere-cluster/shardingsphere-cluster-heartbeat/src/main/org/apache/shardingsphere/cluster/heartbeat/task/HeartBeatTask.java",
+      "shardingsphere-control-panel/shardingsphere-cluster/shardingsphere-cluster-heartbeat/src/main/org/apache/shardingsphere/cluster/heartbeat/task/HeartBeatTaskManager.java",
+      "shardingsphere-control-panel/shardingsphere-cluster/shardingsphere-cluster-heartbeat/src/test/java/org/apache/shardingsphere/cluster/heartbeat/ClusterHeartBeatInstanceTest.java",
+      "shardingsphere-control-panel/shardingsphere-cluster/shardingsphere-cluster-heartbeat/src/test/java/org/apache/shardingsphere/cluster/heartbeat/eventbus/HeartBeatEventBusTest.java"
+    ]
+  },
+  {
+    "task_id": "apache_pinot_4b5b153",
+    "num_files": 17,
+    "language": "Java",
+    "files": [
+      "pinot-core/src/main/java/com/linkedin/pinot/core/common/DataSource.java",
+      "pinot-core/src/main/java/com/linkedin/pinot/core/indexsegment/IndexSegment.java",
+      "pinot-core/src/main/java/com/linkedin/pinot/core/plan/AggregationFunctionGroupByPlanNode.java",
+      "pinot-core/src/main/java/com/linkedin/pinot/core/plan/AggregationFunctionPlanNode.java",
+      "pinot-core/src/main/java/com/linkedin/pinot/core/plan/AggregationGroupByOperatorPlanNode.java",
+      "pinot-core/src/main/java/com/linkedin/pinot/core/plan/AggregationPlanNode.java",
+      "pinot-core/src/main/java/com/linkedin/pinot/core/plan/CombinePlanNode.java",
+      "pinot-core/src/main/java/com/linkedin/pinot/core/plan/DocIdSetPlanNode.java",
+      "pinot-core/src/main/java/com/linkedin/pinot/core/plan/FilterPlanNode.java",
+      "pinot-core/src/main/java/com/linkedin/pinot/core/plan/GlobalPlanImplV0.java",
+      "pinot-core/src/main/java/com/linkedin/pinot/core/plan/InstanceResponsePlanNode.java",
+      "pinot-core/src/main/java/com/linkedin/pinot/core/plan/Plan.java",
+      "pinot-core/src/main/java/com/linkedin/pinot/core/plan/PlanNode.java",
+      "pinot-core/src/main/java/com/linkedin/pinot/core/plan/ProjectionPlanNode.java",
+      "pinot-core/src/main/java/com/linkedin/pinot/core/plan/SelectionPlanNode.java",
+      "pinot-core/src/main/java/com/linkedin/pinot/core/segment/index/IndexSegmentImpl.java",
+      "pinot-core/src/main/java/com/linkedin/pinot/core/segment/index/data/source/ColumnDataSourceImpl.java"
+    ]
+  },
+  {
+    "task_id": "apache_kafka_aaf887d",
+    "num_files": 11,
+    "language": "Scala",
+    "files": [
+      "core/src/main/scala/kafka/coordinator/group/GroupCoordinatorAdapter.scala",
+      "core/src/main/scala/kafka/server/KafkaApis.scala",
+      "core/src/main/scala/kafka/server/KafkaConfig.scala",
+      "core/src/test/java/kafka/test/ClusterTestExtensionsTest.java",
+      "core/src/test/scala/unit/kafka/server/KafkaApisTest.scala",
+      "core/src/test/scala/unit/kafka/server/KafkaConfigTest.scala",
+      "group-coordinator/src/main/java/org/apache/kafka/coordinator/group/GroupCoordinator.java",
+      "group-coordinator/src/main/java/org/apache/kafka/coordinator/group/GroupCoordinatorConfig.java",
+      "group-coordinator/src/main/java/org/apache/kafka/coordinator/group/GroupCoordinatorService.java",
+      "tests/kafkatest/services/kafka/kafka.py",
+      "tools/src/test/java/org/apache/kafka/tools/consumer/ConsoleConsumerTest.java"
+    ]
+  },
+  {
+    "task_id": "apache_doris_9c9249e",
+    "num_files": 12,
+    "language": "SQL",
+    "files": [
+      "be/src/olap/inverted_index_parser.cpp",
+      "be/src/olap/inverted_index_parser.h",
+      "be/src/olap/rowset/segment_v2/inverted_index_writer.cpp",
+      "fe/fe-core/src/main/java/org/apache/doris/analysis/InvertedIndexUtil.java",
+      "regression-test/suites/mysql_fulltext/ddl/large_records_t1_dk.sql",
+      "regression-test/suites/mysql_fulltext/ddl/large_records_t1_uk.sql",
+      "regression-test/suites/mysql_fulltext/ddl/large_records_t2_dk.sql",
+      "regression-test/suites/mysql_fulltext/ddl/large_records_t2_uk.sql",
+      "regression-test/suites/mysql_fulltext/ddl/large_records_t3_dk.sql",
+      "regression-test/suites/mysql_fulltext/ddl/large_records_t3_uk.sql",
+      "regression-test/suites/mysql_fulltext/ddl/large_records_t4_dk.sql",
+      "regression-test/suites/mysql_fulltext/ddl/large_records_t4_uk.sql"
+    ]
+  },
+  {
+    "task_id": "apache_doris_964ac4e",
+    "num_files": 13,
+    "language": "Java",
+    "files": [
+      "fe/fe-common/src/main/java/org/apache/doris/common/Config.java",
+      "fe/fe-core/src/main/java/org/apache/doris/statistics/AnalysisManager.java",
+      "fe/fe-core/src/main/java/org/apache/doris/statistics/AnalysisTaskExecutor.java",
+      "fe/fe-core/src/main/java/org/apache/doris/statistics/BaseAnalysisTask.java",
+      "fe/fe-core/src/main/java/org/apache/doris/statistics/HMSAnalysisTask.java",
+      "fe/fe-core/src/main/java/org/apache/doris/statistics/HistogramTask.java",
+      "fe/fe-core/src/main/java/org/apache/doris/statistics/MVAnalysisTask.java",
+      "fe/fe-core/src/main/java/org/apache/doris/statistics/OlapAnalysisTask.java",
+      "fe/fe-core/src/main/java/org/apache/doris/statistics/StatisticConstants.java",
+      "fe/fe-core/src/main/java/org/apache/doris/statistics/util/StatisticsUtil.java",
+      "fe/fe-core/src/test/java/org/apache/doris/statistics/AnalysisJobTest.java",
+      "fe/fe-core/src/test/java/org/apache/doris/statistics/AnalysisTaskExecutorTest.java",
+      "fe/fe-core/src/test/java/org/apache/doris/statistics/HistogramTaskTest.java"
+    ]
+  },
+  {
+    "task_id": "apache_flink_264f6df",
+    "num_files": 11,
+    "language": "Java",
+    "files": [
+      "flink-contrib/flink-statebackend-rocksdb/src/main/java/org/apache/flink/contrib/streaming/state/RocksDBKeyedStateBackend.java",
+      "flink-contrib/flink-statebackend-rocksdb/src/main/java/org/apache/flink/contrib/streaming/state/RocksDBStateBackend.java",
+      "flink-runtime/src/main/java/org/apache/flink/runtime/state/AbstractKeyedStateBackend.java",
+      "flink-runtime/src/main/java/org/apache/flink/runtime/state/filesystem/FsStateBackend.java",
+      "flink-runtime/src/main/java/org/apache/flink/runtime/state/heap/HeapKeyedStateBackend.java",
+      "flink-runtime/src/main/java/org/apache/flink/runtime/state/memory/MemoryStateBackend.java",
+      "flink-runtime/src/test/java/org/apache/flink/runtime/query/netty/message/KvStateRequestSerializerTest.java",
+      "flink-runtime/src/test/java/org/apache/flink/runtime/state/heap/HeapAggregatingStateTest.java",
+      "flink-runtime/src/test/java/org/apache/flink/runtime/state/heap/HeapListStateTest.java",
+      "flink-runtime/src/test/java/org/apache/flink/runtime/state/heap/HeapReducingStateTest.java",
+      "flink-tests/src/test/java/org/apache/flink/test/query/KVStateRequestSerializerRocksDBTest.java"
+    ]
+  },
+  {
+    "task_id": "apache_dolphinscheduler_b1a68c6",
+    "num_files": 15,
+    "language": "Java",
+    "files": [
+      "dolphinscheduler-api/src/main/java/org/apache/dolphinscheduler/api/service/DataSourceService.java",
+      "dolphinscheduler-dao/src/main/java/org/apache/dolphinscheduler/dao/datasource/BaseDataSource.java",
+      "dolphinscheduler-dao/src/main/java/org/apache/dolphinscheduler/dao/datasource/ClickHouseDataSource.java",
+      "dolphinscheduler-dao/src/main/java/org/apache/dolphinscheduler/dao/datasource/DB2ServerDataSource.java",
+      "dolphinscheduler-dao/src/main/java/org/apache/dolphinscheduler/dao/datasource/DataSourceFactory.java",
+      "dolphinscheduler-dao/src/main/java/org/apache/dolphinscheduler/dao/datasource/HiveDataSource.java",
+      "dolphinscheduler-dao/src/main/java/org/apache/dolphinscheduler/dao/datasource/MySQLDataSource.java",
+      "dolphinscheduler-dao/src/main/java/org/apache/dolphinscheduler/dao/datasource/OracleDataSource.java",
+      "dolphinscheduler-dao/src/main/java/org/apache/dolphinscheduler/dao/datasource/PostgreDataSource.java",
+      "dolphinscheduler-dao/src/main/java/org/apache/dolphinscheduler/dao/datasource/SQLServerDataSource.java",
+      "dolphinscheduler-dao/src/main/java/org/apache/dolphinscheduler/dao/datasource/SparkDataSource.java",
+      "dolphinscheduler-server/src/main/java/org/apache/dolphinscheduler/server/worker/task/datax/DataxTask.java",
+      "dolphinscheduler-server/src/main/java/org/apache/dolphinscheduler/server/worker/task/processdure/ProcedureTask.java",
+      "dolphinscheduler-server/src/main/java/org/apache/dolphinscheduler/server/worker/task/sql/SqlTask.java",
+      "dolphinscheduler-server/src/test/java/org/apache/dolphinscheduler/server/worker/task/datax/DataxTaskTest.java"
+    ]
+  },
+  {
+    "task_id": "apache_flink_394a6e3",
+    "num_files": 10,
+    "language": "Java",
+    "files": [
+      "flink-clients/src/main/java/org/apache/flink/client/program/ContextEnvironment.java",
+      "flink-clients/src/main/java/org/apache/flink/client/program/OptimizerPlanEnvironment.java",
+      "flink-java/src/main/java/org/apache/flink/api/java/CollectionEnvironment.java",
+      "flink-java/src/main/java/org/apache/flink/api/java/ExecutionEnvironment.java",
+      "flink-java/src/main/java/org/apache/flink/api/java/ExecutionPlanUtil.java",
+      "flink-java/src/main/java/org/apache/flink/api/java/LocalEnvironment.java",
+      "flink-java/src/main/java/org/apache/flink/api/java/RemoteEnvironment.java",
+      "flink-test-utils-parent/flink-test-utils/src/main/java/org/apache/flink/test/util/TestEnvironment.java",
+      "flink-tests/src/test/java/org/apache/flink/test/optimizer/jsonplan/JsonJobGraphGenerationTest.java",
+      "flink-tests/src/test/java/org/apache/flink/test/util/PlanExposingEnvironment.java"
+    ]
+  },
+  {
+    "task_id": "apache_shardingsphere_a61ad2d",
+    "num_files": 10,
+    "language": "Java",
+    "files": [
+      "sharding-jdbc-core/src/main/java/com/dangdang/ddframe/rdb/sharding/parsing/parser/SQLParser.java",
+      "sharding-jdbc-core/src/main/java/com/dangdang/ddframe/rdb/sharding/parsing/parser/dialect/oracle/OracleParser.java",
+      "sharding-jdbc-core/src/main/java/com/dangdang/ddframe/rdb/sharding/parsing/parser/dialect/sqlserver/SQLServerDeleteParser.java",
+      "sharding-jdbc-core/src/main/java/com/dangdang/ddframe/rdb/sharding/parsing/parser/dialect/sqlserver/SQLServerParser.java",
+      "sharding-jdbc-core/src/main/java/com/dangdang/ddframe/rdb/sharding/parsing/parser/dialect/sqlserver/SQLServerSelectParser.java",
+      "sharding-jdbc-core/src/main/java/com/dangdang/ddframe/rdb/sharding/parsing/parser/dialect/sqlserver/SQLServerUpdateParser.java",
+      "sharding-jdbc-core/src/main/java/com/dangdang/ddframe/rdb/sharding/parsing/parser/statement/delete/AbstractDeleteParser.java",
+      "sharding-jdbc-core/src/main/java/com/dangdang/ddframe/rdb/sharding/parsing/parser/statement/insert/AbstractInsertParser.java",
+      "sharding-jdbc-core/src/main/java/com/dangdang/ddframe/rdb/sharding/parsing/parser/statement/update/AbstractUpdateParser.java",
+      "sharding-jdbc-core/src/test/java/com/dangdang/ddframe/rdb/integrate/sql/sqlserver/SQLServerSQLTestSQL.java"
+    ]
+  },
+  {
+    "task_id": "apache_hudi_4e05ca8",
+    "num_files": 14,
+    "language": "Java",
+    "files": [
+      "hudi-client/hudi-client-common/src/main/java/org/apache/hudi/client/BaseHoodieWriteClient.java",
+      "hudi-client/hudi-client-common/src/main/java/org/apache/hudi/table/HoodieTable.java",
+      "hudi-client/hudi-client-common/src/main/java/org/apache/hudi/table/action/BaseActionExecutor.java",
+      "hudi-client/hudi-flink-client/src/main/java/org/apache/hudi/client/HoodieFlinkWriteClient.java",
+      "hudi-client/hudi-flink-client/src/main/java/org/apache/hudi/table/HoodieFlinkCopyOnWriteTable.java",
+      "hudi-client/hudi-flink-client/src/main/java/org/apache/hudi/table/HoodieFlinkMergeOnReadTable.java",
+      "hudi-client/hudi-java-client/src/main/java/org/apache/hudi/table/HoodieJavaCopyOnWriteTable.java",
+      "hudi-client/hudi-java-client/src/main/java/org/apache/hudi/table/HoodieJavaMergeOnReadTable.java",
+      "hudi-client/hudi-spark-client/src/main/java/org/apache/hudi/client/SparkRDDWriteClient.java",
+      "hudi-client/hudi-spark-client/src/main/java/org/apache/hudi/table/HoodieSparkCopyOnWriteTable.java",
+      "hudi-client/hudi-spark-client/src/main/java/org/apache/hudi/table/HoodieSparkMergeOnReadTable.java",
+      "hudi-client/hudi-spark-client/src/test/java/org/apache/hudi/io/TestHoodieTimelineArchiver.java",
+      "hudi-common/src/main/java/org/apache/hudi/common/table/timeline/HoodieInstant.java",
+      "hudi-common/src/test/java/org/apache/hudi/common/table/timeline/TestHoodieActiveTimeline.java"
+    ]
+  },
+  {
+    "task_id": "apache_iceberg_2ba5246",
+    "num_files": 10,
+    "language": "Java",
+    "files": [
+      "core/src/main/java/org/apache/iceberg/BaseFileScanTask.java",
+      "core/src/main/java/org/apache/iceberg/DataTableScan.java",
+      "core/src/test/java/org/apache/iceberg/TestSplitPlanning.java",
+      "spark/v2.4/spark/src/test/java/org/apache/iceberg/spark/source/TestDataSourceOptions.java",
+      "spark/v3.0/spark/src/test/java/org/apache/iceberg/spark/actions/TestRewriteDataFilesAction.java",
+      "spark/v3.0/spark/src/test/java/org/apache/iceberg/spark/source/TestDataSourceOptions.java",
+      "spark/v3.1/spark/src/test/java/org/apache/iceberg/spark/actions/TestRewriteDataFilesAction.java",
+      "spark/v3.1/spark/src/test/java/org/apache/iceberg/spark/source/TestDataSourceOptions.java",
+      "spark/v3.2/spark/src/test/java/org/apache/iceberg/spark/actions/TestRewriteDataFilesAction.java",
+      "spark/v3.2/spark/src/test/java/org/apache/iceberg/spark/source/TestDataSourceOptions.java"
+    ]
+  },
+  {
+    "task_id": "apache_spark_b50d450",
+    "num_files": 12,
+    "language": "Scala",
+    "files": [
+      "sql/catalyst/src/main/scala/org/apache/spark/sql/catalyst/dsl/package.scala",
+      "sql/catalyst/src/main/scala/org/apache/spark/sql/catalyst/optimizer/NestedColumnAliasing.scala",
+      "sql/catalyst/src/main/scala/org/apache/spark/sql/catalyst/optimizer/Optimizer.scala",
+      "sql/catalyst/src/main/scala/org/apache/spark/sql/catalyst/optimizer/PropagateEmptyRelation.scala",
+      "sql/catalyst/src/main/scala/org/apache/spark/sql/catalyst/optimizer/expressions.scala",
+      "sql/catalyst/src/main/scala/org/apache/spark/sql/catalyst/plans/logical/basicLogicalOperators.scala",
+      "sql/catalyst/src/main/scala/org/apache/spark/sql/catalyst/trees/TreePatterns.scala",
+      "sql/catalyst/src/test/scala/org/apache/spark/sql/catalyst/optimizer/CollapseRepartitionSuite.scala",
+      "sql/catalyst/src/test/scala/org/apache/spark/sql/catalyst/optimizer/EliminateSortsBeforeRepartitionSuite.scala",
+      "sql/catalyst/src/test/scala/org/apache/spark/sql/catalyst/optimizer/FoldablePropagationSuite.scala",
+      "sql/catalyst/src/test/scala/org/apache/spark/sql/catalyst/optimizer/NestedColumnAliasingSuite.scala",
+      "sql/catalyst/src/test/scala/org/apache/spark/sql/catalyst/optimizer/PropagateEmptyRelationSuite.scala"
+    ]
+  },
+  {
+    "task_id": "apache_camel_0568196",
+    "num_files": 15,
+    "language": "Java",
+    "files": [
+      "components/camel-jms/src/test/java/org/apache/camel/component/jms/JmsInOnlyPooledExchangeTest.java",
+      "components/camel-netty-http/src/test/java/org/apache/camel/component/netty/http/NettyHttpSimplePooledExchangeTest.java",
+      "components/camel-netty/src/test/java/org/apache/camel/component/netty/NettyRedeliveryTest.java",
+      "components/camel-rest-openapi/src/test/java/org/apache/camel/component/rest/openapi/RestOpenApiDelegateHttpsTest.java",
+      "components/camel-rest-openapi/src/test/java/org/apache/camel/component/rest/openapi/RestOpenApiDelegateHttpsV3Test.java",
+      "components/camel-sjms/src/test/java/org/apache/camel/component/sjms/consumer/InOnlyPooledExchangeTest.java",
+      "components/camel-spring-xml/src/main/java/org/apache/camel/spring/xml/CamelContextFactoryBean.java",
+      "components/camel-spring-xml/src/test/java/org/apache/camel/spring/CamelContextFactoryBeanTest.java",
+      "components/camel-spring/src/main/java/org/apache/camel/spring/SpringCamelContext.java",
+      "core/camel-core-xml/src/test/java/org/apache/camel/core/xml/AbstractCamelContextFactoryBeanTest.java",
+      "core/camel-core/src/test/java/org/apache/camel/impl/engine/DefaultPackageScanResourceResolverTest.java",
+      "core/camel-core/src/test/java/org/apache/camel/processor/BatchConsumerPooledExchangeTest.java",
+      "core/camel-core/src/test/java/org/apache/camel/processor/PooledExchangeTest.java",
+      "dsl/camel-kamelet-main/src/main/java/org/apache/camel/main/KameletMain.java",
+      "dsl/camel-yaml-dsl/camel-yaml-dsl/src/test/groovy/org/apache/camel/dsl/yaml/ErrorHandlerTest.groovy"
+    ]
+  },
+  {
+    "task_id": "apache_arrow_ef3cff6",
+    "num_files": 11,
+    "language": "Rust",
+    "files": [
+      "rust/datafusion/src/execution/context.rs",
+      "rust/datafusion/src/lib.rs",
+      "rust/datafusion/src/logical_plan/builder.rs",
+      "rust/datafusion/src/optimizer/projection_push_down.rs",
+      "rust/datafusion/src/physical_plan/aggregates.rs",
+      "rust/datafusion/src/physical_plan/array_expressions.rs",
+      "rust/datafusion/src/physical_plan/common.rs",
+      "rust/datafusion/src/physical_plan/expressions.rs",
+      "rust/datafusion/src/physical_plan/functions.rs",
+      "rust/datafusion/src/physical_plan/planner.rs",
+      "rust/datafusion/src/physical_plan/type_coercion.rs"
+    ]
+  },
+  {
+    "task_id": "apache_superset_38782e2",
+    "num_files": 11,
+    "language": "JavaScript",
+    "files": [
+      "superset/assets/src/explore/controlPanels/Area.js",
+      "superset/assets/src/explore/controlPanels/Bar.js",
+      "superset/assets/src/explore/controlPanels/BigNumber.js",
+      "superset/assets/src/explore/controlPanels/Compare.js",
+      "superset/assets/src/explore/controlPanels/Iframe.js",
+      "superset/assets/src/explore/controlPanels/Line.js",
+      "superset/assets/src/explore/controlPanels/Markup.js",
+      "superset/assets/src/explore/controlPanels/Separator.js",
+      "superset/assets/src/explore/controlPanels/TimePivot.js",
+      "superset/assets/src/explore/controlPanels/TimeTable.js",
+      "superset/assets/src/explore/controlPanels/sections.jsx"
+    ]
+  },
+  {
+    "task_id": "apache_echarts_0c26427",
+    "num_files": 11,
+    "language": "TypeScript",
+    "files": [
+      "src/chart/effectScatter/EffectScatterSeries.ts",
+      "src/chart/gauge/GaugeSeries.ts",
+      "src/chart/graph/GraphSeries.ts",
+      "src/chart/pie/PieSeries.ts",
+      "src/chart/sankey/SankeySeries.ts",
+      "src/chart/themeRiver/ThemeRiverSeries.ts",
+      "src/component/toolbox/feature/DataView.ts",
+      "src/component/toolbox/feature/DataZoom.ts",
+      "src/coord/single/AxisModel.ts",
+      "src/loading/default.ts",
+      "src/option.ts"
+    ]
+  },
+  {
+    "task_id": "apache_shardingsphere_47bf9f4",
+    "num_files": 13,
+    "language": "Java",
+    "files": [
+      "shardingsphere-features/shardingsphere-sharding/shardingsphere-sharding-core/src/main/java/org/apache/shardingsphere/sharding/rewrite/token/pojo/IndexToken.java",
+      "shardingsphere-infra/shardingsphere-infra-binder/src/main/java/org/apache/shardingsphere/infra/binder/segment/select/orderby/engine/OrderByContextEngine.java",
+      "shardingsphere-infra/shardingsphere-infra-binder/src/main/java/org/apache/shardingsphere/infra/binder/segment/select/projection/engine/ProjectionEngine.java",
+      "shardingsphere-infra/shardingsphere-infra-common/src/main/java/org/apache/shardingsphere/infra/database/type/DatabaseTypeRegistry.java",
+      "shardingsphere-infra/shardingsphere-infra-common/src/main/java/org/apache/shardingsphere/infra/metadata/schema/refresher/type/AlterTableStatementSchemaRefresher.java",
+      "shardingsphere-infra/shardingsphere-infra-common/src/main/java/org/apache/shardingsphere/infra/metadata/schema/refresher/type/CreateTableStatementSchemaRefresher.java",
+      "shardingsphere-infra/shardingsphere-infra-common/src/main/java/org/apache/shardingsphere/infra/rule/single/SingleTableRule.java",
+      "shardingsphere-infra/shardingsphere-infra-common/src/main/java/org/apache/shardingsphere/infra/spi/required/RequiredSPIRegistry.java",
+      "shardingsphere-infra/shardingsphere-infra-common/src/main/java/org/apache/shardingsphere/infra/yaml/schema/swapper/SchemaYamlSwapper.java",
+      "shardingsphere-infra/shardingsphere-infra-executor/src/main/java/org/apache/shardingsphere/infra/executor/sql/execute/engine/driver/jdbc/sane/JDBCSaneQueryResultEngineFactory.java",
+      "shardingsphere-infra/shardingsphere-infra-optimize/src/main/java/org/apache/shardingsphere/infra/optimize/core/metadata/refresher/type/AlterTableStatementFederateRefresher.java",
+      "shardingsphere-infra/shardingsphere-infra-optimize/src/main/java/org/apache/shardingsphere/infra/optimize/core/metadata/refresher/type/CreateTableStatementFederateRefresher.java",
+      "shardingsphere-jdbc/shardingsphere-jdbc-core/src/main/java/org/apache/shardingsphere/driver/jdbc/core/datasource/metadata/ShardingSphereDatabaseMetaData.java"
+    ]
+  },
+  {
+    "task_id": "apache_hbase_c269e63",
+    "num_files": 11,
+    "language": "Java",
+    "files": [
+      "hbase-procedure/src/main/java/org/apache/hadoop/hbase/procedure2/RemoteProcedureDispatcher.java",
+      "hbase-procedure/src/main/java/org/apache/hadoop/hbase/procedure2/store/wal/ProcedureWALPrettyPrinter.java",
+      "hbase-procedure/src/main/java/org/apache/hadoop/hbase/procedure2/util/ByteSlot.java",
+      "hbase-procedure/src/test/java/org/apache/hadoop/hbase/procedure2/TestProcedureEvents.java",
+      "hbase-procedure/src/test/java/org/apache/hadoop/hbase/procedure2/TestProcedureExecutor.java",
+      "hbase-procedure/src/test/java/org/apache/hadoop/hbase/procedure2/TestProcedureInMemoryChore.java",
+      "hbase-procedure/src/test/java/org/apache/hadoop/hbase/procedure2/TestProcedureReplayOrder.java",
+      "hbase-procedure/src/test/java/org/apache/hadoop/hbase/procedure2/TestStateMachineProcedure.java",
+      "hbase-procedure/src/test/java/org/apache/hadoop/hbase/procedure2/TestYieldProcedures.java",
+      "hbase-procedure/src/test/java/org/apache/hadoop/hbase/procedure2/store/wal/ProcedureWALLoaderPerformanceEvaluation.java",
+      "hbase-procedure/src/test/java/org/apache/hadoop/hbase/procedure2/store/wal/ProcedureWALPerformanceEvaluation.java"
+    ]
+  },
+  {
+    "task_id": "apache_incubator-kie-drools_efdb486",
+    "num_files": 10,
+    "language": "Java",
+    "files": [
+      "drools-drlonyaml-parent/drools-drlonyaml-model/src/main/java/org/drools/drlonyaml/model/All.java",
+      "drools-drlonyaml-parent/drools-drlonyaml-model/src/main/java/org/drools/drlonyaml/model/DrlPackage.java",
+      "drools-drlonyaml-parent/drools-drlonyaml-model/src/main/java/org/drools/drlonyaml/model/Exists.java",
+      "drools-drlonyaml-parent/drools-drlonyaml-model/src/main/java/org/drools/drlonyaml/model/Function.java",
+      "drools-drlonyaml-parent/drools-drlonyaml-model/src/main/java/org/drools/drlonyaml/model/Global.java",
+      "drools-drlonyaml-parent/drools-drlonyaml-model/src/main/java/org/drools/drlonyaml/model/Import.java",
+      "drools-drlonyaml-parent/drools-drlonyaml-model/src/main/java/org/drools/drlonyaml/model/Not.java",
+      "drools-drlonyaml-parent/drools-drlonyaml-model/src/main/java/org/drools/drlonyaml/model/Pattern.java",
+      "drools-drlonyaml-parent/drools-drlonyaml-model/src/main/java/org/drools/drlonyaml/model/Rule.java",
+      "drools-drlonyaml-parent/drools-drlonyaml-model/src/main/java/org/drools/drlonyaml/model/StringThen.java"
+    ]
+  },
+  {
+    "task_id": "apache_shenyu_0a136fa",
+    "num_files": 12,
+    "language": "Java",
+    "files": [
+      "shenyu-admin/src/main/java/org/apache/shenyu/admin/service/impl/UpstreamCheckService.java",
+      "shenyu-admin/src/main/java/org/apache/shenyu/admin/validation/validator/ExistedValidator.java",
+      "shenyu-common/src/main/java/org/apache/shenyu/common/utils/MapUtils.java",
+      "shenyu-loadbalancer/src/main/java/org/apache/shenyu/loadbalancer/cache/UpstreamCacheManager.java",
+      "shenyu-loadbalancer/src/main/java/org/apache/shenyu/loadbalancer/cache/UpstreamCheckTask.java",
+      "shenyu-loadbalancer/src/main/java/org/apache/shenyu/loadbalancer/spi/RoundRobinLoadBalancer.java",
+      "shenyu-plugin/shenyu-plugin-base/src/main/java/org/apache/shenyu/plugin/base/cache/CommonPluginDataSubscriber.java",
+      "shenyu-plugin/shenyu-plugin-base/src/main/java/org/apache/shenyu/plugin/base/cache/MatchDataCache.java",
+      "shenyu-plugin/shenyu-plugin-grpc/src/main/java/org/apache/shenyu/plugin/grpc/cache/GrpcClientCache.java",
+      "shenyu-register-center/shenyu-register-client-server/shenyu-register-client-server-nacos/src/main/java/org/apache/shenyu/register/client/server/nacos/NacosClientServerRegisterRepository.java",
+      "shenyu-register-center/shenyu-register-instance/shenyu-register-instance-consul/src/main/java/org/apache/shenyu/register/instance/consul/ConsulInstanceRegisterRepository.java",
+      "shenyu-sync-data-center/shenyu-sync-data-nacos/src/main/java/org/apache/shenyu/sync/data/nacos/handler/NacosCacheHandler.java"
+    ]
+  },
+  {
+    "task_id": "apache_spark_72a4668",
+    "num_files": 21,
+    "language": "Scala",
+    "files": [
+      "connector/connect/client/jvm/src/main/scala/org/apache/spark/sql/connect/client/AmmoniteClassFinder.scala",
+      "connector/connect/common/src/main/scala-2.12/org/apache/spark/sql/connect/client/arrow/ScalaCollectionUtils.scala",
+      "connector/connect/common/src/main/scala-2.13/org/apache/spark/sql/connect/client/arrow/ScalaCollectionUtils.scala",
+      "connector/connect/common/src/main/scala/org/apache/spark/sql/connect/client/ArtifactManager.scala",
+      "connector/connect/common/src/main/scala/org/apache/spark/sql/connect/client/ClassFinder.scala",
+      "connector/connect/common/src/main/scala/org/apache/spark/sql/connect/client/CloseableIterator.scala",
+      "connector/connect/common/src/main/scala/org/apache/spark/sql/connect/client/CustomSparkConnectBlockingStub.scala",
+      "connector/connect/common/src/main/scala/org/apache/spark/sql/connect/client/CustomSparkConnectStub.scala",
+      "connector/connect/common/src/main/scala/org/apache/spark/sql/connect/client/ExecutePlanResponseReattachableIterator.scala",
+      "connector/connect/common/src/main/scala/org/apache/spark/sql/connect/client/GrpcExceptionConverter.scala",
+      "connector/connect/common/src/main/scala/org/apache/spark/sql/connect/client/GrpcRetryHandler.scala",
+      "connector/connect/common/src/main/scala/org/apache/spark/sql/connect/client/SparkConnectClient.scala",
+      "connector/connect/common/src/main/scala/org/apache/spark/sql/connect/client/SparkConnectClientParser.scala",
+      "connector/connect/common/src/main/scala/org/apache/spark/sql/connect/client/SparkResult.scala",
+      "connector/connect/common/src/main/scala/org/apache/spark/sql/connect/client/arrow/ArrowDeserializer.scala",
+      "connector/connect/common/src/main/scala/org/apache/spark/sql/connect/client/arrow/ArrowEncoderUtils.scala",
+      "connector/connect/common/src/main/scala/org/apache/spark/sql/connect/client/arrow/ArrowSerializer.scala",
+      "connector/connect/common/src/main/scala/org/apache/spark/sql/connect/client/arrow/ArrowVectorReader.scala",
+      "connector/connect/common/src/main/scala/org/apache/spark/sql/connect/client/arrow/ConcatenatingArrowStreamReader.scala",
+      "connector/connect/common/src/main/scala/org/apache/spark/sql/connect/client/package.scala",
+      "connector/connect/common/src/main/scala/org/apache/spark/sql/connect/client/util/Cleaner.scala"
+    ]
+  },
+  {
+    "task_id": "apache_camel_4fbeac6",
+    "num_files": 11,
+    "language": "Java",
+    "files": [
+      "camel-core/src/main/java/org/apache/camel/ExchangeProperties.java",
+      "camel-core/src/main/java/org/apache/camel/Properties.java",
+      "camel-core/src/main/java/org/apache/camel/builder/ExpressionBuilder.java",
+      "camel-core/src/main/java/org/apache/camel/builder/ExpressionClause.java",
+      "camel-core/src/main/java/org/apache/camel/builder/ExpressionClauseSupport.java",
+      "camel-core/src/main/java/org/apache/camel/component/bean/BeanInfo.java",
+      "camel-core/src/main/java/org/apache/camel/processor/aggregate/AggregationStrategyBeanInfo.java",
+      "camel-core/src/test/java/org/apache/camel/component/bean/BeanWithPropertiesAndHeadersAndBodyInjectionTest.java",
+      "camel-core/src/test/java/org/apache/camel/component/bean/BeanWithPropertiesAndHeadersInjectionTest.java",
+      "camel-core/src/test/java/org/apache/camel/issues/DynamicRouterConvertBodyToIssueTest.java",
+      "camel-core/src/test/java/org/apache/camel/processor/DynamicRouterExchangePropertiesTest.java"
+    ]
+  },
+  {
+    "task_id": "apache_flink_7f01a4f",
+    "num_files": 11,
+    "language": "Java",
+    "files": [
+      "flink-streaming-java/src/main/java/org/apache/flink/streaming/api/functions/sink/filesystem/Bucket.java",
+      "flink-streaming-java/src/main/java/org/apache/flink/streaming/api/functions/sink/filesystem/Bucketer.java",
+      "flink-streaming-java/src/main/java/org/apache/flink/streaming/api/functions/sink/filesystem/Buckets.java",
+      "flink-streaming-java/src/main/java/org/apache/flink/streaming/api/functions/sink/filesystem/BulkPartWriter.java",
+      "flink-streaming-java/src/main/java/org/apache/flink/streaming/api/functions/sink/filesystem/PartFileInfo.java",
+      "flink-streaming-java/src/main/java/org/apache/flink/streaming/api/functions/sink/filesystem/RowWisePartWriter.java",
+      "flink-streaming-java/src/main/java/org/apache/flink/streaming/api/functions/sink/filesystem/StreamingFileSink.java",
+      "flink-streaming-java/src/main/java/org/apache/flink/streaming/api/functions/sink/filesystem/bucketers/BasePathBucketer.java",
+      "flink-streaming-java/src/main/java/org/apache/flink/streaming/api/functions/sink/filesystem/bucketers/DateTimeBucketer.java",
+      "flink-streaming-java/src/test/java/org/apache/flink/streaming/api/functions/sink/filesystem/BucketsTest.java",
+      "flink-streaming-java/src/test/java/org/apache/flink/streaming/api/functions/sink/filesystem/TestUtils.java"
+    ]
+  },
+  {
+    "task_id": "apache_airflow_7aacba2",
+    "num_files": 11,
+    "language": "Python",
+    "files": [
+      "tests/system/providers/amazon/aws/example_batch.py",
+      "tests/system/providers/amazon/aws/example_datasync.py",
+      "tests/system/providers/amazon/aws/example_dms.py",
+      "tests/system/providers/amazon/aws/example_eks_with_nodegroup_in_one_step.py",
+      "tests/system/providers/amazon/aws/example_emr_serverless.py",
+      "tests/system/providers/amazon/aws/example_glue.py",
+      "tests/system/providers/amazon/aws/example_local_to_s3.py",
+      "tests/system/providers/amazon/aws/example_quicksight.py",
+      "tests/system/providers/amazon/aws/example_rds_export.py",
+      "tests/system/providers/amazon/aws/example_rds_snapshot.py",
+      "tests/system/providers/amazon/aws/example_redshift.py"
+    ]
+  },
+  {
+    "task_id": "apache_airflow_abef61f",
+    "num_files": 14,
+    "language": "Python",
+    "files": [
+      "airflow/cli/commands/db_command.py",
+      "airflow/cli/commands/variable_command.py",
+      "airflow/jobs/backfill_job_runner.py",
+      "airflow/jobs/scheduler_job_runner.py",
+      "airflow/providers/apache/hive/hooks/hive.py",
+      "airflow/providers/daskexecutor/executors/dask_executor.py",
+      "airflow/providers/docker/operators/docker.py",
+      "airflow/providers/docker/operators/docker_swarm.py",
+      "airflow/providers/grpc/operators/grpc.py",
+      "airflow/providers/openlineage/utils/utils.py",
+      "airflow/utils/log/secrets_masker.py",
+      "airflow/utils/sqlalchemy.py",
+      "airflow/www/views.py",
+      "tests/providers/grpc/operators/test_grpc.py"
+    ]
+  },
+  {
+    "task_id": "apache_arrow_200e308",
+    "num_files": 15,
+    "language": "C++",
+    "files": [
+      "cpp/build-support/lint_cpp_cli.py",
+      "cpp/src/gandiva/decimal_scalar.h",
+      "cpp/src/gandiva/in_holder.h",
+      "cpp/src/gandiva/tree_expr_builder.cc",
+      "cpp/src/parquet/column_io_benchmark.cc",
+      "cpp/src/parquet/column_reader.cc",
+      "cpp/src/parquet/column_writer.cc",
+      "cpp/src/parquet/column_writer_test.cc",
+      "cpp/src/parquet/file_deserialize_test.cc",
+      "cpp/src/parquet/metadata.cc",
+      "cpp/src/parquet/metadata_test.cc",
+      "cpp/src/parquet/schema.cc",
+      "cpp/src/parquet/schema_test.cc",
+      "cpp/src/parquet/statistics_test.cc",
+      "cpp/src/parquet/thrift_internal.h"
+    ]
+  },
+  {
+    "task_id": "apache_shardingsphere_51c7d64",
+    "num_files": 16,
+    "language": "Java",
+    "files": [
+      "sharding-jdbc/sharding-jdbc-core/src/main/java/org/apache/shardingsphere/shardingjdbc/executor/AbstractStatementExecutor.java",
+      "sharding-jdbc/sharding-jdbc-core/src/main/java/org/apache/shardingsphere/shardingjdbc/jdbc/core/connection/ShardingConnection.java",
+      "sharding-jdbc/sharding-jdbc-core/src/main/java/org/apache/shardingsphere/shardingjdbc/jdbc/core/context/RuntimeContext.java",
+      "sharding-jdbc/sharding-jdbc-core/src/main/java/org/apache/shardingsphere/shardingjdbc/jdbc/core/context/ShardingContext.java",
+      "sharding-jdbc/sharding-jdbc-core/src/main/java/org/apache/shardingsphere/shardingjdbc/jdbc/core/datasource/ShardingDataSource.java",
+      "sharding-jdbc/sharding-jdbc-core/src/main/java/org/apache/shardingsphere/shardingjdbc/jdbc/core/statement/ShardingPreparedStatement.java",
+      "sharding-jdbc/sharding-jdbc-core/src/main/java/org/apache/shardingsphere/shardingjdbc/jdbc/core/statement/ShardingStatement.java",
+      "sharding-jdbc/sharding-jdbc-core/src/test/java/org/apache/shardingsphere/shardingjdbc/api/ShardingDataSourceFactoryTest.java",
+      "sharding-jdbc/sharding-jdbc-core/src/test/java/org/apache/shardingsphere/shardingjdbc/executor/AbstractBaseExecutorTest.java",
+      "sharding-jdbc/sharding-jdbc-core/src/test/java/org/apache/shardingsphere/shardingjdbc/jdbc/core/connection/ShardingConnectionTest.java",
+      "sharding-jdbc/sharding-jdbc-core/src/test/java/org/apache/shardingsphere/shardingjdbc/jdbc/core/resultset/ShardingResultSetTest.java",
+      "sharding-spring/sharding-jdbc-orchestration-spring/sharding-jdbc-orchestration-spring-boot-starter/src/test/java/org/apache/shardingsphere/shardingjdbc/orchestration/spring/boot/type/OrchestrationSpringBootRegistryShardingTest.java",
+      "sharding-spring/sharding-jdbc-orchestration-spring/sharding-jdbc-orchestration-spring-boot-starter/src/test/java/org/apache/shardingsphere/shardingjdbc/orchestration/spring/boot/type/OrchestrationSpringBootShardingTest.java",
+      "sharding-spring/sharding-jdbc-orchestration-spring/sharding-jdbc-orchestration-spring-namespace/src/test/java/org/apache/shardingsphere/shardingjdbc/orchestration/spring/OrchestrationShardingNamespaceTest.java",
+      "sharding-spring/sharding-jdbc-spring/sharding-jdbc-spring-boot-starter/src/test/java/org/apache/shardingsphere/shardingjdbc/spring/boot/type/SpringBootShardingTest.java",
+      "sharding-spring/sharding-jdbc-spring/sharding-jdbc-spring-namespace/src/test/java/org/apache/shardingsphere/shardingjdbc/spring/ShardingNamespaceTest.java"
+    ]
+  },
+  {
+    "task_id": "apache_hadoop_a275277",
+    "num_files": 10,
+    "language": "JavaScript",
+    "files": [
+      "hadoop-yarn-project/hadoop-yarn/hadoop-yarn-ui/src/main/webapp/app/controllers/yarn-app/components.js",
+      "hadoop-yarn-project/hadoop-yarn/hadoop-yarn-ui/src/main/webapp/app/controllers/yarn-component-instance/info.js",
+      "hadoop-yarn-project/hadoop-yarn/hadoop-yarn-ui/src/main/webapp/app/controllers/yarn-component-instances/info.js",
+      "hadoop-yarn-project/hadoop-yarn/hadoop-yarn-ui/src/main/webapp/app/routes/yarn-component-instance/info.js",
+      "hadoop-yarn-project/hadoop-yarn/hadoop-yarn-ui/src/main/webapp/app/serializers/yarn-component-instance.js",
+      "hadoop-yarn-project/hadoop-yarn/hadoop-yarn-ui/src/main/webapp/app/serializers/yarn-container.js",
+      "hadoop-yarn-project/hadoop-yarn/hadoop-yarn-ui/src/main/webapp/app/serializers/yarn-service-component.js",
+      "hadoop-yarn-project/hadoop-yarn/hadoop-yarn-ui/src/main/webapp/app/serializers/yarn-timeline-container.js",
+      "hadoop-yarn-project/hadoop-yarn/hadoop-yarn-ui/src/main/webapp/app/templates/yarn-app/configs.hbs",
+      "hadoop-yarn-project/hadoop-yarn/hadoop-yarn-ui/src/main/webapp/app/templates/yarn-component-instance/info.hbs"
+    ]
+  },
+  {
+    "task_id": "apache_doris_d9f6fe3",
+    "num_files": 16,
+    "language": "groovy",
+    "files": [
+      "be/src/runtime/stream_load/stream_load_executor.cpp",
+      "regression-test/suites/insert_p0/insert_group_commit_into_max_filter_ratio.groovy",
+      "regression-test/suites/json_p0/test_json_load_and_function.groovy",
+      "regression-test/suites/json_p0/test_json_load_unique_key_and_function.groovy",
+      "regression-test/suites/jsonb_p0/test_jsonb_load_and_function.groovy",
+      "regression-test/suites/jsonb_p0/test_jsonb_load_unique_key_and_function.groovy",
+      "regression-test/suites/load_p0/stream_load/load_json_column_exclude_schema_without_jsonpath.groovy",
+      "regression-test/suites/load_p0/stream_load/test_csv_with_none_utf8_data.groovy",
+      "regression-test/suites/load_p0/stream_load/test_stream_load.groovy",
+      "regression-test/suites/load_p0/stream_load/test_stream_load_move_memtable.groovy",
+      "regression-test/suites/load_p0/stream_load/test_stream_load_properties.groovy",
+      "regression-test/suites/nereids_function_p0/scalar_function/J.groovy",
+      "regression-test/suites/unique_with_mow_c_p0/partial_update/test_partial_update_strict_mode.groovy",
+      "regression-test/suites/unique_with_mow_p0/flexible/test_flexible_partial_update_filter_ratio.groovy",
+      "regression-test/suites/unique_with_mow_p0/partial_update/test_partial_update.groovy",
+      "regression-test/suites/unique_with_mow_p0/partial_update/test_partial_update_strict_mode.groovy"
+    ]
+  },
+  {
+    "task_id": "apache_openwhisk_569b51b",
+    "num_files": 10,
+    "language": "Scala",
+    "files": [
+      "common/scala/src/main/scala/whisk/core/containerpool/AkkaContainerClient.scala",
+      "common/scala/src/main/scala/whisk/core/containerpool/ApacheBlockingContainerClient.scala",
+      "common/scala/src/main/scala/whisk/core/containerpool/Container.scala",
+      "common/scala/src/main/scala/whisk/core/containerpool/ContainerClient.scala",
+      "common/scala/src/main/scala/whisk/core/mesos/MesosTask.scala",
+      "common/scala/src/main/scala/whisk/http/PoolingRestClient.scala",
+      "core/invoker/src/main/scala/whisk/core/containerpool/docker/DockerContainer.scala",
+      "core/invoker/src/main/scala/whisk/core/containerpool/kubernetes/KubernetesContainer.scala",
+      "tests/src/test/scala/whisk/core/containerpool/logging/test/DockerToActivationLogStoreTests.scala",
+      "tests/src/test/scala/whisk/core/containerpool/test/ContainerProxyTests.scala"
+    ]
+  },
+  {
+    "task_id": "apache_hbase_6384333",
+    "num_files": 12,
+    "language": "Java",
+    "files": [
+      "hbase-server/src/main/java/org/apache/hadoop/hbase/favored/FavoredNodeAssignmentHelper.java",
+      "hbase-server/src/main/java/org/apache/hadoop/hbase/io/hfile/bucket/BucketCache.java",
+      "hbase-server/src/main/java/org/apache/hadoop/hbase/ipc/RpcServerFactory.java",
+      "hbase-server/src/main/java/org/apache/hadoop/hbase/regionserver/AbstractMemStore.java",
+      "hbase-server/src/main/java/org/apache/hadoop/hbase/regionserver/CompactSplit.java",
+      "hbase-server/src/main/java/org/apache/hadoop/hbase/regionserver/HRegion.java",
+      "hbase-server/src/main/java/org/apache/hadoop/hbase/regionserver/HRegionServer.java",
+      "hbase-server/src/main/java/org/apache/hadoop/hbase/replication/regionserver/ReplicationSourceManager.java",
+      "hbase-server/src/test/java/org/apache/hadoop/hbase/master/TestMasterOperationsForRegionReplicas.java",
+      "hbase-server/src/test/java/org/apache/hadoop/hbase/mob/MobTestUtil.java",
+      "hbase-server/src/test/java/org/apache/hadoop/hbase/regionserver/TestDefaultMemStore.java",
+      "hbase-server/src/test/java/org/apache/hadoop/hbase/security/access/SecureTestUtil.java"
+    ]
+  },
+  {
+    "task_id": "apache_shardingsphere_ce2934f",
+    "num_files": 14,
+    "language": "Java",
+    "files": [
+      "agent/plugins/metrics/type/prometheus/src/test/java/org/apache/shardingsphere/agent/plugin/metrics/prometheus/PrometheusPluginLifecycleServiceTest.java",
+      "proxy/backend/core/src/test/java/org/apache/shardingsphere/proxy/backend/handler/database/CreateDatabaseBackendHandlerTest.java",
+      "proxy/backend/core/src/test/java/org/apache/shardingsphere/proxy/backend/handler/database/DropDatabaseBackendHandlerTest.java",
+      "proxy/backend/core/src/test/java/org/apache/shardingsphere/proxy/backend/handler/distsql/ral/updatable/AlterReadwriteSplittingStorageUnitStatusStatementUpdaterTest.java",
+      "proxy/backend/core/src/test/java/org/apache/shardingsphere/proxy/backend/handler/transaction/TransactionBackendHandlerFactoryTest.java",
+      "proxy/backend/core/src/test/java/org/apache/shardingsphere/proxy/backend/handler/transaction/TransactionBackendHandlerTest.java",
+      "proxy/backend/type/mysql/src/test/java/org/apache/shardingsphere/proxy/backend/mysql/connector/jdbc/statement/MySQLStatementMemoryStrictlyFetchSizeSetterTest.java",
+      "proxy/backend/type/opengauss/src/test/java/org/apache/shardingsphere/proxy/backend/opengauss/connector/jdbc/statement/OpenGaussStatementMemoryStrictlyFetchSizeSetterTest.java",
+      "proxy/backend/type/postgresql/src/test/java/org/apache/shardingsphere/proxy/backend/postgresql/connector/jdbc/statement/PostgreSQLStatementMemoryStrictlyFetchSizeSetterTest.java",
+      "proxy/backend/type/postgresql/src/test/java/org/apache/shardingsphere/proxy/backend/postgresql/handler/admin/executor/SelectDatabaseExecutorTest.java",
+      "proxy/frontend/core/src/test/java/org/apache/shardingsphere/proxy/frontend/command/CommandExecutorTaskTest.java",
+      "proxy/frontend/core/src/test/java/org/apache/shardingsphere/proxy/frontend/connection/ConnectionLimitContextTest.java",
+      "proxy/frontend/core/src/test/java/org/apache/shardingsphere/proxy/frontend/protocol/FrontDatabaseProtocolTypeFactoryTest.java",
+      "proxy/frontend/type/mysql/src/test/java/org/apache/shardingsphere/proxy/frontend/mysql/command/query/text/query/MySQLMultiStatementsHandlerTest.java"
+    ]
+  },
+  {
+    "task_id": "apache_camel_88e7845",
+    "num_files": 12,
+    "language": "Java",
+    "files": [
+      "components/camel-soroush/src/test/java/org/apache/camel/component/soroushbot/component/ExponentialBackOffProducerConnectionRetryTest.java",
+      "components/camel-soroush/src/test/java/org/apache/camel/component/soroushbot/component/FixedBackOffProducerConnectionRetryTest.java",
+      "components/camel-soroush/src/test/java/org/apache/camel/component/soroushbot/component/LinearBackOffProducerConnectionRetryTest.java",
+      "components/camel-soroush/src/test/java/org/apache/camel/component/soroushbot/component/MaxRetryWaitingTimeProducerConnectionRetryTest.java",
+      "components/camel-soroush/src/test/java/org/apache/camel/component/soroushbot/component/ProducerAutoUploadFile.java",
+      "components/camel-soroush/src/test/java/org/apache/camel/component/soroushbot/component/ProducerAutoUploadFileIsFalse.java",
+      "components/camel-soroush/src/test/java/org/apache/camel/component/soroushbot/component/ProducerConnectionRetryTest.java",
+      "components/camel-soroush/src/test/java/org/apache/camel/component/soroushbot/component/ProducerDownloadFile.java",
+      "components/camel-soroush/src/test/java/org/apache/camel/component/soroushbot/component/ProducerDownloadFileWithoutThumbnail.java",
+      "components/camel-soroush/src/test/java/org/apache/camel/component/soroushbot/component/ProducerMaxConnectionRetryReachedTest.java",
+      "components/camel-soroush/src/test/java/org/apache/camel/component/soroushbot/component/ProducerTest.java",
+      "components/camel-soroush/src/test/java/org/apache/camel/component/soroushbot/component/ProducerUploadFile.java"
+    ]
+  },
+  {
+    "task_id": "apache_beam_4717590",
+    "num_files": 13,
+    "language": "Java",
+    "files": [
+      "sdk/src/main/java/com/google/cloud/dataflow/sdk/runners/AggregatorPipelineExtractor.java",
+      "sdk/src/main/java/com/google/cloud/dataflow/sdk/runners/AggregatorRetrievalException.java",
+      "sdk/src/main/java/com/google/cloud/dataflow/sdk/runners/BlockingDataflowPipelineRunner.java",
+      "sdk/src/main/java/com/google/cloud/dataflow/sdk/runners/DataflowJobAlreadyExistsException.java",
+      "sdk/src/main/java/com/google/cloud/dataflow/sdk/runners/DataflowJobAlreadyUpdatedException.java",
+      "sdk/src/main/java/com/google/cloud/dataflow/sdk/runners/DataflowJobCancelledException.java",
+      "sdk/src/main/java/com/google/cloud/dataflow/sdk/runners/DataflowJobUpdatedException.java",
+      "sdk/src/main/java/com/google/cloud/dataflow/sdk/runners/DataflowPipelineJob.java",
+      "sdk/src/main/java/com/google/cloud/dataflow/sdk/runners/DataflowPipelineTranslator.java",
+      "sdk/src/main/java/com/google/cloud/dataflow/sdk/runners/DirectPipelineRegistrar.java",
+      "sdk/src/main/java/com/google/cloud/dataflow/sdk/runners/DirectPipelineRunner.java",
+      "sdk/src/main/java/com/google/cloud/dataflow/sdk/runners/PipelineRunnerRegistrar.java",
+      "sdk/src/main/java/com/google/cloud/dataflow/sdk/runners/TransformHierarchy.java"
+    ]
+  },
+  {
+    "task_id": "apache_camel_155ceae",
+    "num_files": 16,
+    "language": "Java",
+    "files": [
+      "components/camel-jms/src/main/java/org/apache/camel/component/jms/EndpointMessageListener.java",
+      "components/camel-jms/src/main/java/org/apache/camel/component/jms/InOnlyMessageSentCallback.java",
+      "components/camel-jms/src/main/java/org/apache/camel/component/jms/reply/ReplyManagerSupport.java",
+      "components/camel-jms/src/test/java/org/apache/camel/component/jms/ConsumeJmsBytesMessageTest.java",
+      "components/camel-jms/src/test/java/org/apache/camel/component/jms/ConsumeJmsMapMessageTest.java",
+      "components/camel-jms/src/test/java/org/apache/camel/component/jms/ConsumeJmsObjectMessageTest.java",
+      "components/camel-jms/src/test/java/org/apache/camel/component/jms/JmsInOutTransferExchangeTest.java",
+      "components/camel-jms/src/test/java/org/apache/camel/component/jms/JmsIncludeAllJMSXPropertiesTest.java",
+      "components/camel-jms/src/test/java/org/apache/camel/component/jms/JmsMessageBodySetNullTest.java",
+      "components/camel-jms/src/test/java/org/apache/camel/component/jms/JmsNotIncludeAllJMSXPropertiesTest.java",
+      "components/camel-jms/src/test/java/org/apache/camel/component/jms/issues/ActiveMQPropagateSerializableHeadersTest.java",
+      "components/camel-jms/src/test/java/org/apache/camel/component/jms/issues/JmsToFileMessageIdTest.java",
+      "components/camel-jms/src/test/java/org/apache/camel/component/jms/tx/QueueToProcessorTransactionTest.java",
+      "components/camel-jms/src/test/java/org/apache/camel/component/jms/tx/QueueToQueueRequestReplyTransactionTest.java",
+      "components/camel-jms/src/test/java/org/apache/camel/component/jms/tx/QueueToQueueTransactionTest.java",
+      "components/camel-jms/src/test/java/org/apache/camel/component/jms/tx/QueueToQueueTransactionWithoutDefineTransactionManagerTest.java"
+    ]
+  },
+  {
+    "task_id": "apache_tomcat_01afc2e",
+    "num_files": 13,
+    "language": "Java",
+    "files": [
+      "java/jakarta/servlet/HttpConstraintElement.java",
+      "java/jakarta/servlet/HttpMethodConstraintElement.java",
+      "java/jakarta/servlet/ServletRequestWrapper.java",
+      "java/jakarta/servlet/ServletResponse.java",
+      "java/jakarta/servlet/ServletResponseWrapper.java",
+      "java/jakarta/servlet/ServletSecurityElement.java",
+      "java/jakarta/servlet/jsp/PageContext.java",
+      "java/jakarta/servlet/jsp/el/ImplicitObjectELResolver.java",
+      "java/jakarta/servlet/jsp/tagext/DynamicAttributes.java",
+      "java/jakarta/servlet/jsp/tagext/SimpleTagSupport.java",
+      "java/jakarta/servlet/jsp/tagext/TagLibraryValidator.java",
+      "java/jakarta/servlet/jsp/tagext/TagSupport.java",
+      "java/org/apache/catalina/ant/ValidatorTask.java"
+    ]
+  },
+  {
+    "task_id": "apache_doris_0a57f12",
+    "num_files": 10,
+    "language": "Java",
+    "files": [
+      "fe/fe-core/src/main/java/org/apache/doris/analysis/DateLiteral.java",
+      "fe/fe-core/src/main/java/org/apache/doris/analysis/FunctionCallExpr.java",
+      "fe/fe-core/src/main/java/org/apache/doris/analysis/StringLiteral.java",
+      "fe/fe-core/src/main/java/org/apache/doris/catalog/Type.java",
+      "fe/fe-core/src/test/java/org/apache/doris/analysis/CreateTableAsSelectStmtTest.java",
+      "fe/fe-core/src/test/java/org/apache/doris/analysis/SelectStmtTest.java",
+      "fe/fe-core/src/test/java/org/apache/doris/nereids/types/DataTypeTest.java",
+      "fe/fe-core/src/test/java/org/apache/doris/planner/QueryPlanTest.java",
+      "fe/fe-core/src/test/java/org/apache/doris/rewrite/RewriteDateLiteralRuleTest.java",
+      "gensrc/script/doris_builtins_functions.py"
+    ]
+  },
+  {
+    "task_id": "apache_doris_5a57ecc",
+    "num_files": 10,
+    "language": "C++",
+    "files": [
+      "be/src/exec/es/es_scan_reader.cpp",
+      "be/src/exec/es/es_scan_reader.h",
+      "be/src/exec/es/es_scroll_parser.cpp",
+      "be/src/exec/es/es_scroll_parser.h",
+      "be/src/exec/es/es_scroll_query.cpp",
+      "be/src/exec/es/es_scroll_query.h",
+      "be/src/exec/es_http_scan_node.cpp",
+      "be/src/exec/es_http_scanner.cpp",
+      "be/src/exec/es_http_scanner.h",
+      "be/test/exec/es_scan_reader_test.cpp"
+    ]
+  },
+  {
+    "task_id": "apache_camel_1e16a10",
+    "num_files": 12,
+    "language": "Java",
+    "files": [
+      "core/camel-core-languages/src/main/java/org/apache/camel/language/simple/ast/SimpleFunctionExpression.java",
+      "core/camel-core-model/src/main/java/org/apache/camel/model/cloud/ServiceCallExpressionConfiguration.java",
+      "core/camel-core-model/src/main/java/org/apache/camel/model/cloud/ServiceCallServiceChooserConfiguration.java",
+      "core/camel-core-model/src/main/java/org/apache/camel/model/cloud/ServiceCallServiceDiscoveryConfiguration.java",
+      "core/camel-core-model/src/main/java/org/apache/camel/model/cloud/ServiceCallServiceFilterConfiguration.java",
+      "core/camel-core-model/src/main/java/org/apache/camel/model/cloud/ServiceCallServiceLoadBalancerConfiguration.java",
+      "core/camel-core/src/test/java/org/apache/camel/component/file/FileMoveAndMoveFailedIssueTest.java",
+      "core/camel-core/src/test/java/org/apache/camel/converter/myconverter/MyFallbackPromoteConverter.java",
+      "core/camel-core/src/test/java/org/apache/camel/processor/aggregator/StringAggregationStrategyTest.java",
+      "core/camel-management/src/test/java/org/apache/camel/issues/DynamicRouterConvertBodyToIssueManualTest.java",
+      "core/camel-support/src/main/java/org/apache/camel/support/DefaultEndpoint.java",
+      "core/camel-support/src/main/java/org/apache/camel/support/component/ApiMethodHelper.java"
+    ]
+  },
+  {
+    "task_id": "apache_camel_7b8cbc8",
+    "num_files": 15,
+    "language": "Java",
+    "files": [
+      "camel-core/src/main/java/org/apache/camel/component/bean/MethodInfoCache.java",
+      "camel-core/src/main/java/org/apache/camel/component/properties/PropertiesComponent.java",
+      "camel-core/src/main/java/org/apache/camel/impl/CamelPostProcessorHelper.java",
+      "camel-core/src/main/java/org/apache/camel/impl/DefaultCamelContext.java",
+      "camel-core/src/main/java/org/apache/camel/impl/DefaultRuntimeEndpointRegistry.java",
+      "camel-core/src/main/java/org/apache/camel/impl/converter/PropertyEditorTypeConverter.java",
+      "camel-core/src/main/java/org/apache/camel/language/simple/SimpleExpressionParser.java",
+      "camel-core/src/main/java/org/apache/camel/processor/WireTapProcessor.java",
+      "camel-core/src/main/java/org/apache/camel/util/CamelContextHelper.java",
+      "camel-core/src/test/java/org/apache/camel/component/direct/DirectProducerBlockingTest.java",
+      "camel-core/src/test/java/org/apache/camel/component/file/FileConsumerNoopTest.java",
+      "camel-core/src/test/java/org/apache/camel/component/mock/MockEndpointTimeClauseTest.java",
+      "camel-core/src/test/java/org/apache/camel/component/validator/ValidatorEndpointClearCachedSchemaTest.java",
+      "camel-core/src/test/java/org/apache/camel/model/ModelSanityCheckerTest.java",
+      "camel-core/src/test/java/org/apache/camel/util/ResourceHelperTest.java"
+    ]
+  },
+  {
+    "task_id": "apache_airflow_412c385",
+    "num_files": 10,
+    "language": "Python",
+    "files": [
+      "airflow/configuration.py",
+      "airflow/hooks/base_hook.py",
+      "airflow/jobs.py",
+      "airflow/models.py",
+      "airflow/plugins_manager.py",
+      "airflow/settings.py",
+      "airflow/utils.py",
+      "airflow/www/app.py",
+      "setup.py",
+      "tests/core.py"
+    ]
+  },
+  {
+    "task_id": "apache_mxnet_7a24006",
+    "num_files": 12,
+    "language": "Shell",
+    "files": [
+      "config/distribution/darwin_cpu.cmake",
+      "config/distribution/linux_cpu.cmake",
+      "config/distribution/linux_cu100.cmake",
+      "config/distribution/linux_cu101.cmake",
+      "config/distribution/linux_cu102.cmake",
+      "tools/dependencies/cityhash.sh",
+      "tools/dependencies/libpng.sh",
+      "tools/dependencies/libturbojpeg.sh",
+      "tools/dependencies/lz4.sh",
+      "tools/dependencies/openssl.sh",
+      "tools/dependencies/protobuf.sh",
+      "tools/dependencies/zmq.sh"
+    ]
+  },
+  {
+    "task_id": "apache_shardingsphere_1305d45",
+    "num_files": 12,
+    "language": "Java",
+    "files": [
+      "sharding-proxy/src/main/java/io/shardingsphere/proxy/config/RuleRegistry.java",
+      "sharding-transaction/src/main/java/io/shardingsphere/transaction/api/TransactionManager.java",
+      "sharding-transaction/src/main/java/io/shardingsphere/transaction/api/xa/AtomikosTransactionManager.java",
+      "sharding-transaction/src/main/java/io/shardingsphere/transaction/api/xa/AtomikosUserTransaction.java",
+      "sharding-transaction/src/main/java/io/shardingsphere/transaction/api/xa/WeakXaTransactionManager.java",
+      "sharding-transaction/src/main/java/io/shardingsphere/transaction/common/TransactionContext.java",
+      "sharding-transaction/src/main/java/io/shardingsphere/transaction/common/TransactionContextFactory.java",
+      "sharding-transaction/src/main/java/io/shardingsphere/transaction/common/config/JDBCTransactionConfiguration.java",
+      "sharding-transaction/src/main/java/io/shardingsphere/transaction/common/config/ProxyTransactionConfiguration.java",
+      "sharding-transaction/src/main/java/io/shardingsphere/transaction/common/config/TransactionConfiguration.java",
+      "sharding-transaction/src/main/java/io/shardingsphere/transaction/common/config/TransactionConfigurationAdapter.java",
+      "sharding-transaction/src/main/java/io/shardingsphere/transaction/listener/TransactionListener.java"
+    ]
+  },
+  {
+    "task_id": "apache_beam_57cfddf",
+    "num_files": 11,
+    "language": "Java",
+    "files": [
+      "runners/core-construction-java/src/main/java/org/apache/beam/runners/core/construction/ArtifactServiceStager.java",
+      "runners/direct-java/src/main/java/org/apache/beam/runners/direct/portable/artifact/LocalFileSystemArtifactStagerService.java",
+      "runners/direct-java/src/test/java/org/apache/beam/runners/direct/portable/artifact/LocalFileSystemArtifactStagerServiceTest.java",
+      "runners/java-fn-execution/src/main/java/org/apache/beam/runners/fnexecution/jobsubmission/InMemoryJobService.java",
+      "runners/java-fn-execution/src/test/java/org/apache/beam/runners/fnexecution/jobsubmission/InMemoryJobServiceTest.java",
+      "runners/reference/java/src/main/java/org/apache/beam/runners/reference/PortableRunner.java",
+      "sdks/go/pkg/beam/artifact/gcsproxy/staging.go",
+      "sdks/go/pkg/beam/artifact/server_test.go",
+      "sdks/go/pkg/beam/artifact/stage.go",
+      "sdks/go/pkg/beam/runners/universal/runnerlib/job.go",
+      "sdks/python/apache_beam/runners/portability/portable_stager_test.py"
+    ]
+  },
+  {
+    "task_id": "apache_shardingsphere_32564f6",
+    "num_files": 10,
+    "language": "Java",
+    "files": [
+      "shardingsphere-ui/shardingsphere-ui-backend/src/main/java/org/apache/shardingsphere/ui/common/constant/ForwardServiceType.java",
+      "shardingsphere-ui/shardingsphere-ui-backend/src/main/java/org/apache/shardingsphere/ui/common/domain/ForwardServiceConfig.java",
+      "shardingsphere-ui/shardingsphere-ui-backend/src/main/java/org/apache/shardingsphere/ui/common/domain/ForwardServiceConfigs.java",
+      "shardingsphere-ui/shardingsphere-ui-backend/src/main/java/org/apache/shardingsphere/ui/repository/ConfigsRepository.java",
+      "shardingsphere-ui/shardingsphere-ui-backend/src/main/java/org/apache/shardingsphere/ui/repository/ForwardServiceConfigsRepository.java",
+      "shardingsphere-ui/shardingsphere-ui-backend/src/main/java/org/apache/shardingsphere/ui/repository/impl/YamlForwardServiceConfigsRepositoryImpl.java",
+      "shardingsphere-ui/shardingsphere-ui-backend/src/main/java/org/apache/shardingsphere/ui/servcie/forward/ShardingScalingForwardService.java",
+      "shardingsphere-ui/shardingsphere-ui-backend/src/main/java/org/apache/shardingsphere/ui/servcie/forward/impl/ShardingScalingForwardServiceImpl.java",
+      "shardingsphere-ui/shardingsphere-ui-backend/src/main/java/org/apache/shardingsphere/ui/util/HttpClientUtil.java",
+      "shardingsphere-ui/shardingsphere-ui-backend/src/main/java/org/apache/shardingsphere/ui/web/controller/ShardingScalingForwardController.java"
+    ]
+  },
+  {
+    "task_id": "apache_camel_3481438",
+    "num_files": 12,
+    "language": "Java",
+    "files": [
+      "components/camel-pubnub/src/test/java/org/apache/camel/component/pubnub/PubNubConfigurationTest.java",
+      "components/camel-pubnub/src/test/java/org/apache/camel/component/pubnub/PubNubFireTest.java",
+      "components/camel-pubnub/src/test/java/org/apache/camel/component/pubnub/PubNubOperationsTest.java",
+      "components/camel-pubnub/src/test/java/org/apache/camel/component/pubnub/PubNubPresenceTest.java",
+      "components/camel-pubnub/src/test/java/org/apache/camel/component/pubnub/PubNubPublishTest.java",
+      "components/camel-pubnub/src/test/java/org/apache/camel/component/pubnub/PubNubSubscriberTest.java",
+      "components/camel-pubnub/src/test/java/org/apache/camel/component/pubnub/PubNubTestBase.java",
+      "components/camel-pubnub/src/test/java/org/apache/camel/component/pubnub/example/PubNubGeoLocationExample.java",
+      "components/camel-pubnub/src/test/java/org/apache/camel/component/pubnub/example/PubNubPresenseExample.java",
+      "components/camel-pubnub/src/test/java/org/apache/camel/component/pubnub/example/PubNubSensor2Example.java",
+      "components/camel-pubnub/src/test/java/org/apache/camel/component/pubnub/example/PubNubSensorExample.java",
+      "components/camel-pubnub/src/test/java/org/apache/camel/component/pubnub/example/PubNubStateExample.java"
+    ]
+  },
+  {
+    "task_id": "apache_datafusion_e22c390",
+    "num_files": 11,
+    "language": "Shell",
+    "files": [
+      "ci/travis_install_linux.sh",
+      "dev/container/Dockerfile",
+      "dev/spark_integration/Dockerfile",
+      "dev/tasks/linux-packages/apt/debian-stretch/Dockerfile",
+      "dev/tasks/linux-packages/apt/ubuntu-bionic/Dockerfile",
+      "dev/tasks/linux-packages/apt/ubuntu-trusty/Dockerfile",
+      "dev/tasks/linux-packages/apt/ubuntu-xenial/Dockerfile",
+      "dev/tasks/linux-packages/debian.ubuntu-trusty/control",
+      "dev/tasks/linux-packages/debian/control",
+      "dev/tasks/linux-packages/yum/centos-6/Dockerfile",
+      "dev/tasks/linux-packages/yum/centos-7/Dockerfile"
+    ]
+  },
+  {
+    "task_id": "apache_shardingsphere_b948370",
+    "num_files": 20,
+    "language": "Java",
+    "files": [
+      "sharding-jdbc-orchestration-spring/sharding-jdbc-orchestration-spring-namespace/src/main/java/io/shardingjdbc/orchestration/spring/datasource/OrchestrationSpringMasterSlaveDataSource.java",
+      "sharding-jdbc-orchestration-spring/sharding-jdbc-orchestration-spring-namespace/src/main/java/io/shardingjdbc/orchestration/spring/datasource/OrchestrationSpringShardingDataSource.java",
+      "sharding-jdbc-orchestration/src/main/java/io/shardingjdbc/orchestration/api/config/OrchestrationConfiguration.java",
+      "sharding-jdbc-orchestration/src/main/java/io/shardingjdbc/orchestration/internal/config/ConfigMapListenerManager.java",
+      "sharding-jdbc-orchestration/src/main/java/io/shardingjdbc/orchestration/internal/config/ConfigurationListenerManager.java",
+      "sharding-jdbc-orchestration/src/main/java/io/shardingjdbc/orchestration/internal/config/ConfigurationService.java",
+      "sharding-jdbc-orchestration/src/main/java/io/shardingjdbc/orchestration/internal/state/datasource/DataSourceListenerManager.java",
+      "sharding-jdbc-orchestration/src/main/java/io/shardingjdbc/orchestration/internal/state/datasource/DataSourceService.java",
+      "sharding-jdbc-orchestration/src/main/java/io/shardingjdbc/orchestration/internal/state/instance/InstanceListenerManager.java",
+      "sharding-jdbc-orchestration/src/main/java/io/shardingjdbc/orchestration/internal/state/instance/InstanceStateService.java",
+      "sharding-jdbc-orchestration/src/main/java/io/shardingjdbc/orchestration/reg/api/CoordinatorRegistryCenter.java",
+      "sharding-jdbc-orchestration/src/main/java/io/shardingjdbc/orchestration/reg/api/RegistryCenter.java",
+      "sharding-jdbc-orchestration/src/main/java/io/shardingjdbc/orchestration/reg/api/RegistryCenterConfiguration.java",
+      "sharding-jdbc-orchestration/src/main/java/io/shardingjdbc/orchestration/reg/etcd/EtcdConfiguration.java",
+      "sharding-jdbc-orchestration/src/main/java/io/shardingjdbc/orchestration/reg/etcd/EtcdRegistryCenter.java",
+      "sharding-jdbc-orchestration/src/main/java/io/shardingjdbc/orchestration/reg/etcd/internal/watcher/EtcdWatchStreamObserver.java",
+      "sharding-jdbc-orchestration/src/main/java/io/shardingjdbc/orchestration/reg/listener/DataChangedEvent.java",
+      "sharding-jdbc-orchestration/src/main/java/io/shardingjdbc/orchestration/reg/listener/EventListener.java",
+      "sharding-jdbc-orchestration/src/main/java/io/shardingjdbc/orchestration/reg/zookeeper/ZookeeperConfiguration.java",
+      "sharding-jdbc-orchestration/src/main/java/io/shardingjdbc/orchestration/reg/zookeeper/ZookeeperRegistryCenter.java"
+    ]
+  },
+  {
+    "task_id": "apache_spark_3ff766f",
+    "num_files": 11,
+    "language": "Scala",
+    "files": [
+      "sql/catalyst/src/main/scala/org/apache/spark/sql/catalyst/expressions/CallMethodViaReflection.scala",
+      "sql/catalyst/src/main/scala/org/apache/spark/sql/catalyst/expressions/Expression.scala",
+      "sql/catalyst/src/main/scala/org/apache/spark/sql/catalyst/expressions/ScalaUDF.scala",
+      "sql/catalyst/src/main/scala/org/apache/spark/sql/catalyst/expressions/aggregate/First.scala",
+      "sql/catalyst/src/main/scala/org/apache/spark/sql/catalyst/expressions/aggregate/Last.scala",
+      "sql/catalyst/src/main/scala/org/apache/spark/sql/catalyst/expressions/aggregate/collect.scala",
+      "sql/catalyst/src/main/scala/org/apache/spark/sql/catalyst/expressions/misc.scala",
+      "sql/core/src/main/scala/org/apache/spark/sql/execution/aggregate/TypedAggregateExpression.scala",
+      "sql/core/src/main/scala/org/apache/spark/sql/execution/aggregate/udaf.scala",
+      "sql/core/src/test/scala/org/apache/spark/sql/TypedImperativeAggregateSuite.scala",
+      "sql/hive/src/main/scala/org/apache/spark/sql/hive/hiveUDFs.scala"
+    ]
+  },
+  {
+    "task_id": "apache_flink_7ed0793",
+    "num_files": 10,
+    "language": "Scala",
+    "files": [
+      "flink-libraries/flink-table/src/main/scala/org/apache/flink/api/table/StreamTableEnvironment.scala",
+      "flink-libraries/flink-table/src/main/scala/org/apache/flink/api/table/plan/nodes/datastream/StreamTableSourceScan.scala",
+      "flink-libraries/flink-table/src/main/scala/org/apache/flink/api/table/plan/rules/FlinkRuleSets.scala",
+      "flink-libraries/flink-table/src/main/scala/org/apache/flink/api/table/plan/rules/LogicalScanToStreamable.scala",
+      "flink-libraries/flink-table/src/main/scala/org/apache/flink/api/table/plan/rules/datastream/RemoveDeltaRule.scala",
+      "flink-libraries/flink-table/src/main/scala/org/apache/flink/api/table/plan/rules/datastream/StreamTableSourceScanRule.scala",
+      "flink-libraries/flink-table/src/main/scala/org/apache/flink/api/table/plan/schema/StreamableTableSourceTable.scala",
+      "flink-libraries/flink-table/src/main/scala/org/apache/flink/api/table/plan/schema/TableSourceTable.scala",
+      "flink-libraries/flink-table/src/main/scala/org/apache/flink/api/table/plan/schema/TransStreamTable.scala",
+      "flink-libraries/flink-table/src/test/scala/org/apache/flink/api/scala/stream/TableSourceITCase.scala"
+    ]
+  },
+  {
+    "task_id": "apache_hudi_659a6fd",
+    "num_files": 10,
+    "language": "Java",
+    "files": [
+      "hudi-client/hudi-client-common/src/main/java/org/apache/hudi/client/BaseHoodieClient.java",
+      "hudi-client/hudi-client-common/src/main/java/org/apache/hudi/table/action/BaseActionExecutor.java",
+      "hudi-client/hudi-client-common/src/main/java/org/apache/hudi/table/action/rollback/BaseRollbackHelper.java",
+      "hudi-flink-datasource/hudi-flink/src/main/java/org/apache/hudi/schema/SchemaProvider.java",
+      "hudi-utilities/src/main/java/org/apache/hudi/utilities/HoodieDataTableValidator.java",
+      "hudi-utilities/src/main/java/org/apache/hudi/utilities/HoodieDropPartitionsTool.java",
+      "hudi-utilities/src/main/java/org/apache/hudi/utilities/HoodieMetadataTableValidator.java",
+      "hudi-utilities/src/main/java/org/apache/hudi/utilities/HoodieSnapshotCopier.java",
+      "hudi-utilities/src/main/java/org/apache/hudi/utilities/HoodieWithTimelineServer.java",
+      "hudi-utilities/src/main/java/org/apache/hudi/utilities/TableSizeStats.java"
+    ]
+  },
+  {
+    "task_id": "apache_beam_f8988f6",
+    "num_files": 13,
+    "language": "Go",
+    "files": [
+      "sdks/go/examples/native_wordcap/nativepubsubio/native.go",
+      "sdks/go/examples/wasm/wasm.go",
+      "sdks/go/pkg/beam/core/graph/window/trigger/trigger.go",
+      "sdks/go/pkg/beam/core/runtime/xlangx/expansionx/download.go",
+      "sdks/go/pkg/beam/io/fhirio/common.go",
+      "sdks/go/pkg/beam/io/fhirio/deidentify.go",
+      "sdks/go/pkg/beam/io/fhirio/execute_bundles.go",
+      "sdks/go/pkg/beam/io/fhirio/import.go",
+      "sdks/go/pkg/beam/io/fhirio/read.go",
+      "sdks/go/pkg/beam/io/fhirio/search.go",
+      "sdks/go/pkg/beam/pardo.go",
+      "sdks/go/pkg/beam/transforms/sql/sql.go",
+      "sdks/go/pkg/beam/windowing.go"
+    ]
+  },
+  {
+    "task_id": "apache_shardingsphere_7199d81",
+    "num_files": 11,
+    "language": "Java",
+    "files": [
+      "shardingsphere-features/shardingsphere-db-discovery/shardingsphere-db-discovery-api/src/main/java/org/apache/shardingsphere/dbdiscovery/spi/DatabaseDiscoveryType.java",
+      "shardingsphere-features/shardingsphere-db-discovery/shardingsphere-db-discovery-core/src/main/java/org/apache/shardingsphere/dbdiscovery/rule/DatabaseDiscoveryRule.java",
+      "shardingsphere-features/shardingsphere-db-discovery/shardingsphere-db-discovery-core/src/test/java/org/apache/shardingsphere/dbdiscovery/fixture/TestDatabaseDiscoveryType.java",
+      "shardingsphere-features/shardingsphere-db-discovery/shardingsphere-db-discovery-core/src/test/java/org/apache/shardingsphere/dbdiscovery/rule/builder/AlgorithmProvidedDatabaseDiscoveryRuleBuilderTest.java",
+      "shardingsphere-features/shardingsphere-db-discovery/shardingsphere-db-discovery-core/src/test/java/org/apache/shardingsphere/dbdiscovery/rule/builder/DatabaseDiscoveryRuleBuilderTest.java",
+      "shardingsphere-features/shardingsphere-db-discovery/shardingsphere-db-discovery-distsql/shardingsphere-db-discovery-distsql-handler/src/test/java/org/apache/shardingsphere/dbdiscovery/distsql/handler/fixture/MGRDatabaseDiscoveryTypeFixture.java",
+      "shardingsphere-features/shardingsphere-db-discovery/shardingsphere-db-discovery-provider/shardingsphere-db-discovery-mgr/src/main/java/org/apache/shardingsphere/dbdiscovery/mgr/MGRDatabaseDiscoveryType.java",
+      "shardingsphere-features/shardingsphere-db-discovery/shardingsphere-db-discovery-provider/shardingsphere-db-discovery-mgr/src/test/java/org/apache/shardingsphere/dbdiscovery/mgr/MGRDatabaseDiscoveryTypeTest.java",
+      "shardingsphere-features/shardingsphere-db-discovery/shardingsphere-db-discovery-provider/shardingsphere-db-discovery-opengauss/src/main/java/org/apache/shardingsphere/dbdiscovery/opengauss/OpenGaussDatabaseDiscoveryType.java",
+      "shardingsphere-features/shardingsphere-db-discovery/shardingsphere-db-discovery-provider/shardingsphere-db-discovery-opengauss/src/test/java/org/apache/shardingsphere/dbdiscovery/opengauss/OpenGaussDatabaseDiscoveryTypeTest.java",
+      "shardingsphere-proxy/shardingsphere-proxy-backend/src/test/java/org/apache/shardingsphere/proxy/backend/text/distsql/fixture/TestDatabaseDiscoveryType.java"
+    ]
+  },
+  {
+    "task_id": "apache_iotdb_6b7a978",
+    "num_files": 12,
+    "language": "Java",
+    "files": [
+      "server/src/main/java/org/apache/iotdb/db/mpp/plan/execution/QueryExecution.java",
+      "server/src/main/java/org/apache/iotdb/db/mpp/plan/planner/plan/FragmentInstance.java",
+      "server/src/main/java/org/apache/iotdb/db/mpp/plan/planner/plan/node/PlanNodeUtil.java",
+      "server/src/main/java/org/apache/iotdb/db/mpp/plan/planner/plan/node/metedata/read/SchemaFetchScanNode.java",
+      "server/src/main/java/org/apache/iotdb/db/mpp/plan/planner/plan/node/metedata/read/SchemaQueryScanNode.java",
+      "server/src/main/java/org/apache/iotdb/db/mpp/plan/planner/plan/node/sink/FragmentSinkNode.java",
+      "server/src/main/java/org/apache/iotdb/db/mpp/plan/planner/plan/node/source/AlignedLastQueryScanNode.java",
+      "server/src/main/java/org/apache/iotdb/db/mpp/plan/planner/plan/node/source/AlignedSeriesAggregationScanNode.java",
+      "server/src/main/java/org/apache/iotdb/db/mpp/plan/planner/plan/node/source/AlignedSeriesScanNode.java",
+      "server/src/main/java/org/apache/iotdb/db/mpp/plan/planner/plan/node/source/LastQueryScanNode.java",
+      "server/src/main/java/org/apache/iotdb/db/mpp/plan/planner/plan/node/source/SeriesAggregationScanNode.java",
+      "server/src/main/java/org/apache/iotdb/db/mpp/plan/planner/plan/node/source/SeriesScanNode.java"
+    ]
+  },
+  {
+    "task_id": "apache_pulsar_41d5af7",
+    "num_files": 11,
+    "language": "Java",
+    "files": [
+      "pulsar-common/src/main/java/org/apache/pulsar/common/functions/FunctionConfig.java",
+      "pulsar-common/src/main/java/org/apache/pulsar/common/io/SinkConfig.java",
+      "pulsar-common/src/main/java/org/apache/pulsar/common/io/SourceConfig.java",
+      "pulsar-functions/proto/src/main/proto/Function.proto",
+      "pulsar-functions/runtime/src/main/java/org/apache/pulsar/functions/runtime/RuntimeUtils.java",
+      "pulsar-functions/utils/src/main/java/org/apache/pulsar/functions/utils/FunctionConfigUtils.java",
+      "pulsar-functions/utils/src/main/java/org/apache/pulsar/functions/utils/SinkConfigUtils.java",
+      "pulsar-functions/utils/src/main/java/org/apache/pulsar/functions/utils/SourceConfigUtils.java",
+      "pulsar-functions/utils/src/test/java/org/apache/pulsar/functions/utils/FunctionConfigUtilsTest.java",
+      "pulsar-functions/utils/src/test/java/org/apache/pulsar/functions/utils/SinkConfigUtilsTest.java",
+      "pulsar-functions/utils/src/test/java/org/apache/pulsar/functions/utils/SourceConfigUtilsTest.java"
+    ]
+  },
+  {
+    "task_id": "apache_doris_df1e526",
+    "num_files": 12,
+    "language": "Java",
+    "files": [
+      "fe/fe-core/src/main/java/org/apache/doris/analysis/ExpressionFunctions.java",
+      "fe/fe-core/src/main/java/org/apache/doris/nereids/rules/expression/rules/FoldConstantRuleOnFE.java",
+      "fe/fe-core/src/main/java/org/apache/doris/nereids/trees/expressions/Expression.java",
+      "fe/fe-core/src/main/java/org/apache/doris/nereids/trees/expressions/ExpressionEvaluator.java",
+      "fe/fe-core/src/main/java/org/apache/doris/nereids/trees/expressions/Foldable.java",
+      "fe/fe-core/src/main/java/org/apache/doris/nereids/trees/expressions/functions/ExpressionTrait.java",
+      "fe/fe-core/src/main/java/org/apache/doris/nereids/trees/expressions/functions/Nondeterministic.java",
+      "fe/fe-core/src/main/java/org/apache/doris/nereids/trees/expressions/functions/scalar/CurrentDate.java",
+      "fe/fe-core/src/main/java/org/apache/doris/nereids/trees/expressions/functions/scalar/CurrentTime.java",
+      "fe/fe-core/src/main/java/org/apache/doris/nereids/trees/expressions/functions/scalar/UnixTimestamp.java",
+      "fe/fe-core/src/main/java/org/apache/doris/qe/SessionVariable.java",
+      "fe/fe-core/src/test/java/org/apache/doris/planner/QueryPlanTest.java"
+    ]
+  },
+  {
+    "task_id": "apache_seatunnel_3dd7dc0",
+    "num_files": 10,
+    "language": "Java",
+    "files": [
+      "seatunnel-core/seatunnel-core-flink/src/main/java/org/apache/seatunnel/core/flink/config/FlinkExecutionContext.java",
+      "seatunnel-core/seatunnel-core-spark/src/main/java/org/apache/seatunnel/core/spark/config/SparkExecutionContext.java",
+      "seatunnel-core/seatunnel-flink-starter/src/main/java/org/apache/seatunnel/core/starter/flink/execution/SinkExecuteProcessor.java",
+      "seatunnel-core/seatunnel-flink-starter/src/main/java/org/apache/seatunnel/core/starter/flink/execution/SourceExecuteProcessor.java",
+      "seatunnel-core/seatunnel-flink-starter/src/main/java/org/apache/seatunnel/core/starter/flink/execution/TransformExecuteProcessor.java",
+      "seatunnel-core/seatunnel-spark-starter/src/main/java/org/apache/seatunnel/core/starter/spark/execution/SinkExecuteProcessor.java",
+      "seatunnel-core/seatunnel-spark-starter/src/main/java/org/apache/seatunnel/core/starter/spark/execution/SourceExecuteProcessor.java",
+      "seatunnel-core/seatunnel-spark-starter/src/main/java/org/apache/seatunnel/core/starter/spark/execution/TransformExecuteProcessor.java",
+      "seatunnel-plugin-discovery/src/main/java/org/apache/seatunnel/plugin/discovery/AbstractPluginDiscovery.java",
+      "seatunnel-plugin-discovery/src/main/java/org/apache/seatunnel/plugin/discovery/PluginDiscovery.java"
+    ]
+  },
+  {
+    "task_id": "apache_shardingsphere-elasticjob_2a9964a",
+    "num_files": 24,
+    "language": "Java",
+    "files": [
+      "examples/.gitignore",
+      "examples/LICENSE",
+      "examples/elastic-job-example-cloud/src/main/java/com/dangdang/ddframe/job/example/CloudJobMain.java",
+      "examples/elastic-job-example-cloud/src/main/resources/bin/start.sh",
+      "examples/elastic-job-example-cloud/src/main/resources/script/demo.sh",
+      "examples/elastic-job-example-embed-zk/src/main/java/com/dangdang/ddframe/job/example/EmbedZookeeperServer.java",
+      "examples/elastic-job-example-jobs/src/main/java/com/dangdang/ddframe/job/example/fixture/entity/Foo.java",
+      "examples/elastic-job-example-jobs/src/main/java/com/dangdang/ddframe/job/example/fixture/repository/FooRepository.java",
+      "examples/elastic-job-example-jobs/src/main/java/com/dangdang/ddframe/job/example/fixture/repository/FooRepositoryFactory.java",
+      "examples/elastic-job-example-jobs/src/main/java/com/dangdang/ddframe/job/example/job/dataflow/JavaDataflowJob.java",
+      "examples/elastic-job-example-jobs/src/main/java/com/dangdang/ddframe/job/example/job/dataflow/SpringDataflowJob.java",
+      "examples/elastic-job-example-jobs/src/main/java/com/dangdang/ddframe/job/example/job/simple/JavaSimpleJob.java",
+      "examples/elastic-job-example-jobs/src/main/java/com/dangdang/ddframe/job/example/job/simple/SpringSimpleJob.java",
+      "examples/elastic-job-example-lite-java/src/main/java/com/dangdang/ddframe/job/example/JavaMain.java",
+      "examples/elastic-job-example-lite-java/src/main/resources/script/demo.bat",
+      "examples/elastic-job-example-lite-java/src/main/resources/script/demo.sh",
+      "examples/elastic-job-example-lite-spring/src/main/java/com/dangdang/ddframe/job/example/SpringMain.java",
+      "examples/elastic-job-example-lite-spring/src/main/resources/script/demo.bat",
+      "examples/elastic-job-example-lite-spring/src/main/resources/script/demo.sh",
+      "examples/elastic-job-example-lite-springboot/src/main/java/com/dangdang/ddframe/job/example/SpringBootMain.java",
+      "examples/elastic-job-example-lite-springboot/src/main/java/com/dangdang/ddframe/job/example/config/DataflowJobConfig.java",
+      "examples/elastic-job-example-lite-springboot/src/main/java/com/dangdang/ddframe/job/example/config/JobEventConfig.java",
+      "examples/elastic-job-example-lite-springboot/src/main/java/com/dangdang/ddframe/job/example/config/RegistryCenterConfig.java",
+      "examples/elastic-job-example-lite-springboot/src/main/java/com/dangdang/ddframe/job/example/config/SimpleJobConfig.java"
+    ]
+  },
+  {
+    "task_id": "apache_hadoop_1b56d1c",
+    "num_files": 10,
+    "language": "Java",
+    "files": [
+      "hadoop-common-project/hadoop-common/src/main/java/org/apache/hadoop/fs/AbstractFileSystem.java",
+      "hadoop-common-project/hadoop-common/src/main/java/org/apache/hadoop/fs/ChecksumFs.java",
+      "hadoop-common-project/hadoop-common/src/main/java/org/apache/hadoop/fs/DelegateToFileSystem.java",
+      "hadoop-common-project/hadoop-common/src/main/java/org/apache/hadoop/fs/FileContext.java",
+      "hadoop-common-project/hadoop-common/src/main/java/org/apache/hadoop/fs/FilterFs.java",
+      "hadoop-common-project/hadoop-common/src/main/java/org/apache/hadoop/fs/viewfs/ChRootedFs.java",
+      "hadoop-common-project/hadoop-common/src/main/java/org/apache/hadoop/fs/viewfs/ViewFs.java",
+      "hadoop-common-project/hadoop-common/src/test/java/org/apache/hadoop/fs/TestAfsCheckPath.java",
+      "hadoop-hdfs-project/hadoop-hdfs/src/main/java/org/apache/hadoop/fs/Hdfs.java",
+      "hadoop-hdfs-project/hadoop-hdfs/src/test/java/org/apache/hadoop/fs/TestHDFSFileContextMainOperations.java"
+    ]
+  },
+  {
+    "task_id": "apache_hbase_63c819e",
+    "num_files": 15,
+    "language": "Java",
+    "files": [
+      "hbase-server/src/main/java/org/apache/hadoop/hbase/fs/HFileSystem.java",
+      "hbase-server/src/main/java/org/apache/hadoop/hbase/master/AssignmentManager.java",
+      "hbase-server/src/main/java/org/apache/hadoop/hbase/regionserver/HRegionServer.java",
+      "hbase-server/src/main/java/org/apache/hadoop/hbase/regionserver/SplitLogWorker.java",
+      "hbase-server/src/main/java/org/apache/hadoop/hbase/regionserver/wal/FSHLog.java",
+      "hbase-server/src/main/java/org/apache/hadoop/hbase/replication/regionserver/ReplicationSource.java",
+      "hbase-server/src/main/java/org/apache/hadoop/hbase/util/FSUtils.java",
+      "hbase-server/src/main/java/org/apache/hadoop/hbase/wal/DisabledWALProvider.java",
+      "hbase-server/src/main/java/org/apache/hadoop/hbase/wal/WALSplitter.java",
+      "hbase-server/src/test/java/org/apache/hadoop/hbase/coprocessor/TestWALObserver.java",
+      "hbase-server/src/test/java/org/apache/hadoop/hbase/mapreduce/TestWALPlayer.java",
+      "hbase-server/src/test/java/org/apache/hadoop/hbase/regionserver/wal/AbstractTestFSWAL.java",
+      "hbase-server/src/test/java/org/apache/hadoop/hbase/regionserver/wal/TestLogRollAbort.java",
+      "hbase-server/src/test/java/org/apache/hadoop/hbase/regionserver/wal/TestWALActionsListener.java",
+      "hbase-server/src/test/java/org/apache/hadoop/hbase/wal/TestWALSplit.java"
+    ]
+  }
+]

@@ -42,7 +42,6 @@ outputs/extra/
 
 # -- Analysis / quality-metric outputs (reproduced by analysis scripts)
 outputs/quality_metrics/
-outputs/analysis_output/
 
 # -- Profiling outputs
 outputs/vram_profile.json

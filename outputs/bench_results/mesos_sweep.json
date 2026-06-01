@@ -1,0 +1,378 @@
+[
+  {
+    "config": "none",
+    "diff_cap": null,
+    "diff_cap_tokens": null,
+    "diff_cap_label": "none (full diff used)",
+    "prompt_lengths": [
+      268,
+      274,
+      289,
+      289,
+      292,
+      324,
+      423,
+      680
+    ],
+    "seq_times": [
+      14.219725000089966,
+      14.464829099946655,
+      17.581600100034848,
+      15.435034300084226,
+      17.06847589998506,
+      16.680068999994546,
+      20.510371000040323,
+      21.603031700011343
+    ],
+    "seq_total": 137.56313610018697,
+    "seq_texts": [
+      "The changes in `src/tests_resources_utils.cpp` modify the `fragment` function to accept a `numRanges` parameter, which specifies the number of ranges to create. The function now initializes a `::mesos::Value::Ranges` vector with `numRanges` ranges, using `static_cast<int>(numRanges)` to ensure the size is an integer. This change allows for more flexible control over the number of ranges in the output.",
+      "The changes in the `resource_offers_tests.cpp` file introduce a test case for the `ResourcesGetReofferedAfterTaskInfoError` function. Specifically, the test checks that when a task is created with a single scalar resource of 1 gigabyte, the function correctly reoffers the resource after the task information is updated. The `mutable_scalar` setter is modified to use `static_cast<double>` to convert the `Gigabytes` value to a double, ensuring the test remains consistent with the expected behavior.",
+      "The changes in the `src/tests/slave_tests.cpp` file introduce a test case for `PingTimeoutTimeoutNoPings`. This test checks that the slave connection processes the registration message and schedules the ping timeout correctly. The `totalTimeout` variable is updated to use the `total_ping_timeout_seconds` attribute of the slave connection, which is a static_cast to int64_t from the connection's total attribute. This change ensures that the ping timeout is calculated and compared correctly using the slave connection's total attribute value.",
+      "The changes in the `src/tests/values_tests.cpp` file include the conversion from `float` to `double` in the `parse` function for the `scalar` type. This change is to ensure that the `scalar` value is compared with `45.55` instead of `45.55f` in the `TEST` case for ValidInput, making the comparison more consistent with the expected output. The range parsing logic remains unchanged, as it correctly handles the new format `[10000-20000, 30000-50000]`.",
+      "The changes in the `attributes_attributes_tests.cpp` file involve the addition of a new test case for parsing attributes in the `rack` namespace. The test case checks the parsing of attributes with the format `rackack1,rack2` and verifies that the attribute `cpus` is correctly identified as a scalar value with a value of 45.55. Additionally, the test case checks the parsing of attributes in the format `port:port` and ensures that the attribute `ports` is correctly identified as a range value with a range of two ports.",
+      "The changes in this file modify the `TESTSchedulerReconcileTasks_BENCHMARK_Test` and `TESTSchedulerReconcileTasks_BENCHMARK_Test` tests to use a fixed number of tasks (`tasks`) instead of updating the scheduler multiple times. The `TESTSchedulerReconcileTasks_BENCHMARK_Test` test now uses `Times(static_cast<int>(tasks))` to update the scheduler `tasks` times, while the `TESTSchedulerReconcileTasks_BENCHMARK_Test` test uses `Times(tasks)` to update the scheduler `tasks` times. This change reduces the number of test calls and makes the tests more consistent.",
+      "The changes in the `src/tests/protobuf_io_tests.cpp` file involve a modification to the repeated pointer field test case. Specifically, the `size_t` variable has been replaced with `int` in the `for` loop to `RepeatedPtrField<FrameworkID> expected` to avoid potential issues with `size_t` being used in `Get(int)` method. This change is likely to be a temporary workaround for a specific issue, as the original `size_t` approach was not generating a warning. The rest of the test case remains unchanged, focusing on verifying the correctness of the repeated pointer field",
+      "The changes in the `src/tests/resources_tests.cpp` file involve the parsing of resource strings containing `cpus` and `ports` attributes. Specifically, the `Resources::parse` function has been updated to handle these attributes correctly. The `cpus` attribute is now parsed as a `Value::SCALAR` with a `double` value, and the `ports` attribute is parsed as a `Value::SCALAR` with a `double` value. This change ensures that the `cpus` and `ports` resources are correctly parsed and validated in the test cases."
+    ],
+    "speedup_table": [
+      [
+        1,
+        1.0
+      ],
+      [
+        2,
+        1.2645939083769488
+      ],
+      [
+        4,
+        1.387380105239189
+      ]
+    ],
+    "batches": {
+      "1": {
+        "wall_s": 14.219725000089966,
+        "speedup": 1.0,
+        "steps": 89,
+        "gen_tokens": [
+          116
+        ],
+        "texts": [
+          "The changes in `src/tests_resources_utils.cpp` modify the `fragment` function to accept a `numRanges` parameter, which specifies the number of ranges to create. The function now initializes a `::mesos::Value::Ranges` vector with `numRanges` ranges, using `static_cast<int>(numRanges)` to ensure the size is an integer. This change allows for more flexible control over the number of ranges in the output."
+        ]
+      },
+      "2": {
+        "wall_s": 22.682818500092253,
+        "speedup": 1.2645939083769488,
+        "steps": 105,
+        "gen_tokens": [
+          116,
+          110
+        ],
+        "texts": [
+          "The changes in `src/tests_resources_utils.cpp` modify the `fragment` function to accept a `numRanges` parameter, which specifies the number of ranges to create. The function now initializes a `::mesos::Value::Ranges` vector with `numRanges` ranges, using `static_cast<int>(numRanges)` to ensure the size is an integer. This change allows for more flexible control over the number of ranges in the output.",
+          "The changes in the `resource_offers_tests.cpp` file introduce a test case for the `ResourcesGetReofferedAfterTaskInfoError` function. Specifically, the test checks that when a task is created with a single scalar resource of 1 gigabyte, the function correctly reoffers the resource after the task information is updated. The `mutable_scalar` setter is modified to use `static_cast<double>` to convert the `Gigabytes` object to a double value, ensuring that the reoffered resource's value is accurate."
+        ]
+      },
+      "4": {
+        "wall_s": 44.473167999996804,
+        "speedup": 1.387380105239189,
+        "steps": 137,
+        "gen_tokens": [
+          117,
+          111,
+          127,
+          127
+        ],
+        "texts": [
+          "The changes in `src/tests_resources_utils.cpp` modify the `fragment` function to accept a `numRanges` parameter, which specifies the number of ranges to create. The function now uses a `static_cast<int>(numRanges)` to reserve the number of ranges in the `ranges` vector, ensuring that the memory is allocated for the specified number of ranges. This change allows for more flexible control over the number of ranges in the function.",
+          "The changes in the `resource_offers_tests.cpp` file introduce a test case for the `ResourcesGetReofferedAfterTaskInfoError` function. Specifically, the test checks that when a task is created with a single scalar resource of 1 gigabyte, the function correctly reoffers the resource after the task information is updated. The `mutable_scalar` setter is modified to use `static_cast<double>` to convert the `Gigabytes` value to a double, ensuring the test remains consistent with the expected behavior.",
+          "The changes in the `src/tests/slave_tests.cpp` file introduce a test case `PingTimeoutNoPings` to verify the behavior of the slave when there are no pings. The test checks that the slave processes the registration message and schedules the ping timeout, ensuring that the total timeout is set to the expected value. The `totalTimeout` variable is now set to the static_cast<int64_t>(connection.total_ping_timeout_seconds()) instead of `connection.total_ping_timeout_seconds()` to ensure compatibility with the previous implementation.",
+          "The changes in the `src/tests/values_tests.cpp` file include the conversion from `float` to `double` in the `parse` function for the `scalar` type. This change is to ensure that the `scalar` value is compared with `45.55` instead of `45.55f`, which was causing an assertion failure. The `TEST` macro is used to add a test case for parsing a valid input range, and the `parse` function is updated to correctly parse the range format."
+        ]
+      }
+    }
+  },
+  {
+    "config": "600",
+    "diff_cap": 600,
+    "diff_cap_tokens": null,
+    "diff_cap_label": "600 chars [fixed]",
+    "prompt_lengths": [
+      268,
+      270,
+      274,
+      282,
+      289,
+      292,
+      308,
+      311
+    ],
+    "seq_times": [
+      17.308968400000595,
+      17.476936799939722,
+      17.47905860003084,
+      15.645383299910463,
+      18.430579200037755,
+      19.51581129990518,
+      17.489659099956043,
+      16.203918100101873
+    ],
+    "seq_total": 139.55031479988247,
+    "seq_texts": [
+      "The changes in `src/tests_resources_utils.cpp` modify the `fragment` function to accept a `numRanges` parameter, which specifies the number of ranges to create. The function now initializes a `::mesos::Value::Ranges` vector with `numRanges` ranges, using `static_cast<int>(numRanges)` to ensure the size is an integer. This change allows for more flexible control over the number of ranges in the output.",
+      "The changes in the `src/tests/slave_tests.cpp` file introduce a new test case `PingTimeoutNoPings` for the `SlaveTest` class. This test case asserts the `Timeout` value of the `total_ping_timeout_seconds()` method in the `MasterSlaveConnection` object against the expected `totalTimeout` value. The `totalTimeout` is set to the number of seconds in the `total_ping_timeout_seconds()` method of the `MasterSlaveConnection` object. This change ensures that the test case checks the correct timeout value for the ping timeout",
+      "The changes in the `resource_offers_tests.cpp` file introduce a test case for the `ResourcesGetReofferedAfterTaskInfoError` function. Specifically, the test checks that when a task is created with a single scalar resource of 1 gigabyte, the function correctly reoffers the resource after the task information is updated. The `mutable_scalar` setter is modified to use `static_cast<double>` to convert the `Gigabytes` value to a double, ensuring the test remains consistent with the expected behavior.",
+      "The changes in the `scheduler_tests.cpp` file increase the number of calls for the `update` method in the `Scheduler` class from `tasks` to `static_cast<int>(tasks)`. This change is made in the `TestSchedulerReconcileTasks_Benchmark_Test` and `TestSchedulerReconcileTasks_Benchmark_Test` tests, which use the `concile_tasks` function to verify the scheduler's behavior. The `static_cast<int>(tasks)` ensures that the number of calls remains consistent",
+      "The changes in the `src/tests/values_tests.cpp` file include the conversion from `float` to `double` in the `parse` function for the `scalar` type. This change is to ensure that the `scalar` value is compared with `45.55` instead of `45.55f` in the `TEST` case for ValidInput, making the comparison more consistent with the expected output. The range parsing logic remains unchanged, as it correctly handles the new format `[10000-20000, 30000-50000]`.",
+      "The changes in the `attributes_attributes_tests.cpp` file involve the addition of a new test case for parsing attributes in the `rack` namespace. The test case checks the parsing of attributes with the format `rackack1,rack2` and verifies that the attribute `cpus` is correctly identified as a scalar value with a value of 45.55. Additionally, the test case checks the parsing of attributes in the format `port:port` and ensures that the attribute `ports` is correctly identified as a range value with a range of two ports.",
+      "The changes in the `src/tests/protobuf_io_tests.cpp` file involve a modification in the repeated pointer field test case. The `size` variable is changed from `int` to `size_t` to avoid a potential warning when using the `Get(int)` method, which expects a `size_t` value. This change is consistent with the rest of the code and does not affect the functionality of the test.",
+      "The changes in the `src/tests/resources_tests.cpp` file involve the parsing of resource strings. Specifically, the `Resources::parse` function is updated to handle the `cpus` and `ports` resource types. The `cpus` resource now correctly parses a scalar value `45.55` and stores it in the `scalar` member of the `cpus` object. Additionally, the `ports` resource is updated to parse a list of port ranges in the format `start-end` and stores them"
+    ],
+    "speedup_table": [
+      [
+        1,
+        1.0
+      ],
+      [
+        2,
+        1.5789218613194453
+      ],
+      [
+        4,
+        1.6263579762251261
+      ]
+    ],
+    "batches": {
+      "1": {
+        "wall_s": 17.308968400000595,
+        "speedup": 1.0,
+        "steps": 89,
+        "gen_tokens": [
+          116
+        ],
+        "texts": [
+          "The changes in `src/tests_resources_utils.cpp` modify the `fragment` function to accept a `numRanges` parameter, which specifies the number of ranges to create. The function now initializes a `::mesos::Value::Ranges` vector with `numRanges` ranges, using `static_cast<int>(numRanges)` to ensure the size is an integer. This change allows for more flexible control over the number of ranges in the output."
+        ]
+      },
+      "2": {
+        "wall_s": 22.031429199967533,
+        "speedup": 1.5789218613194453,
+        "steps": 101,
+        "gen_tokens": [
+          117,
+          115
+        ],
+        "texts": [
+          "The changes in `src/tests_resources_utils.cpp` modify the `fragment` function to accept a `numRanges` parameter, which specifies the number of ranges to create. The function now initializes a `::mesos::Value::Ranges` vector with `numRanges` ranges, using `static_cast<int>(numRanges)` to ensure the size is an integer. This change allows for more flexible control over the number of ranges in the output.",
+          "The changes in the `src/tests/slave_tests.cpp` file introduce a new test case `PingTimeoutNoPings` for the `SlaveTest` class. This test case asserts the `Timeout` value of the `total_ping_timeout_seconds()` method on the slave connection, ensuring that the `Timeout` matches the expected value of the `total` parameter passed to the `MasterSlaveConnection` constructor. The `total_ping_timeout_seconds()` method is used to retrieve the total timeout value for the slave connection, and the test case checks if the returned value matches the"
+        ]
+      },
+      "4": {
+        "wall_s": 41.756088199908845,
+        "speedup": 1.6263579762251261,
+        "steps": 110,
+        "gen_tokens": [
+          117,
+          115,
+          111,
+          103
+        ],
+        "texts": [
+          "The changes in `src/tests_resources_utils.cpp` modify the `fragment` function to accept a `numRanges` parameter, which specifies the number of ranges to create. The function now initializes a `::mesos::Value::Ranges` vector with `numRanges` ranges, using `static_cast<int>(numRanges)` to ensure the size is an integer. This change allows for more flexible control over the number of ranges in the output.",
+          "The changes in the `src/tests/slave_tests.cpp` file introduce a new test case `PingTimeoutNoPings` for the `SlaveTest` class. This test case asserts the `Timeout` value of the `total_ping_timeout_seconds()` method on the slave connection, ensuring that the `Timeout` matches the expected value from the `master` connection. The `total_ping_timeout_seconds()` method is used to retrieve the total timeout value for ping timeouts between the `master` and `slave` connections. The test case compares the `Timeout` value using `",
+          "The changes in the `resource_offers_tests.cpp` file introduce a test case for the `ResourcesGetReofferedAfterTaskInfoError` function. Specifically, the test checks that when a task is created with a single scalar resource of 1 gigabyte, the function correctly reoffers the resource after the task information is updated. The `mutable_scalar` setter is modified to use `static_cast<double>` to convert the `Gigabytes` object to a double value, ensuring that the reoffered resource's value is accurate.",
+          "The changes in the `scheduler_tests.cpp` file increase the number of calls for the `update` method in the `Scheduler` class from `tasks` to `static_cast<int>(tasks)`. This change is made in the `TestSchedulerReconcileTasks_Benchmark_Test` and `TestSchedulerReconcileTasks_Benchmark_Test` tests, which use the `concile_tasks` function. The `static_cast<int>(tasks)` ensures that the number of calls remains consistent with the expected number of tasks"
+        ]
+      }
+    }
+  },
+  {
+    "config": "tok:80",
+    "diff_cap": null,
+    "diff_cap_tokens": 80,
+    "diff_cap_label": "80 diff tok [fixed token cap]",
+    "prompt_lengths": [
+      174,
+      175,
+      175,
+      175,
+      176,
+      176,
+      177,
+      177
+    ],
+    "seq_times": [
+      18.725283399922773,
+      18.03402390005067,
+      13.678091099951416,
+      18.88968569994904,
+      20.362336500082165,
+      19.975625399965793,
+      13.1011554999277,
+      19.078281300025992
+    ],
+    "seq_total": 141.84448279987555,
+    "seq_texts": [
+      "The file `src/values_tests.cpp` has been modified to include a new test case `TEST(ValuesTest, ValidInput)` for the `ValuesTest` class. This test case checks for valid input, ensuring that the function behaves as expected with positive integer input values. The diff shows a commit message that updates the test case, but the actual changes are limited to adding a new test case, which does not affect the existing functionality.",
+      "The changes in the `attributes_tests_tests.cpp` file involve renaming a function from `test_attributes_set` to `test_attribute_set`. The function is responsible for testing the attributes in a struct. No other changes were made to the code, such as adding or removing functions, or modifying existing ones. The rename indicates that the function's purpose has changed to focus on testing the attributes of a struct, rather than setting individual attributes.",
+      "The changes in the `src/tests/resources_tests.cpp` file introduce the addition of a new test case `TESTResourcesTest, Parsing)` to the `ResourcesTest` class. This test case is responsible for testing the parsing functionality of the resources, specifically in the creation of the `Resource` object. The test case remains unchanged, and the only change is the addition of the new test case name.",
+      "The changes in the `tests_resources_utils.cpp` file involve a modification to the `Try` block for the `mesos::Value` function. Specifically, the commit message indicates that the function signature has been updated to include a `value` parameter of type `mesos::Value`. This change is likely to reflect a change in the usage or behavior of the `mesos::Value` function, but without more context, it's difficult to determine the exact reason. The diff output shows a small change in the `Try` block, but it's not clear",
+      "The changes in the `scheduler_tests_tests.cpp` file are related to the `TEST` macro and the `TEST_EQ` function. Specifically, the `TEST` macro is used to create test cases and the `TEST_EQ` function is used to compare the results of two expressions. In this commit, the `TEST_EQ` function is used to assert the equality of the `get_time` function with the `expected` value in the `test_get_time` test case. The `get_time` function is defined in the `src/time.c.cpp` file",
+      "The changes in the `src/tests/slave_tests.cpp` file are related to the slave tests framework. Specifically, the test case `test_runnable_test` has been modified to include a new test case `test_runable_test` that checks the functionality of the slave tests. The test case `test_runable_test` is added at the end of the `test_runnable_test` suite, ensuring that the new test cases are executed after the existing ones. No other changes were made to the existing test cases or the test suite, and the file remains unchanged",
+      "The changes in the `src/tests/protobuf_io_tests.cpp` file introduce new tests for protobuf IO operations. Specifically, the test suite now includes two new test cases, `TestSerializeToString` and `TestParseFromString`, which focus on the conversion of protobuf messages to and from string formats. These additions enhance the test coverage for protobuf serialization and deserialization in the test suite.",
+      "The changes in the `resource_offers_tests.cpp` file are related to the addition of a test case for a specific resource offer test. The commit message indicates that the test case was added to the `resource_offers_tests` directory, which suggests that the changes are related to testing functionality related to resource offers. The test case is likely to be related to the functionality of the resource offer test, as indicated by the line `239` in the diff output. However, without more context, it's difficult to determine the exact nature of the changes"
+    ],
+    "speedup_table": [
+      [
+        1,
+        1.0
+      ],
+      [
+        2,
+        1.5871143548142146
+      ],
+      [
+        4,
+        1.6309544359298953
+      ]
+    ],
+    "batches": {
+      "1": {
+        "wall_s": 18.725283399922773,
+        "speedup": 1.0,
+        "steps": 98,
+        "gen_tokens": [
+          114
+        ],
+        "texts": [
+          "The file `src/values_tests.cpp` has been modified to include a new test case `TEST(ValuesTest, ValidInput)` for the `ValuesTest` class. This test case checks for valid input, ensuring that the function behaves as expected with positive integer input values. The diff shows a commit message that updates the test case, but the actual changes are limited to adding a new test case, which does not affect the existing functionality."
+        ]
+      },
+      "2": {
+        "wall_s": 23.161095599993132,
+        "speedup": 1.5871143548142146,
+        "steps": 110,
+        "gen_tokens": [
+          114,
+          113
+        ],
+        "texts": [
+          "The file `src/values_tests.cpp` has been modified to include a new test case `TEST(ValuesTest, ValidInput)` for the `ValuesTest` class. This test case checks for valid input, ensuring that the function behaves as expected with positive integer input values. The diff shows a commit message that includes the changes, but the provided summary focuses on the semantic meaning of the changes, which is the addition of a new test case for valid input.",
+          "The changes in the `attributes_attributes_tests.cpp` file are related to the `attributes` attribute. Specifically, the test cases have been modified to verify the functionality of the `attributes` attribute in the context of the `Test` class. The test cases now include assertions to check the value of the `attributes` attribute, ensuring that the attribute is set correctly during the test execution. The changes are part of the `src/tests/attributes_tests.cpp` file, which contains unit tests for the `attributes` attribute in the `Test` class."
+        ]
+      },
+      "4": {
+        "wall_s": 42.50706370000262,
+        "speedup": 1.6309544359298953,
+        "steps": 114,
+        "gen_tokens": [
+          115,
+          114,
+          114,
+          114
+        ],
+        "texts": [
+          "The file `src/values_tests.cpp` has been modified to include a new test case `TEST(ValuesTest, ValidInput)` for the `ValuesTest` class. This test case checks for valid input, ensuring that the function behaves correctly with valid data types and values. The diff shows a commit message that includes the changes, but the main summary is that a new test case has been added to validate the function's behavior with valid input.",
+          "The changes in the `attributes_attributes_tests.cpp` file are related to the `attributes` attribute. Specifically, the test cases have been modified to verify the functionality of the `attributes` attribute in the context of the `Attribute` class. The test cases now include tests for the `attributes` attribute, ensuring that it is correctly initialized, accessed, and modified within the `Attribute` class. The changes are part of the test suite for the `attributes` module, which aims to validate the correctness of the `attributes` attribute in the `Attribute` class.",
+          "The changes in the `src/tests/resources_tests.cpp` file introduce a new test case for the `ResourcesTest` class. Specifically, the `TEST` macro is used to create a new test function `TEST(ResourcesTest, Parsing)`, which tests the parsing functionality of the `Resource` class. This test function is added to the `TEST` macro, which previously only included existing test cases. The test case is defined after the existing test cases, and the diff shows the updated content of the file.",
+          "The changes in the `tests_resources_utils.cpp` file involve a modification to the `Try` block for the `mesos::Value` type. Specifically, the `Try` block has been updated to include a new `catch` clause that handles a `std::runtime_error` exception. This change is likely to be related to a new functionality or behavior in the Mesos resource utils library, as the `Try` block now includes a specific exception handling mechanism. The rest of the file seems to remain unchanged, as the `90` lines before the `"
+        ]
+      }
+    }
+  },
+  {
+    "config": "adaptive",
+    "diff_cap": 724,
+    "diff_cap_tokens": null,
+    "diff_cap_label": "724 chars  [adaptive p50 \u2192 target 290 tok | raw prompt tok: min=268  max=680]",
+    "prompt_lengths": [
+      268,
+      274,
+      289,
+      289,
+      292,
+      322,
+      333,
+      373
+    ],
+    "seq_times": [
+      17.306654699961655,
+      17.476020900066942,
+      21.179024099954404,
+      18.433388599893078,
+      19.528119900031015,
+      22.77578889997676,
+      19.076618800056167,
+      19.15485869999975
+    ],
+    "seq_total": 154.93047459993977,
+    "seq_texts": [
+      "The changes in `src/tests_resources_utils.cpp` modify the `fragment` function to accept a `numRanges` parameter, which specifies the number of ranges to create. The function now initializes a `::mesos::Value::Ranges` vector with `numRanges` ranges, using `static_cast<int>(numRanges)` to ensure the size is an integer. This change allows for more flexible control over the number of ranges in the output.",
+      "The changes in the `resource_offers_tests.cpp` file introduce a test case for the `ResourcesGetReofferedAfterTaskInfoError` function. Specifically, the test checks that when a task is created with a single scalar resource of 1 gigabyte, the function correctly reoffers the resource after the task information is updated. The `mutable_scalar` setter is modified to use `static_cast<double>` to convert the `Gigabytes` value to a double, ensuring the test remains consistent with the expected behavior.",
+      "The changes in the `src/tests/slave_tests.cpp` file introduce a test case for `PingTimeoutTimeoutNoPings`. This test checks that the slave connection processes the registration message and schedules the ping timeout correctly. The `totalTimeout` variable is updated to use the `total_ping_timeout_seconds` attribute of the slave connection, which is a static_cast to int64_t from the connection's total attribute. This change ensures that the ping timeout is calculated and compared correctly using the slave connection's total attribute value.",
+      "The changes in the `src/tests/values_tests.cpp` file include the conversion from `float` to `double` in the `parse` function for the `scalar` type. This change is to ensure that the `scalar` value is compared with `45.55` instead of `45.55f` in the `TEST` case for ValidInput, making the comparison more consistent with the expected output. The range parsing logic remains unchanged, as it correctly handles the new format `[10000-20000, 30000-50000]`.",
+      "The changes in the `attributes_attributes_tests.cpp` file involve the addition of a new test case for parsing attributes in the `rack` namespace. The test case checks the parsing of attributes with the format `rackack1,rack2` and verifies that the attribute `cpus` is correctly identified as a scalar value with a value of 45.55. Additionally, the test case checks the parsing of attributes in the format `port:port` and ensures that the attribute `ports` is correctly identified as a range value with a range of two ports.",
+      "The changes in the `scheduler_tests.cpp`` file increase the number of tests for the `SchedulerReconcileTasks_BENCHMARK_Test` and `SchedulerReconcileTasks_BENCHMARK_Test` methods. Both tests call the number of `update` and `statusUpdate` methods with the same number of times, which is now `static_cast<int>(tasks)`. This change makes the tests more consistent and easier to run, as the number of method calls is fixed for each test. The rest of the diff is unchanged, as the tests are simply called with the same number of times.",
+      "The changes in the `src/tests/protobuf_io_tests.cpp` file involve a modification in the repeated pointer field test case. The `RepeatedPtrField` variable now uses `int` instead of `size_t` to match the iterator in the `Get(int)` method, which is used in the `CopyFrom()` method. This change is made to avoid a warning when converting from `size_t` to `int`. The rest of the test case remains unchanged, creating the repeated pointer field with a fixed size of 10 and setting the value of each element to",
+      "The `src/tests/resources_tests.cpp` file has been modified to parse the `cpus` and `ports` resources correctly. Specifically, the `cpus` resource now uses the `double` type instead of `float` for the `value` member, and the `cpus` and `ports` resources are updated to match the expected output. The `TEST` function has been modified to include the `cpus` and `ports` resources, and the `EXPECT_SOME` macro is used to verify that both resources"
+    ],
+    "speedup_table": [
+      [
+        1,
+        1.0
+      ],
+      [
+        2,
+        1.5231261869971848
+      ],
+      [
+        4,
+        1.6550820471411638
+      ]
+    ],
+    "batches": {
+      "1": {
+        "wall_s": 17.306654699961655,
+        "speedup": 1.0,
+        "steps": 89,
+        "gen_tokens": [
+          116
+        ],
+        "texts": [
+          "The changes in `src/tests_resources_utils.cpp` modify the `fragment` function to accept a `numRanges` parameter, which specifies the number of ranges to create. The function now initializes a `::mesos::Value::Ranges` vector with `numRanges` ranges, using `static_cast<int>(numRanges)` to ensure the size is an integer. This change allows for more flexible control over the number of ranges in the output."
+        ]
+      },
+      "2": {
+        "wall_s": 22.836371600045823,
+        "speedup": 1.5231261869971848,
+        "steps": 105,
+        "gen_tokens": [
+          116,
+          110
+        ],
+        "texts": [
+          "The changes in `src/tests_resources_utils.cpp` modify the `fragment` function to accept a `numRanges` parameter, which specifies the number of ranges to create. The function now initializes a `::mesos::Value::Ranges` vector with `numRanges` ranges, using `static_cast<int>(numRanges)` to ensure the size is an integer. This change allows for more flexible control over the number of ranges in the output.",
+          "The changes in the `resource_offers_tests.cpp` file introduce a test case for the `ResourcesGetReofferedAfterTaskInfoError` function. Specifically, the test checks that when a task is created with a single scalar resource of 1 gigabyte, the function correctly reoffers the resource after the task information is updated. The `mutable_scalar` setter is modified to use `static_cast<double>` to convert the `Gigabytes` object to a double value, ensuring that the reoffered resource's value is accurate."
+        ]
+      },
+      "4": {
+        "wall_s": 44.949486600002274,
+        "speedup": 1.6550820471411638,
+        "steps": 137,
+        "gen_tokens": [
+          117,
+          111,
+          127,
+          127
+        ],
+        "texts": [
+          "The changes in `src/tests_resources_utils.cpp` modify the `fragment` function to accept a `numRanges` parameter, which specifies the number of ranges to create. The function now uses a `static_cast<int>(numRanges)` to reserve the number of ranges in the `ranges` vector, ensuring that the memory is allocated for the specified number of ranges. This change allows for more flexible control over the number of ranges in the function.",
+          "The changes in the `resource_offers_tests.cpp` file introduce a test case for the `ResourcesGetReofferedAfterTaskInfoError` function. Specifically, the test checks that when a task is created with a single scalar resource of 1 gigabyte, the function correctly reoffers the resource after the task information is updated. The `mutable_scalar` setter is modified to use `static_cast<double>` to convert the `Gigabytes` value to a double, ensuring the test remains consistent with the expected behavior.",
+          "The changes in the `src/tests/slave_tests.cpp` file introduce a test case `PingTimeoutNoPings` to verify the behavior of the slave when there are no pings. The test checks that the slave processes the registration message and schedules the ping timeout, ensuring that the total timeout is set to the expected value. The `totalTimeout` variable is now set to the static_cast<int64_t>(connection.total_ping_timeout_seconds()) instead of `connection.total_ping_timeout_seconds()` to ensure compatibility with the previous implementation.",
+          "The changes in the `src/tests/values_tests.cpp` file include the conversion from `float` to `double` in the `parse` function for the `scalar` type. This change is to ensure that the `scalar` value is compared with `45.55` instead of `45.55f`, which was causing an assertion failure. The `TEST` macro is used to add a test case for parsing a valid input range, and the `parse` function is updated to correctly parse the range format."
+        ]
+      }
+    }
+  }
+]
