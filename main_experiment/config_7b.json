@@ -1,0 +1,14 @@
+{
+  "dllm": {
+    "model": "Efficient-Large-Model/Fast_dLLM_v2_7B",
+    "quantization": "int4"
+  },
+  "llm_generator": {
+    "model": "Qwen/Qwen2.5-7B-Instruct",
+    "quantization": "int4"
+  },
+  "llm_summariser": {
+    "model": "Qwen/Qwen2.5-7B-Instruct",
+    "quantization": "int4"
+  }
+}

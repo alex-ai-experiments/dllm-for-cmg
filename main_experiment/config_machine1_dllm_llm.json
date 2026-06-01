@@ -1,0 +1,12 @@
+{
+  "modes": ["dllm_llm"],
+  "devices": ["cuda:0", "cuda:1"],
+  "dllm": {
+    "model": "Efficient-Large-Model/Fast_dLLM_v2_7B",
+    "quantization": null
+  },
+  "llm_generator": {
+    "model": "Qwen/Qwen2.5-7B-Instruct",
+    "quantization": null
+  }
+}

@@ -15,6 +15,7 @@ env/
 # -- Model weights (downloaded via 60_convert_qwen_to_fast_dllm.py)
 gemma4/
 models/
+quant_research/
 
 # -- Source datasets (large; download separately - see INSTRUCTIONS.md)
 datasets/ApacheCM/full.jsonl

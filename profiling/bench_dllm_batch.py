@@ -1,20 +1,30 @@
 #!/usr/bin/env python3
 """
-Batch-size / padding benchmark for the dLLM summary step.
+dLLM-vs-LLM summarisation speed benchmark.
 
-Runs the same set of file-diff prompts through batch_sample with batch sizes
-1, 2, and 4 and prints a detailed breakdown of:
+Times the dLLM (batch_sample) and LLM (autoregressive generate) on the same
+set of per-file diff-summarisation prompts so you can find the dLLM generation
+parameters that produce a wall-clock speedup over the LLM.
 
-  - Padding ratio (wasted MASK tokens vs useful prompt+gen tokens)
-  - Wall time per batch and per sample
-  - Total diffusion steps per batch
-  - Tokens generated per step (efficiency metric)
-  - GPU memory high-water mark
+Reports for every configuration:
+  - dLLM sequential  (one file at a time)
+  - dLLM batched     (multiple files in one batch_sample call)
+  - LLM sequential   (one file at a time via model.generate)
+  - Speedup: dLLM-batch vs LLM-sequential  (the key metric)
+  - Speedup: dLLM-batch vs dLLM-sequential (internal reference)
 
 Usage:
-    python bench_dllm_batch.py -i build_tasks/tasks_3to10files.jsonl --sample-task 0
-    python bench_dllm_batch.py -i build_tasks/tasks_3to10files.jsonl --sample-task 5 --max-new-tokens 256
-    python bench_dllm_batch.py -i build_tasks/tasks_tags.jsonl --task-id apache_hive_6517872
+    # Single task, default params
+    python bench_dllm_batch.py -i build_tasks/tasks_5k.jsonl --task-id apache_hive_6517872
+
+    # Select tasks by file count strata
+    python bench_dllm_batch.py -i build_tasks/tasks_5k.jsonl --file-counts 4,8,16,25 --tasks-per-stratum 2
+
+    # Grid search over dLLM params, compare vs LLM
+    python bench_dllm_batch.py -i build_tasks/tasks_5k.jsonl \\
+        --file-counts 4,8,16,25 \\
+        --block-sizes 32,64 --thresholds 0.8,0.6,0.4 \\
+        --no-summaries --output-file results.json
 """
 
 import argparse
@@ -39,19 +49,21 @@ from generation_functions import (
 from diff_utils import get_per_file_diffs, build_summary_messages
 
 DLLM_MODEL_NAME = "Efficient-Large-Model/Fast_dLLM_v2_1.5B"
+LLM_MODEL_NAME = "Qwen/Qwen2.5-1.5B-Instruct"
 MASK_ID = FAST_DLLM_MASK_ID
 STOP_TOKEN = FAST_DLLM_STOP_TOKEN
 
 SEP = "─" * 72
 
 
-def load_dllm(device: str, compile_model: bool = False):
+def load_dllm(device: str, compile_model: bool = False, model_name: str = None):
     from transformers import AutoModelForCausalLM, AutoTokenizer
-    print(f"Loading tokenizer ...")
-    tokenizer = AutoTokenizer.from_pretrained(DLLM_MODEL_NAME, trust_remote_code=True)
-    print(f"Loading model ...")
+    model_name = model_name or DLLM_MODEL_NAME
+    print(f"Loading dLLM tokenizer ({model_name}) ...")
+    tokenizer = AutoTokenizer.from_pretrained(model_name, trust_remote_code=True)
+    print(f"Loading dLLM model ...")
     model = AutoModelForCausalLM.from_pretrained(
-        DLLM_MODEL_NAME,
+        model_name,
         torch_dtype=torch.bfloat16,
         trust_remote_code=True,
         low_cpu_mem_usage=False,
@@ -64,6 +76,60 @@ def load_dllm(device: str, compile_model: bool = False):
         print("Compilation done (first forward pass will still be slow).")
     print("Model ready.\n")
     return tokenizer, model
+
+
+def load_llm(model_name: str, device: str):
+    """Load an autoregressive LLM for the sequential baseline."""
+    from transformers import AutoModelForCausalLM, AutoTokenizer
+    print(f"Loading LLM tokenizer ({model_name}) ...")
+    tokenizer = AutoTokenizer.from_pretrained(model_name, trust_remote_code=True)
+    print(f"Loading LLM model ...")
+    model = AutoModelForCausalLM.from_pretrained(
+        model_name,
+        torch_dtype=torch.bfloat16,
+        trust_remote_code=True,
+    ).to(device)
+    model.eval()
+    print("LLM ready.\n")
+    return tokenizer, model
+
+
+@torch.no_grad()
+def run_llm_sequential(all_messages, llm_model, llm_tokenizer, llm_device, max_new_tokens):
+    """
+    Run LLM model.generate() sequentially on each file-diff prompt.
+    Returns (texts, per_file_wall_s, total_wall_s, gen_token_counts).
+    """
+    texts = []
+    per_file_wall = []
+    gen_counts = []
+
+    for msgs in all_messages:
+        text = llm_tokenizer.apply_chat_template(
+            msgs, tokenize=False, add_generation_prompt=True
+        )
+        inputs = llm_tokenizer([text], return_tensors="pt").to(llm_device)
+        prompt_len = inputs["input_ids"].shape[1]
+
+        torch.cuda.synchronize(llm_device)
+        t0 = time.perf_counter()
+
+        outputs = llm_model.generate(
+            **inputs,
+            max_new_tokens=max_new_tokens,
+            do_sample=False,
+            pad_token_id=llm_tokenizer.eos_token_id,
+        )
+
+        torch.cuda.synchronize(llm_device)
+        wall_s = time.perf_counter() - t0
+
+        gen_ids = outputs[0][prompt_len:]
+        gen_counts.append(len(gen_ids))
+        texts.append(llm_tokenizer.decode(gen_ids, skip_special_tokens=True))
+        per_file_wall.append(wall_s)
+
+    return texts, per_file_wall, sum(per_file_wall), gen_counts
 
 
 def build_padded_batch(messages_list, tokenizer, device):
@@ -231,9 +297,17 @@ def resolve_diff_cap(spec, file_diffs, tokenizer):
 def run_one_config(config_name, max_diff_chars, max_diff_tokens, diff_cap_label,
                    file_diffs, tokenizer, model, device,
                    gen_kwargs, max_new_tokens, batch_sizes, no_summaries,
-                   sort_by_length=True, use_all_files=False):
-    """Run sequential baseline + all batch sizes for one diff-cap configuration."""
+                   sort_by_length=True, use_all_files=False,
+                   llm_model=None, llm_tokenizer=None, llm_device=None,
+                   cached_llm=None):
+    """Run LLM sequential baseline + dLLM sequential + dLLM batched for one config.
+
+    If cached_llm is provided (dict with keys: texts, per_file, total_wall, gen_tok),
+    the LLM baseline is not re-run — cached timings are reused.
+    """
     n_files = len(file_diffs)
+    if llm_device is None:
+        llm_device = device
 
     # ── Step 1: Pre-process diffs (apply truncation) ───────────────────────
     # processed: list of (fn, fd_proc, raw_metric, was_truncated)
@@ -294,8 +368,37 @@ def run_one_config(config_name, max_diff_chars, max_diff_tokens, diff_cap_label,
         print(f"  [{i}] {fn:<50}  {len(all_ids[i]):>5} tok{cap_note}")
     print()
 
-    # Sequential baseline
-    print(f"── Sequential baseline  (1 call × {n_files} files) ──")
+    # ── LLM sequential baseline ──────────────────────────────────────────
+    llm_total_wall = None
+    llm_per_file = []
+    llm_gen_tok = []
+    llm_texts = []
+    if llm_model is not None:
+        if cached_llm is not None:
+            # Reuse cached LLM results (same task + spec + max_new_tokens)
+            llm_texts = cached_llm["texts"]
+            llm_per_file = cached_llm["per_file"]
+            llm_total_wall = cached_llm["total_wall"]
+            llm_gen_tok = cached_llm["gen_tok"]
+            print(f"── LLM sequential baseline  [CACHED]  {llm_total_wall:.3f}s total ──")
+        else:
+            print(f"── LLM sequential baseline  (1 generate call × {n_files} files) ──")
+            torch.cuda.reset_peak_memory_stats(llm_device)
+            llm_texts, llm_per_file, llm_total_wall, llm_gen_tok = run_llm_sequential(
+                all_messages, llm_model, llm_tokenizer, llm_device, max_new_tokens,
+            )
+            for i, (fn, _) in enumerate(file_diffs):
+                print(f"  [{i}] {fn}:  {llm_per_file[i]:.3f}s  {llm_gen_tok[i]} gen tok")
+            print(f"  TOTAL: {llm_total_wall:.3f}s  ({llm_total_wall / n_files:.3f}s avg per file)")
+            llm_tps = sum(llm_gen_tok) / llm_total_wall if llm_total_wall > 0 else 0
+            print(f"  LLM throughput: {llm_tps:.1f} tok/s")
+            if torch.cuda.is_available():
+                mem_mb = torch.cuda.max_memory_allocated(llm_device) / 1024**2
+                print(f"  GPU mem (peak, {llm_device}): {mem_mb:.0f} MB")
+        print()
+
+    # ── dLLM sequential baseline ─────────────────────────────────────────
+    print(f"── dLLM sequential baseline  (1 call × {n_files} files) ──")
     seq_times: list[float] = []
     seq_texts: list[str] = []
     seq_steps: list[int] = []
@@ -315,18 +418,22 @@ def run_one_config(config_name, max_diff_chars, max_diff_tokens, diff_cap_label,
 
     total_seq = sum(seq_times)
     print(f"  TOTAL: {total_seq:.3f}s  ({total_seq / n_files:.3f}s avg per file)")
+    if llm_total_wall is not None:
+        dllm_seq_vs_llm = llm_total_wall / total_seq if total_seq > 0 else float("inf")
+        marker = "✓ dLLM faster" if dllm_seq_vs_llm > 1.0 else "✗ LLM faster"
+        print(f"  dLLM-seq vs LLM-seq: {dllm_seq_vs_llm:.2f}×  ({marker})")
     print()
 
     if not no_summaries:
-        print("── Generated summaries (sequential) ──")
+        print("── Generated summaries (dLLM sequential) ──")
         for i, (fn, _) in enumerate(file_diffs):
             print(f"\n  [{i}] {fn}:")
             for line in seq_texts[i].strip().splitlines():
                 print(f"      {line}")
         print()
 
-    # Batch runs
-    speedup_table: list[tuple[int, float]] = []
+    # ── dLLM batch runs ──────────────────────────────────────────────────
+    speedup_table: list[tuple[int, float, float]] = []  # (bs, vs_dllm_seq, vs_llm_seq)
     batch_results: dict = {}
 
     ran_effective_bs = set()
@@ -346,20 +453,26 @@ def run_one_config(config_name, max_diff_chars, max_diff_tokens, diff_cap_label,
         ran_effective_bs.add(effective_bs)
 
         all_note = f" → using all {effective_bs} files" if bs != effective_bs else ""
-        seq_baseline = sum(seq_times[:effective_bs])
+        dllm_seq_baseline = sum(seq_times[:effective_bs])
+        llm_seq_baseline = sum(llm_per_file[:effective_bs]) if llm_total_wall is not None else None
 
         if effective_bs == 1:
+            vs_llm = (llm_seq_baseline / seq_times[0]) if llm_seq_baseline else None
             print_batch_report(
-                f"── Batch size {bs}{all_note}  (file 0) ──",
+                f"── dLLM batch={bs}{all_note}  (file 0) ──",
                 seq_times[0], seq_steps[0],
                 [len(all_ids[0])], [seq_gen_tok[0]],
                 len(all_ids[0]), max_new_tokens,
             )
-            print(f"  Seq baseline (file 0)       : {seq_baseline:.3f}s")
-            print(f"  Speedup vs sequential       : 1.00×  (this IS the baseline)")
-            speedup_table.append((bs, 1.0))
+            print(f"  dLLM-seq baseline (file 0)  : {dllm_seq_baseline:.3f}s")
+            if llm_seq_baseline is not None:
+                print(f"  LLM-seq baseline (file 0)   : {llm_seq_baseline:.3f}s")
+                marker = "✓ dLLM faster" if (vs_llm or 0) > 1.0 else "✗ LLM faster"
+                print(f"  Speedup vs LLM-seq          : {vs_llm:.2f}×  ({marker})")
+            speedup_table.append((bs, 1.0, vs_llm or 0.0))
             batch_results[bs] = {
-                "wall_s": seq_times[0], "speedup": 1.0,
+                "wall_s": seq_times[0], "speedup_vs_dllm_seq": 1.0,
+                "speedup_vs_llm_seq": vs_llm,
                 "steps": seq_steps[0], "gen_tokens": [seq_gen_tok[0]],
                 "texts": [seq_texts[0]],
             }
@@ -373,31 +486,36 @@ def run_one_config(config_name, max_diff_chars, max_diff_tokens, diff_cap_label,
                 msgs_subset, tokenizer, model, device, gen_kwargs, max_new_tokens
             )
         except torch.cuda.OutOfMemoryError:
-            print(f"\n── Batch size {bs}{all_note} ──")
+            print(f"\n── dLLM batch={bs}{all_note} ──")
             print(f"  OOM: batch={effective_bs} exceeded available GPU memory. Skipping.")
             torch.cuda.empty_cache()
-            batch_results[bs] = {"wall_s": None, "speedup": None, "oom": True}
+            batch_results[bs] = {"wall_s": None, "speedup_vs_dllm_seq": None,
+                                 "speedup_vs_llm_seq": None, "oom": True}
             continue
 
-        speedup = seq_baseline / wall_s if wall_s > 0 else float("inf")
-        speedup_table.append((bs, speedup))
+        sp_dllm = dllm_seq_baseline / wall_s if wall_s > 0 else float("inf")
+        sp_llm = (llm_seq_baseline / wall_s) if (llm_seq_baseline and wall_s > 0) else None
+        speedup_table.append((bs, sp_dllm, sp_llm or 0.0))
         batch_results[bs] = {
-            "wall_s": wall_s, "speedup": speedup,
+            "wall_s": wall_s, "speedup_vs_dllm_seq": sp_dllm,
+            "speedup_vs_llm_seq": sp_llm,
             "steps": total_steps, "gen_tokens": gen_counts,
             "texts": texts,
         }
 
         print_batch_report(
-            f"── Batch size {bs}{all_note}  (files 0..{effective_bs-1}) ──",
+            f"── dLLM batch={bs}{all_note}  (files 0..{effective_bs-1}) ──",
             wall_s, total_steps, seq_lens, gen_counts, tensor_len, max_new_tokens,
         )
-        print(f"  Seq baseline (files 0..{effective_bs-1})  : {seq_baseline:.3f}s")
-        print(f"  Speedup vs sequential          : {speedup:.2f}×")
-        if speedup < 1.5:
-            print(f"  ⚠  < 1.5× — batching provides little benefit at bs={bs}.")
+        print(f"  dLLM-seq baseline (files 0..{effective_bs-1})  : {dllm_seq_baseline:.3f}s")
+        print(f"  Speedup vs dLLM-seq                   : {sp_dllm:.2f}×")
+        if sp_llm is not None:
+            print(f"  LLM-seq baseline (files 0..{effective_bs-1})   : {llm_seq_baseline:.3f}s")
+            marker = "✓ dLLM faster" if sp_llm > 1.0 else "✗ LLM faster"
+            print(f"  ★ Speedup vs LLM-seq                  : {sp_llm:.2f}×  ({marker})")
 
         if not no_summaries:
-            print(f"\n  Generated summaries (batch={bs}{all_note}):")
+            print(f"\n  Generated summaries (dLLM batch={bs}{all_note}):")
             for i, t in enumerate(texts):
                 fn = file_diffs[i][0]
                 print(f"\n    [{i}] {fn}:")
@@ -405,17 +523,34 @@ def run_one_config(config_name, max_diff_chars, max_diff_tokens, diff_cap_label,
                     print(f"        {line}")
             print()
 
-    # Per-config speedup summary
+    # ── Per-config speedup summary ────────────────────────────────────────
     print(SEP)
     print(f"Speedup summary — config: {config_name}")
-    print(f"  {'Batch':>5}  {'Speedup':>8}  {'Rating'}")
-    print(f"  {'─'*5}  {'─'*8}  {'─'*20}")
-    for bs, sp in speedup_table:
-        rating = "good" if sp >= 2.0 else "marginal" if sp >= 1.5 else "poor"
-        print(f"  {bs:>5}  {sp:>7.2f}×  {rating}")
+    has_llm = llm_total_wall is not None
+    if has_llm:
+        print(f"  {'Batch':>5}  {'vs dLLM-seq':>11}  {'vs LLM-seq':>11}  {'Rating (vs LLM)'}")
+        print(f"  {'─'*5}  {'─'*11}  {'─'*11}  {'─'*20}")
+        for bs, sp_d, sp_l in speedup_table:
+            if sp_l > 1.5:
+                rating = "good"
+            elif sp_l > 1.0:
+                rating = "marginal"
+            elif sp_l > 0:
+                rating = "SLOWER than LLM"
+            else:
+                rating = "—"
+            print(f"  {bs:>5}  {sp_d:>10.2f}×  {sp_l:>10.2f}×  {rating}")
+    else:
+        print(f"  {'Batch':>5}  {'vs dLLM-seq':>11}  {'Rating'}")
+        print(f"  {'─'*5}  {'─'*11}  {'─'*20}")
+        for bs, sp_d, _ in speedup_table:
+            rating = "good" if sp_d >= 2.0 else "marginal" if sp_d >= 1.5 else "poor"
+            print(f"  {bs:>5}  {sp_d:>10.2f}×  {rating}")
     lengths = [len(ids) for ids in all_ids]
     print(f"\n  Prompt length variance: min={min(lengths)}  max={max(lengths)}  "
           f"waste≤{100*(max(lengths)-min(lengths))/max(lengths):.1f}%")
+    if has_llm:
+        print(f"  LLM total : {llm_total_wall:.3f}s   dLLM-seq total: {total_seq:.3f}s")
     print(SEP)
     print()
 
@@ -428,22 +563,32 @@ def run_one_config(config_name, max_diff_chars, max_diff_tokens, diff_cap_label,
         "seq_times": seq_times,
         "seq_total": total_seq,
         "seq_texts": seq_texts,
-        "speedup_table": [[bs, sp] for bs, sp in speedup_table],
+        "llm_total": llm_total_wall,
+        "llm_per_file": llm_per_file,
+        "llm_texts": llm_texts,
+        "llm_gen_tokens": llm_gen_tok,
+        "speedup_table": [[bs, sp_d, sp_l] for bs, sp_d, sp_l in speedup_table],
         "batches": {str(bs): v for bs, v in batch_results.items()},
     }
 
 
 def _print_grid_table(all_results: list, batch_sizes: list) -> None:
     """Print a flat grid comparison table grouping results by task."""
-    GRID_SEP = "═" * 88
+    has_llm = any(r.get("llm_total") is not None for r in all_results)
+    GRID_SEP = "═" * 110
     print(GRID_SEP)
-    print("GRID COMPARISON  (speedup: batch vs same files sequentially)")
+    title = "GRID COMPARISON  (★ = dLLM-batch vs LLM-seq)" if has_llm else "GRID COMPARISON  (speedup: batch vs dLLM-seq)"
+    print(title)
     task_w   = max((len(r.get("task_id", "?")) for r in all_results), default=10)
     config_w = max((len(r["config"])            for r in all_results), default=6)
-    hdr = (f"  {'Task':<{task_w}}  {'BS':>4}  {'SBS':>4}  {'Thresh':>7}"
+    n_files_w = 5
+    hdr = (f"  {'Task':<{task_w}}  {'#F':>{n_files_w}}  {'BS':>4}  {'SBS':>4}  {'Thresh':>7}"
            f"  {'MNT':>5}  {'Config':<{config_w}}")
     for bs in batch_sizes:
-        hdr += f"  {'bs='+str(bs):>7}"
+        if has_llm:
+            hdr += f"  {'★bs='+str(bs):>9}"
+        else:
+            hdr += f"  {'bs='+str(bs):>7}"
     print(hdr)
     print("  " + "─" * (len(hdr) - 2))
     prev_task = None
@@ -452,7 +597,9 @@ def _print_grid_table(all_results: list, batch_sizes: list) -> None:
         if prev_task is not None and tid != prev_task:
             print()  # blank line between tasks
         prev_task = tid
+        n_files = r.get("n_files", len(r.get("prompt_lengths", [])))
         row = (f"  {tid:<{task_w}}"
+               f"  {n_files:>{n_files_w}}"
                f"  {r.get('block_size', '?'):>4}"
                f"  {r.get('small_block_size', '?'):>4}"
                f"  {r.get('threshold', 0.0):>7.2f}"
@@ -464,27 +611,116 @@ def _print_grid_table(all_results: list, batch_sizes: list) -> None:
                 cell = "─"
             elif bdata.get("oom"):
                 cell = "OOM"
-            elif bdata.get("speedup") is not None:
-                cell = f"{bdata['speedup']:.2f}×"
             else:
-                cell = "—"
-            row += f"  {cell:>7}"
+                sp = bdata.get("speedup_vs_llm_seq") if has_llm else bdata.get("speedup_vs_dllm_seq")
+                if sp is not None:
+                    cell = f"{sp:.2f}×"
+                else:
+                    cell = "—"
+            if has_llm:
+                row += f"  {cell:>9}"
+            else:
+                row += f"  {cell:>7}"
         print(row)
     print(GRID_SEP)
+
+    # Print best configs per task (vs LLM)
+    if has_llm:
+        print("\n  BEST CONFIGS (highest speedup vs LLM-seq):")
+        by_task = {}
+        for r in all_results:
+            tid = r.get("task_id", "?")
+            by_task.setdefault(tid, []).append(r)
+        for tid, results in by_task.items():
+            best_sp = 0.0
+            best_r = None
+            best_bs = None
+            for r in results:
+                for bs_str, bdata in r["batches"].items():
+                    sp = bdata.get("speedup_vs_llm_seq")
+                    if sp is not None and sp > best_sp:
+                        best_sp = sp
+                        best_r = r
+                        best_bs = bs_str
+            if best_r is not None:
+                marker = "✓" if best_sp > 1.0 else "✗"
+                n_files = best_r.get("n_files", "?")
+                print(f"    {marker} {tid} ({n_files} files): "
+                      f"{best_sp:.2f}× @ batch={best_bs} "
+                      f"BS={best_r.get('block_size','?')} "
+                      f"SBS={best_r.get('small_block_size','?')} "
+                      f"thresh={best_r.get('threshold','?')} "
+                      f"MNT={best_r.get('max_new_tokens','?')}")
     print()
+
+
+def _select_tasks_by_file_count(all_tasks, target_counts, tasks_per_stratum):
+    """
+    Select tasks whose file count is closest to each target.
+    Returns a list of (target, task) pairs, sorted by target count.
+    """
+    # Pre-compute file counts
+    task_file_counts = []
+    for t in all_tasks:
+        file_diffs = get_per_file_diffs(t)
+        task_file_counts.append((t, len(file_diffs)))
+
+    selected = []
+    used_ids = set()
+    for target in sorted(target_counts):
+        # Sort candidates by distance to target, prefer exact matches
+        candidates = sorted(
+            [(t, n) for t, n in task_file_counts if t["task_id"] not in used_ids],
+            key=lambda x: (abs(x[1] - target), -x[1]),
+        )
+        count = 0
+        for t, n in candidates:
+            if count >= tasks_per_stratum:
+                break
+            # Accept tasks within ±30% of target, or exact if target <= 5
+            if target <= 5:
+                if n != target:
+                    continue
+            else:
+                if abs(n - target) > max(target * 0.3, 2):
+                    continue
+            selected.append((target, t))
+            used_ids.add(t["task_id"])
+            count += 1
+        if count == 0:
+            print(f"⚠  No task found near {target} files, skipping this stratum.",
+                  file=sys.stderr)
+    return selected
 
 
 def main():
     p = argparse.ArgumentParser(
-        description="dLLM batch-size benchmark — grid search over tasks and gen params"
+        description="dLLM-vs-LLM summarisation speed benchmark — "
+                    "find dLLM configs that beat autoregressive LLM"
     )
     p.add_argument("-i", "--input", required=True, help="Input JSONL tasks file")
     p.add_argument("--sample-task", type=int, default=0,
-                   help="Index of the task to use when no --task-id is given (default: 0)")
+                   help="Index of the task to use when no --task-id / --file-counts is given")
     p.add_argument("--task-id", default=None,
-                   help="Comma-separated task IDs to benchmark (all must exist in the input). "
+                   help="Comma-separated task IDs to benchmark. "
                         "Example: --task-id apache_mesos_0597b3c,apache_kafka_460b3a6")
-    p.add_argument("--device", default="cuda:0")
+    p.add_argument("--file-counts", default=None,
+                   help="Comma-separated target file counts for stratified task selection. "
+                        "Selects the closest-matching task(s) for each target. "
+                        "Example: --file-counts 4,8,16,25")
+    p.add_argument("--tasks-per-stratum", type=int, default=1,
+                   help="Number of tasks to select per file-count stratum (default: 1)")
+    p.add_argument("--device", default="cuda:0",
+                   help="Device for dLLM model (default: cuda:0)")
+    p.add_argument("--llm-device", default="cuda:1",
+                   help="Device for LLM model (default: cuda:1). "
+                        "Use a separate GPU for fair speed measurement.")
+    # ── LLM baseline ─────────────────────────────────────────────────────
+    p.add_argument("--llm-model", default=LLM_MODEL_NAME,
+                   help=f"LLM model for sequential baseline (default: {LLM_MODEL_NAME}). "
+                        "Set to 'none' to skip LLM baseline.")
+    p.add_argument("--dllm-model", default=DLLM_MODEL_NAME,
+                   help=f"dLLM model name (default: {DLLM_MODEL_NAME})")
     # ── dLLM grid params — all accept comma-separated values ──────────────
     p.add_argument("--block-sizes", default="32",
                    help="Comma-separated block sizes to sweep (default: 32). "
@@ -558,6 +794,18 @@ def main():
                 print(f"Task ID '{tid}' not found in {args.input}.", file=sys.stderr)
                 sys.exit(1)
             selected_tasks.append(t)
+    elif args.file_counts:
+        target_counts = [int(x.strip()) for x in args.file_counts.split(",")]
+        strata = _select_tasks_by_file_count(all_tasks, target_counts, args.tasks_per_stratum)
+        if not strata:
+            print("No tasks matched the requested file counts.", file=sys.stderr)
+            sys.exit(1)
+        selected_tasks = [t for _, t in strata]
+        print(f"Selected {len(selected_tasks)} task(s) by file-count strata:")
+        for target, t in strata:
+            n = len(get_per_file_diffs(t))
+            print(f"  target={target:>3}  actual={n:>3}  {t['task_id']}")
+        print()
     else:
         selected_tasks = [all_tasks[args.sample_task]]
 
@@ -587,23 +835,33 @@ def main():
     # ── Print grid plan ───────────────────────────────────────────────────
     n_gen_combos = len(valid_bs_sbs) * len(thresholds_grid) * len(mnt_grid)
     n_total = len(selected_tasks) * n_gen_combos * len(specs)
+    use_llm = args.llm_model.lower() != "none"
     print(f"Grid plan: {len(selected_tasks)} task(s) × {n_gen_combos} gen-kwarg combo(s)"
           f" × {len(specs)} diff-cap spec(s) = {n_total} config run(s)")
     print(f"  tasks      : {[t['task_id'] for t in selected_tasks]}")
     print(f"  (bs, sbs)  : {valid_bs_sbs}  thresholds: {thresholds_grid}  mnt: {mnt_grid}")
     print(f"  specs      : {specs}  batch_sizes: {batch_sizes}")
+    print(f"  dLLM device: {args.device}")
+    print(f"  LLM baseline: {'YES — ' + args.llm_model + ' on ' + args.llm_device if use_llm else 'DISABLED'}")
     print()
 
-    # ── Load model ────────────────────────────────────────────────────────
+    # ── Load models ───────────────────────────────────────────────────────
     device = args.device
-    tokenizer, model = load_dllm(device, compile_model=args.compile)
+    llm_device = args.llm_device
+    dllm_model_name = args.dllm_model
+    tokenizer, model = load_dllm(device, compile_model=args.compile, model_name=dllm_model_name)
+
+    llm_tokenizer, llm_model = None, None
+    if use_llm:
+        llm_tokenizer, llm_model = load_llm(args.llm_model, llm_device)
+        print(f"  dLLM on {device}, LLM on {llm_device}")
 
     # ── Warmup: one real mdm_sample per unique valid (block_size, sbs) pair
     if not args.no_warmup:
         first_file_diffs = get_per_file_diffs(selected_tasks[0])
         _fn, _fd = first_file_diffs[0]
         _warmup_msgs = build_summary_messages(_fn, _fd, max_diff_chars=600)
-        print(f"Warming up {len(valid_bs_sbs)} (block_size, sbs) combination(s) ...")
+        print(f"Warming up dLLM — {len(valid_bs_sbs)} (block_size, sbs) combination(s) ...")
         for _bs, _sbs in valid_bs_sbs:
             _gk = {
                 "block_size": _bs, "small_block_size": _sbs,
@@ -614,10 +872,38 @@ def main():
             torch.cuda.synchronize(device)
             print(f"  block_size={_bs}  sbs={_sbs} ✓")
         torch.cuda.reset_peak_memory_stats(device)
-        print("Warm-up complete — CUDA kernels primed for all block-size variants.\n")
+        print("dLLM warm-up complete.\n")
+
+        if use_llm:
+            print("Warming up LLM ...")
+            run_llm_sequential([_warmup_msgs], llm_model, llm_tokenizer, llm_device, mnt_grid[0])
+            torch.cuda.reset_peak_memory_stats(llm_device)
+            print("LLM warm-up complete.\n")
+
+    # ── Checkpoint: load previously completed results ─────────────────────
+    ckpt_path = None
+    completed_keys = set()
+    all_results = []
+    if args.output_file:
+        ckpt_path = args.output_file + ".ckpt.jsonl"
+        if Path(ckpt_path).exists():
+            print(f"Resuming from checkpoint: {ckpt_path}")
+            with open(ckpt_path, encoding="utf-8") as f:
+                for line in f:
+                    line = line.strip()
+                    if line:
+                        r = json.loads(line)
+                        all_results.append(r)
+                        key = (r.get("task_id"), r.get("config"),
+                               r.get("block_size"), r.get("small_block_size"),
+                               r.get("threshold"), r.get("max_new_tokens"))
+                        completed_keys.add(key)
+            print(f"  Loaded {len(all_results)} completed result(s), skipping those.\n")
+
+    # ── LLM baseline cache: avoid re-running LLM for same (task, spec, mnt) ──
+    llm_cache = {}  # key: (task_id, spec, mnt) → {texts, per_file, total_wall, gen_tok}
 
     # ── Main grid loop ────────────────────────────────────────────────────
-    all_results = []
     for task in selected_tasks:
         task_id = task["task_id"]
         file_diffs = get_per_file_diffs(task)
@@ -641,9 +927,17 @@ def main():
                 "top_p": 0.95,
             }
             for spec in specs:
+                # Skip if already completed (checkpoint resume)
+                run_key = (task_id, spec, block_size, sbs, threshold, mnt)
+                if run_key in completed_keys:
+                    print(f"  [skip] already completed: {spec} BS={block_size} SBS={sbs} T={threshold} MNT={mnt}")
+                    continue
+
                 max_diff_chars, max_diff_tokens, diff_cap_label = resolve_diff_cap(
                     spec, file_diffs, tokenizer
                 )
+                llm_cache_key = (task_id, spec, mnt)
+                cached_llm = llm_cache.get(llm_cache_key)
                 result = run_one_config(
                     config_name=spec,
                     max_diff_chars=max_diff_chars,
@@ -659,13 +953,31 @@ def main():
                     no_summaries=args.no_summaries,
                     sort_by_length=not args.no_sort,
                     use_all_files=args.use_all_files,
+                    llm_model=llm_model,
+                    llm_tokenizer=llm_tokenizer,
+                    llm_device=llm_device,
+                    cached_llm=cached_llm,
                 )
-                result["task_id"]        = task_id
-                result["block_size"]     = block_size
+                # Cache LLM results for reuse by other dLLM grid points
+                if llm_cache_key not in llm_cache and result.get("llm_total") is not None:
+                    llm_cache[llm_cache_key] = {
+                        "texts": result["llm_texts"],
+                        "per_file": result["llm_per_file"],
+                        "total_wall": result["llm_total"],
+                        "gen_tok": result["llm_gen_tokens"],
+                    }
+                result["task_id"]          = task_id
+                result["n_files"]          = n_files
+                result["block_size"]       = block_size
                 result["small_block_size"] = sbs
-                result["threshold"]      = threshold
-                result["max_new_tokens"] = mnt
+                result["threshold"]        = threshold
+                result["max_new_tokens"]   = mnt
                 all_results.append(result)
+
+                # Incremental checkpoint save
+                if ckpt_path:
+                    with open(ckpt_path, "a", encoding="utf-8") as f:
+                        f.write(json.dumps(result) + "\n")
 
     # ── Final grid comparison table ───────────────────────────────────────
     if len(all_results) > 1:

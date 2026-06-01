@@ -1,0 +1,12 @@
+{
+  "modes": ["llm_llm"],
+  "devices": ["cuda:0", "cuda:1"],
+  "llm_generator": {
+    "model": "Qwen/Qwen2.5-7B-Instruct",
+    "quantization": null
+  },
+  "llm_summariser": {
+    "model": "Qwen/Qwen2.5-7B-Instruct",
+    "quantization": null
+  }
+}

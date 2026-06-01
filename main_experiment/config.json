@@ -1,0 +1,57 @@
+{
+  "input": "build_tasks/tasks_tags.jsonl",
+  "output_file": "main_experiment/results.json",
+  "resume": true,
+
+  "modes": ["dllm_only", "llm_only", "dllm_llm", "llm_llm"],
+
+  "devices": ["cuda:0"],
+
+  "dllm": {
+    "model": "Efficient-Large-Model/Fast_dLLM_v2_1.5B",
+    "quantization": null,
+    "block_size": 32,
+    "small_block_size": 8,
+    "threshold": 0.8,
+    "use_block_cache": true,
+    "temperature": 0.0,
+    "top_p": 0.95,
+    "compile": false,
+    "low_cpu_mem_usage": false
+  },
+
+  "llm_generator": {
+    "model": "Qwen/Qwen2.5-1.5B-Instruct",
+    "quantization": null,
+    "torch_dtype": "auto",
+    "do_sample": false,
+    "temperature": 1.0,
+    "top_p": 0.95,
+    "repetition_penalty": 1.0
+  },
+
+  "llm_summariser": {
+    "model": "Qwen/Qwen2.5-1.5B-Instruct",
+    "quantization": null,
+    "torch_dtype": "auto",
+    "do_sample": false,
+    "temperature": 1.0,
+    "top_p": 0.95,
+    "repetition_penalty": 1.0
+  },
+
+  "summary": {
+    "max_new_tokens": 256,
+    "batch_size": 4,
+    "diff_cap": "600",
+    "sort_by_length": true
+  },
+
+  "cmg": {
+    "max_new_tokens": 128
+  },
+
+  "sample": null,
+  "task_ids": null,
+  "no_summaries_in_output": false
+}

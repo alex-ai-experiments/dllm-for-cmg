@@ -347,6 +347,7 @@ PROMPT_CLOSING_NO_TAGS = """Given the following diff, write ONLY the appropriate
 def make_tasks(
     dataset_path: str,
     tasks_path: str,
+    min_diff_length: int | None = None,
     max_diff_length: int | None = MAX_DIFF_LENGTH,
     run_stats: bool = False,
     basic_system_prompt: bool = False,
@@ -380,6 +381,10 @@ def make_tasks(
             continue
 
         diff_length = len(filtered_diff)
+
+        if min_diff_length is not None and diff_length < min_diff_length:
+            stats.record(f"diff too short (<{min_diff_length})", task_id)
+            continue
 
         if max_diff_length is not None and diff_length > max_diff_length:
             stats.record(f"diff too long (>{max_diff_length})", task_id)
@@ -559,6 +564,13 @@ if __name__ == "__main__":
         help="Path for the output tasks.jsonl (default: tasks.jsonl)",
     )
     parser.add_argument(
+        "--min-diff-length",
+        type=int,
+        default=None,
+        metavar="N",
+        help="Skip commits whose filtered diff is shorter than N characters (default: no limit)",
+    )
+    parser.add_argument(
         "--max-diff-length",
         type=int,
         default=None,
@@ -590,6 +602,7 @@ if __name__ == "__main__":
     make_tasks(
         dataset_path       = args.dataset,
         tasks_path         = args.tasks,
+        min_diff_length    = args.min_diff_length,
         max_diff_length    = args.max_diff_length,
         run_stats          = args.stats,
         basic_system_prompt= args.basic_system_prompt,

@@ -1,0 +1,33 @@
+{
+  "RQ_a_dllm_vs_llm_twostep": {
+    "description": "How dLLMs improve the 2-step pipeline (dllm_llm vs llm_llm)",
+    "dllm_llm": {
+      "num_samples": 1200,
+      "corpus_bleu4": 0.0085,
+      "corpus_bleu_code": 0.1861,
+      "avg_rougeL": 0.152,
+      "avg_meteor": 0.1196,
+      "avg_cider": 0.301,
+      "avg_total_wall_s": 30.1821,
+      "avg_summary_wall_s": 25.7297,
+      "avg_dllm_tok_per_step": 1.6757,
+      "avg_qs_meteor": 0.1033
+    },
+    "llm_llm": {
+      "num_samples": 1200,
+      "corpus_bleu4": 0.0092,
+      "corpus_bleu_code": 0.1544,
+      "avg_rougeL": 0.1563,
+      "avg_meteor": 0.1278,
+      "avg_cider": 0.3095,
+      "avg_total_wall_s": 19.9859,
+      "avg_summary_wall_s": 15.8964,
+      "avg_llm_summary_tps": 5.724,
+      "avg_qs_meteor": 0.1476
+    },
+    "summary_speedup": 0.618,
+    "total_speedup": 0.662,
+    "bleu4_delta": -0.0007,
+    "meteor_delta": -0.0082
+  }
+}
